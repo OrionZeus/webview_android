@@ -1,1 +1,10 @@
-
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/app/app-release.apk
+/app/src/main/assets/loop.json
+/app/yineng_init.apk
+/gradle.properties

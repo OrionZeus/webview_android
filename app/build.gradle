@@ -1,0 +1,104 @@
+apply plugin: 'com.android.application'
+
+// 默认版本号
+ext.appVersionNumber = ""
+// 默认apk输出路径
+ext.appReleaseDir = "../build/"
+// 默认apk名称
+ext.appName = "apk_Release"
+//默认渠道名
+ext.channelName = ""
+//默认包名
+ext.appPackeName = 'com.yineng.yishizhizun'
+
+// 加载版本信息配置文件方法
+def loadProperties() {
+    def proFile = file("../local.properties")
+    Properties pro = new Properties()
+    proFile.withInputStream { stream ->
+        pro.load(stream)
+    }
+    if (pro.containsKey('appVersionNumber')) appVersionNumber = pro.appVersionNumber
+    if (pro.containsKey('appReleaseDir')) appReleaseDir = pro.appReleaseDir
+    if (pro.containsKey('appName')) appName = pro.appName
+    if (pro.containsKey('channelName')) channelName = pro.channelName
+    if (pro.containsKey('appPackeName')) appPackeName = pro.appPackeName
+
+    if (pro.containsKey('keyAlias') && pro.containsKey('keyPassword') &&
+            pro.containsKey('storeFile') && pro.containsKey('storePassword')) {
+        android.signingConfigs.release.storeFile = file(pro['storeFile'])
+        android.signingConfigs.release.storePassword = pro['storePassword']
+        android.signingConfigs.release.keyAlias = pro['keyAlias']
+        android.signingConfigs.release.keyPassword = pro['keyPassword']
+    } else {
+    }
+}
+// 加载版本信息
+loadProperties()
+
+android {
+    signingConfigs {
+        config {
+            keyAlias 'yineng'
+            keyPassword '123456'
+            storeFile file('yineng.keystore')
+            storePassword '123456'
+        }
+    }
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
+    defaultConfig {
+        ndk {
+            abiFilters "armeabi"
+        }
+        applicationId = appPackeName
+        minSdkVersion 19
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    //这是应用编译完成
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            //开始输出
+            // output.outputFile = new File(appReleaseDir + appName + ".apk")
+        }
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        maven {
+            url "https://maven.google.com"
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.airbnb.android:lottie:2.5.4'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+'
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
+    implementation 'com.github.dfqin:grantor:2.5'
+    implementation project(':imageselector')
+}
