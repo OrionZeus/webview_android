@@ -47,6 +47,6 @@ public class FingerReader extends BaseJSModule {
         public void onAuthenticationFailed() {
             super.onAuthenticationFailed();
             JSCallback.callJS(callbackId, JSCallback.FAIL, "");
-        }
+    }
     };
 }
