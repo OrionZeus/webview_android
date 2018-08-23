@@ -115,8 +115,10 @@ public class AndroidWebView extends WebView {
         settings.setDisplayZoomControls(false);//隐藏原生的缩放控件
         settings.setSupportMultipleWindows(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
+
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         this.setLayoutParams(layoutParams);
+        setWebContentsDebuggingEnabled(true);
     }
 
     /**
