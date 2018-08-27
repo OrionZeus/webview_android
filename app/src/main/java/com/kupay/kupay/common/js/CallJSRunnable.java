@@ -1,7 +1,5 @@
 package com.kupay.kupay.common.js;
 
-import com.kupay.kupay.common.WebViewManager;
-
 /**
  * Created by "iqos_jay@outlook.com" on 2018/6/27.
  */
@@ -15,12 +13,13 @@ public class CallJSRunnable implements Runnable {
 
     @Override
     public void run() {
-        if (WebViewManager.isX5Core()) {
+        try {
             com.tencent.smtt.sdk.WebView webView = (com.tencent.smtt.sdk.WebView) JSEnv.getEnv(JSEnv.WEBVIEW);
             webView.evaluateJavascript(func, null);
-        } else {
+        } catch (Exception e) {
             android.webkit.WebView webView = (android.webkit.WebView) JSEnv.getEnv(JSEnv.WEBVIEW);
             webView.evaluateJavascript(func, null);
+            e.printStackTrace();
         }
     }
 }

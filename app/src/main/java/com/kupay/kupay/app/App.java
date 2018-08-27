@@ -67,7 +67,7 @@ public class App extends BaseWebViewActivity implements AppView {
         super.createWebView();
         mLlContent.removeAllViews();
         mLlContent.addView(mWebView);
-        Log.e(TAG, "onCreate: "+System.currentTimeMillis() );
+        Log.e(TAG, "onCreate: " + System.currentTimeMillis());
 
     }
 
@@ -120,6 +120,22 @@ public class App extends BaseWebViewActivity implements AppView {
         mAnimView.cancelAnimation();
         mAnimView.setVisibility(View.GONE);
         mLlAnim.setVisibility(View.GONE);
+    }
+
+    /**
+     * Take care of popping the fragment back stack or finishing the activity
+     * as appropriate.
+     */
+    @Override
+    public void onBackPressed() {
+        try {
+            android.webkit.WebView webView = (android.webkit.WebView) JSEnv.getEnv(JSEnv.WEBVIEW);
+            webView.evaluateJavascript(String.format(JS_CALLBACK, ON_BACK_PRESSED), null);
+        } catch (ClassCastException e) {
+            com.tencent.smtt.sdk.WebView webView = (com.tencent.smtt.sdk.WebView) JSEnv.getEnv(JSEnv.WEBVIEW);
+            webView.evaluateJavascript(String.format(JS_CALLBACK, ON_BACK_PRESSED), null);
+            e.printStackTrace();
+        }
     }
 
     /**
