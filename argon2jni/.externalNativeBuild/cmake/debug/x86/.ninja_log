@@ -1,0 +1,9 @@
+# ninja log v5
+2066	4665	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/thread.c.o	7f9551a31cd6d31b
+997	4790	0	CMakeFiles/argon2jni.dir/src/main/c/argon2jni.c.o	f6ddb8af0107f5f
+1	4791	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/argon2.c.o	db7b6fb5cdece174
+2299	5078	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/blake2/blake2b.c.o	99a7000ae53a1e10
+1320	5081	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/core.c.o	e4fc96398587fca9
+425	5161	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/ref.c.o	cc1949ee45f63e2
+4675	5309	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/encoding.c.o	157e90dff832c782
+5309	7294	0	../../../../build/intermediates/cmake/debug/obj/x86/libargon2jni.so	d9d0bff20b850d53

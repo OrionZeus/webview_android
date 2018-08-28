@@ -1,0 +1,25 @@
+# ninja log v5
+112	943	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/encoding.c.o	c0eacc0a7e19bc56
+301	988	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/argon2.c.o	a3e7986ed98a0cf1
+1	988	0	CMakeFiles/argon2jni.dir/src/main/c/argon2jni.c.o	cfdffefdbd66b0ef
+201	1005	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/ref.c.o	14268ce2ded0e5ab
+35	1008	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/blake2/blake2b.c.o	4147f5195dc551d4
+389	1157	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/core.c.o	dd90dde700f25c31
+943	1167	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/thread.c.o	2f40db9b15cd514f
+1167	2185	0	../../../../build/intermediates/cmake/release/obj/armeabi-v7a/libargon2jni.so	322bf5af2012a885
+20	875	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/thread.c.o	2f40db9b15cd514f
+244	974	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/argon2.c.o	a3e7986ed98a0cf1
+149	975	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/encoding.c.o	c0eacc0a7e19bc56
+90	996	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/blake2/blake2b.c.o	4147f5195dc551d4
+65	997	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/ref.c.o	14268ce2ded0e5ab
+201	1032	0	CMakeFiles/argon2jni.dir/src/main/c/argon2jni.c.o	cfdffefdbd66b0ef
+875	1452	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/core.c.o	dd90dde700f25c31
+1452	2675	0	../../../../build/intermediates/cmake/release/obj/armeabi-v7a/libargon2jni.so	322bf5af2012a885
+85	551	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/argon2.c.o	a3e7986ed98a0cf1
+7	587	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/blake2/blake2b.c.o	4147f5195dc551d4
+327	587	0	CMakeFiles/argon2jni.dir/src/main/c/argon2jni.c.o	cfdffefdbd66b0ef
+142	588	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/core.c.o	dd90dde700f25c31
+354	610	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/thread.c.o	2f40db9b15cd514f
+240	610	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/ref.c.o	14268ce2ded0e5ab
+551	741	0	CMakeFiles/argon2jni.dir/src/main/c/phc-winner-argon2/src/encoding.c.o	c0eacc0a7e19bc56
+741	1031	0	../../../../build/intermediates/cmake/release/obj/armeabi-v7a/libargon2jni.so	322bf5af2012a885
