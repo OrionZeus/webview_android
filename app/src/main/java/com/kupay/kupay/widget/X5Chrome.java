@@ -12,16 +12,20 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
-import com.tencent.smtt.export.external.interfaces.JsResult;
-import com.tencent.smtt.sdk.WebChromeClient;
-import com.tencent.smtt.sdk.WebSettings;
-import com.tencent.smtt.sdk.WebView;
-import com.tencent.smtt.sdk.WebViewClient;
 import com.kupay.kupay.R;
 import com.kupay.kupay.callback.WebViewLoadProgressCallback;
 import com.kupay.kupay.common.js.JSBridge;
 import com.kupay.kupay.common.js.JSEnv;
+import com.kupay.kupay.intercepter.Interceptor;
+import com.kupay.kupay.intercepter.InterceptorHandler;
 import com.kupay.kupay.util.Logger;
+import com.tencent.smtt.export.external.interfaces.JsResult;
+import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
+import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
+import com.tencent.smtt.sdk.WebChromeClient;
+import com.tencent.smtt.sdk.WebSettings;
+import com.tencent.smtt.sdk.WebView;
+import com.tencent.smtt.sdk.WebViewClient;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -107,6 +111,7 @@ public class X5Chrome extends WebView {
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         this.setLayoutParams(layoutParams);
+        setWebContentsDebuggingEnabled(true);
     }
 
     /**
@@ -139,6 +144,10 @@ public class X5Chrome extends WebView {
                 public void onPageStarted(WebView view, String url, Bitmap favicon) {
                     super.onPageStarted(view, url, favicon);
                     setShowTimeOut(false);
+                    if (null != mTimer) {
+                        mTimer.cancel();
+                        mTimer.purge();
+                    }
                     mTimer = new Timer();
                     TimerTask timerTask = new TimerTask() {
                         @Override
@@ -183,7 +192,32 @@ public class X5Chrome extends WebView {
                     }
                     return true;
                 }
+
+                @Override
+                public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                    Interceptor interceptor = new Interceptor();
+                    Uri uri = request.getUrl();
+                    interceptor.setWebview(view);
+
+                    InterceptorHandler handler = interceptor.GetInterceptHandle(uri);
+                    if (handler == null) {
+                        return super.shouldInterceptRequest(view, request);
+                    }
+
+                    WebResourceResponse response = (WebResourceResponse)handler.handle(interceptor);
+                    if (response == null) {
+                        return super.shouldInterceptRequest(view, request);
+                    }
+
+                    HashMap<String, String> extraHeaders = new HashMap<>();
+                    extraHeaders.put("Referer", uri.toString());
+                    // 设置一个本地加载标签
+                    extraHeaders.put("X-From-Mobile", "1");
+                    response.setResponseHeaders(extraHeaders);
+                    return response;
+                }
             });
+
             String url = ctx.getResources().getString(R.string.init_url);
             // 需要加上referer，否则有些服务器会拒绝加载页面
             HashMap<String, String> extraHeaders = new HashMap<>();

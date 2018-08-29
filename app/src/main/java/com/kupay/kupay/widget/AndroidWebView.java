@@ -10,9 +10,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -23,12 +23,12 @@ import com.kupay.kupay.R;
 import com.kupay.kupay.callback.WebViewLoadProgressCallback;
 import com.kupay.kupay.common.js.JSBridge;
 import com.kupay.kupay.common.js.JSEnv;
+import com.kupay.kupay.common.js.JSIntercept;
 import com.kupay.kupay.intercepter.Interceptor;
 import com.kupay.kupay.intercepter.InterceptorHandler;
 import com.kupay.kupay.util.Logger;
 
 import java.lang.ref.WeakReference;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -97,6 +97,7 @@ public class AndroidWebView extends WebView {
         //桥接接口
         JSEnv.setEnv(JSEnv.WEBVIEW, this);
         this.addJavascriptInterface(new JSBridge(), "JSBridge");
+        this.addJavascriptInterface(new JSIntercept(), "JSIntercept");
         String ua = settings.getUserAgentString();
         settings.setUserAgentString(ua + " YINENG_ANDROID/1.0");
         settings.setJavaScriptEnabled(true);//可以与js交互
@@ -154,6 +155,10 @@ public class AndroidWebView extends WebView {
                 public void onPageStarted(WebView view, String url, Bitmap favicon) {
                     super.onPageStarted(view, url, favicon);
                     setShowTimeOut(false);
+                    if (null != mTimer) {
+                        mTimer.cancel();
+                        mTimer.purge();
+                    }
                     mTimer = new Timer();
                     TimerTask timerTask = new TimerTask() {
                         @Override
@@ -196,44 +201,25 @@ public class AndroidWebView extends WebView {
                 }
 
                 @Override
-                public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+                public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                     Interceptor interceptor = new Interceptor();
-
-                    try {
-                        url = URLDecoder.decode(url, "utf-8");
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    //String url1 = url;
-                    //url = url.replaceAll("/wallet/(\\w+)/(\\w+)/wallet/", "/wallet/");
-                    //if (!url1.equals(url)) {
-                    //    Log.d("URL Currectify", url1 + " => " + url);
-                    //}
-
-                    InterceptorHandler handler = interceptor.GetInterceptHandle(url);
-
-                    // Do not take over
+                    Uri uri = request.getUrl();
+                    interceptor.setWebview(view);
+                    InterceptorHandler handler = interceptor.GetInterceptHandle(uri);
                     if (handler == null) {
-                        Log.d("Intercept", url + " (pass)");
-                        return super.shouldInterceptRequest(view, url);
+                        return super.shouldInterceptRequest(view, request);
                     }
 
-                    // Take over
-                    Log.d("Intercept", url + " (took over)");
-                    WebResourceResponse response = handler.handle(interceptor);
-
-                    // If cannot handle locally
+                    WebResourceResponse response = (WebResourceResponse)handler.handle(interceptor);
                     if (response == null) {
-                        return super.shouldInterceptRequest(view, url);
+                        return super.shouldInterceptRequest(view, request);
                     }
 
                     HashMap<String, String> extraHeaders = new HashMap<>();
-                    extraHeaders.put("Referer", url);
-                    extraHeaders.put("X-Intercept-Take-Over", "1");
+                    extraHeaders.put("Referer", uri.toString());
+                    // 设置一个本地加载标签
+                    extraHeaders.put("X-From-Mobile", "1");
                     response.setResponseHeaders(extraHeaders);
-
                     return response;
                 }
             });
