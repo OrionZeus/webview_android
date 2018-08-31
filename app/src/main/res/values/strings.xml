@@ -1,11 +1,12 @@
 <resources>
     <string name="app_name">KuPay钱包</string>
-    <string name="init_url">file:///android_asset/index.html</string>
+    <string name="init_url">http://192.168.33.88:8088/dst/boot/index.html</string>
     <string name="compile_web_view_version_code">50</string>
     <string name="connect_url_time_out_value">20000</string>
     <string name="allow_show_x5_core_download_progress">1</string>
     <string name="whether_to_allow_download_in_non_wifi_environment">1</string>
     <string name="whether_show_launch_animation">0</string>
+    <string name="webview_intercept">1</string>
     <string name="launch_animation_least_last_time">3000</string>
     <string name="app_splash_anim_file_name">dotted_loader.json</string>
     <string name="bool_des">1表示“真”、0表示“假”</string>
