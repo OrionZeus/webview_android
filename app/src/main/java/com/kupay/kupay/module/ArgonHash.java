@@ -19,7 +19,6 @@ import de.wuthoehle.argon2jni.SecurityParameters;
  * ArgonHash.
  */
 public class ArgonHash extends BaseJSModule {
-    private int callbackId;
     private int t, m, p, type, hashLen;
     private String pwd, salt;
     private final ProgressDialog dialog;

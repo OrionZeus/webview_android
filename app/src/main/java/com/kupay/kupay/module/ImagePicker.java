@@ -29,7 +29,6 @@ public class ImagePicker extends BaseJSModule {
     private static final String BASE64_IMAGE_HEADER = "data:image/png;base64,";
     private boolean useCamera;
     private int width, height;
-    private int callbackId;
 
 
     /**

@@ -12,7 +12,6 @@ import com.kupay.kupay.common.js.JSCallback;
  * Created by "iqos_jay@outlook.com" on 2018/8/23.
  */
 public class FingerReader extends BaseJSModule {
-    private int callbackId;
 
     public void showFingerPrintTouch(final int callbackId) {
         this.callbackId = callbackId;

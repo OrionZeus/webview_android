@@ -17,7 +17,6 @@ import com.kupay.kupay.common.js.JSCallback;
  * QRCode would be called by javaScript instead of java code.
  */
 public class QRCode extends BaseJSModule {
-    private int callbackId;
 
     public void scan(int callbackId) {
         this.callbackId = callbackId;

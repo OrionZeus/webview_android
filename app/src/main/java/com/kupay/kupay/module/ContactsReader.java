@@ -18,7 +18,6 @@ import com.kupay.kupay.presenter.SelectContactsPresenter;
  * Created by "iqos_jay@outlook.com" on 2018/8/27.
  */
 public class ContactsReader extends BaseJSModule {
-    private int callbackId;
 
     public void readInfo(int callbackId) {
         this.callbackId = callbackId;

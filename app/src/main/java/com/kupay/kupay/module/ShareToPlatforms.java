@@ -43,7 +43,6 @@ public class ShareToPlatforms extends BaseJSModule {
     private static final int PLATFORM_Q_ZONE = 3;//分享到的平台->QQ空间
     private static final int PLATFORM_QQ = 4;//分享到的平台->QQ
     private static final int PLATFORM_LINE = 5;//分享到的平台->LINE
-    private int callbackId;
     private int platform;
 
     /**

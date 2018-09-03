@@ -9,7 +9,6 @@ import android.telephony.TelephonyManager;
 
 import com.kupay.kupay.app.YNApplication;
 import com.kupay.kupay.base.BaseJSModule;
-import com.kupay.kupay.common.JSExecutable;
 import com.kupay.kupay.common.js.JSCallback;
 import com.kupay.kupay.common.js.JSEnv;
 

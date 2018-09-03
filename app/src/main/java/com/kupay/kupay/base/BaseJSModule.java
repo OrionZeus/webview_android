@@ -21,6 +21,11 @@ import com.kupay.kupay.common.js.JSInterface;
  */
 public abstract class BaseJSModule implements JSExecutable, JSInterface {
     /**
+     * The callbackId is a value from the TS,
+     * it will be used when do sth complete no ever it is successful or failed.
+     */
+    protected int callbackId;
+    /**
      * TipInfo:When the application is missing the necessary permissions
      * are displayed to the user's prompt o message.
      */
