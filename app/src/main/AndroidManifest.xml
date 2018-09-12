@@ -107,6 +107,10 @@
             android:name=".app.SelectContactsActivity"
             android:label="选择联系人"
             android:theme="@style/MDTheme" />
+        <!--第二个WebView-->
+        <activity
+            android:name=".app.SecondWebView"
+            android:theme="@style/FullScreenWithStatusBar" />
     </application>
 
 </manifest>

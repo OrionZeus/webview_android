@@ -6,6 +6,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 import com.kupay.kupay.base.BaseJSModule;
+import com.kupay.kupay.common.js.JSCallback;
 import com.kupay.kupay.util.Logger;
 
 import static android.content.Context.SENSOR_SERVICE;
@@ -23,12 +24,21 @@ public class CompassProvider extends BaseJSModule implements SensorEventListener
         mSensorManager = (SensorManager) ctx.getSystemService(SENSOR_SERVICE);
         // 注册传感器(Sensor.TYPE_ORIENTATION(方向传感器);SENSOR_DELAY_FASTEST(0毫秒延迟);
         // SENSOR_DELAY_GAME(20,000毫秒延迟)、SENSOR_DELAY_UI(60,000毫秒延迟))
-        if (null == mSensorManager) return;
+        if (null == mSensorManager) {
+            JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+            return;
+        }
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_FASTEST);
+        JSCallback.callJS(callbackId, JSCallback.FAIL, "");
     }
 
-    public void stopCompass() {
-        mSensorManager.unregisterListener(this);
+    public void stopCompass(int callbackId) {
+        if (null != mSensorManager) {
+            mSensorManager.unregisterListener(this);
+            JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+        } else {
+            JSCallback.callJS(callbackId, JSCallback.FAIL, "根本停不下来！");
+        }
     }
 
     @Override

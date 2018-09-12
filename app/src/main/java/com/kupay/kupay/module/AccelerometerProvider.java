@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 import com.kupay.kupay.base.BaseJSModule;
+import com.kupay.kupay.common.js.JSCallback;
 import com.kupay.kupay.util.Logger;
 
 /**
@@ -25,11 +26,19 @@ public class AccelerometerProvider extends BaseJSModule {
         if (mSensorManager != null) {
             Sensor defaultSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             mSensorManager.registerListener(mSensorListener, defaultSensor, SensorManager.SENSOR_DELAY_UI);
+            JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+        } else {
+            JSCallback.callJS(callbackId, JSCallback.FAIL, "");
         }
     }
 
-    public void stopAccelerometer() {
-        mSensorManager.unregisterListener(mSensorListener);
+    public void stopAccelerometer(int callbackId) {
+        if (null != mSensorManager) {
+            mSensorManager.unregisterListener(mSensorListener);
+            JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+        } else {
+            JSCallback.callJS(callbackId, JSCallback.FAIL, "根本停不下来！");
+        }
     }
 
     class SensorListener implements SensorEventListener {

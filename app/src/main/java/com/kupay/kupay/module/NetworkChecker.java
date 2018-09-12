@@ -13,7 +13,7 @@ public class NetworkChecker extends BaseJSModule {
      *
      * @param callbackId 回调TS层的CallbackId
      */
-    public void getNewworkState(final int callbackId) {
+    public void getNetworkState(final int callbackId) {
         int networkState = InternetUtil.getNetworkState(ctx);
         switch (networkState) {
             case InternetUtil.NETWORK_NONE:
@@ -22,7 +22,7 @@ public class NetworkChecker extends BaseJSModule {
             case InternetUtil.NETWORK_3G:
             case InternetUtil.NETWORK_4G:
             case InternetUtil.NETWORK_MOBILE:
-                JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+                JSCallback.callJS(callbackId, JSCallback.SUCCESS, "网络类型:" + networkState);
                 break;
             default:
                 JSCallback.callJS(callbackId, JSCallback.FAIL, "获取网络状态失败");

@@ -1,5 +1,7 @@
 package com.kupay.kupay.bean;
 
+import com.google.gson.Gson;
+
 /**
  * Created by "iqos_jay@outlook.com" on 2018/8/27.
  */
@@ -174,5 +176,10 @@ public class MobileSystemInfo {
     public MobileSystemInfo setSDKVersion(String SDKVersion) {
         this.SDKVersion = SDKVersion;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }
