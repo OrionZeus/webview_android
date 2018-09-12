@@ -10,6 +10,7 @@ import com.kupay.kupay.app.YNApplication;
 import com.kupay.kupay.common.js.JSEnv;
 
 import org.json.JSONArray;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,11 +39,13 @@ public class Interceptor {
         String isIntercept = YNApplication.getAppCtx().getResources().getString(R.string.webview_intercept);
         if (!"1".equals(isIntercept)) return null;
 
+        if (null == uri) return null;
         if (uri.toString().startsWith("blob:")) return null;
 
         this.uri = uri;
         String path = uri.getPath();
         InterceptorHandler handler = null;
+        if (null == path) return null;
         if (path.startsWith("/$intercept")) {
             handler = new SetInterceptHandler();
         } else if (path.startsWith("/$resinfo")) {
@@ -54,8 +57,8 @@ public class Interceptor {
                 handler = new FetchFromLocalHandler();
             } else {
                 String url = uri.toString();
-                for (int i = 0; i < domains.length; ++i) {
-                    if (url.startsWith(domains[i])) {
+                for (String domain : domains) {
+                    if (url.startsWith(domain)) {
                         handler = new FetchFromLocalHandler();
                     }
                 }
@@ -139,7 +142,7 @@ public class Interceptor {
 
             Log.d("Intercept", "FetchFromLocalHandler--boot: " + fullPath);
             File f = new File(fullPath);
-            if(f.exists() && !f.isDirectory()) {
+            if (f.exists() && !f.isDirectory()) {
                 try {
                     FileInputStream stream = new FileInputStream(f);
                     String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(interceptor.uri.toString()));

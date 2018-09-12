@@ -1,15 +1,18 @@
 package com.kupay.kupay.widget;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.kupay.kupay.R;
@@ -20,6 +23,7 @@ import com.kupay.kupay.common.js.JSIntercept;
 import com.kupay.kupay.intercepter.Interceptor;
 import com.kupay.kupay.intercepter.InterceptorHandler;
 import com.kupay.kupay.util.Logger;
+import com.tencent.smtt.export.external.interfaces.JsPromptResult;
 import com.tencent.smtt.export.external.interfaces.JsResult;
 import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
 import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
@@ -111,6 +115,7 @@ public class X5Chrome extends WebView {
         settings.setDisplayZoomControls(false);//隐藏原生的缩放控件
         settings.setSupportMultipleWindows(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
+        settings.setSupportMultipleWindows(true);// 设置允许开启多窗口
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         this.setLayoutParams(layoutParams);
         setWebContentsDebuggingEnabled(true);
@@ -121,105 +126,8 @@ public class X5Chrome extends WebView {
      */
     private void initClient() {
         try {
-            this.setWebChromeClient(new WebChromeClient() {
-                @Override
-                public boolean onJsAlert(WebView view, String url, String message, final JsResult result) {
-                    new AlertDialog.Builder(ctx)
-                            .setTitle("提示")
-                            .setMessage(message)
-                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    result.confirm();
-                                }
-                            })
-                            .setCancelable(false)
-                            .create()
-                            .show();
-                    return true;
-                }
-            });
-
-
-            this.setWebViewClient(new WebViewClient() {
-                @Override
-                public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                    super.onPageStarted(view, url, favicon);
-                    setShowTimeOut(false);
-                    if (null != mTimer) {
-                        mTimer.cancel();
-                        mTimer.purge();
-                    }
-                    mTimer = new Timer();
-                    TimerTask timerTask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            mTimerOutHandler.sendEmptyMessage(START_CONN);
-                            if (null != mTimer && downloading) {
-                                mTimer.cancel();
-                                mTimer.purge();
-                            }
-                        }
-                    };
-                    mTimer.schedule(timerTask, connectTimeOut, 1);
-                }
-
-                @Override
-                public void onPageFinished(WebView view, String url) {
-                    super.onPageFinished(view, url);
-                    if (null != loadCallback) {
-                        loadCallback.onLoadFinished();
-                    }
-                    if (null != mTimer) {
-                        mTimer.cancel();
-                        mTimer.purge();
-                    }
-                }
-
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    if (url.startsWith("http") || url.startsWith("file")) {
-                        HashMap<String, String> extraHeaders = new HashMap<>();
-                        extraHeaders.put("Referer", view.getUrl()); // 需要加上referer，否则有些服务器会拒绝加载页面
-                        view.loadUrl(url, extraHeaders);
-                        return true;
-                    }
-                    try {
-                        final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        view.getContext().startActivity(intent);
-                    } catch (Exception e) {
-                        // 防止没有安装的情况
-                        e.printStackTrace();
-                    }
-                    return true;
-                }
-
-                @Override
-                public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                    Interceptor interceptor = new Interceptor();
-                    Uri uri = request.getUrl();
-                    interceptor.setWebview(view);
-
-                    InterceptorHandler handler = interceptor.GetInterceptHandle(uri);
-                    if (handler == null) {
-                        return super.shouldInterceptRequest(view, request);
-                    }
-
-                    WebResourceResponse response = (WebResourceResponse)handler.handle(interceptor);
-                    if (response == null) {
-                        return super.shouldInterceptRequest(view, request);
-                    }
-
-                    HashMap<String, String> extraHeaders = new HashMap<>();
-                    extraHeaders.put("Referer", uri.toString());
-                    // 设置一个本地加载标签
-                    extraHeaders.put("X-From-Mobile", "1");
-                    response.setResponseHeaders(extraHeaders);
-                    return response;
-                }
-            });
-
+            this.setWebChromeClient(new MyWebChromeClient());
+            this.setWebViewClient(new MyWebViewClient());
             String url = ctx.getResources().getString(R.string.init_url);
             // 需要加上referer，否则有些服务器会拒绝加载页面
             HashMap<String, String> extraHeaders = new HashMap<>();
@@ -273,6 +181,172 @@ public class X5Chrome extends WebView {
             }
         }
     }
+
+    private class MyWebViewClient extends WebViewClient {
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+            setShowTimeOut(false);
+            if (null != mTimer) {
+                mTimer.cancel();
+                mTimer.purge();
+            }
+            mTimer = new Timer();
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    mTimerOutHandler.sendEmptyMessage(START_CONN);
+                }
+            };
+            mTimer.schedule(timerTask, connectTimeOut, 10);
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            if (null != loadCallback) {
+                loadCallback.onLoadFinished();
+            }
+            if (null != mTimer) {
+                mTimer.cancel();
+                mTimer.purge();
+            }
+        }
+
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            if (null == url) return false;
+            if (url.startsWith("http") || url.startsWith("file")) {
+                HashMap<String, String> extraHeaders = new HashMap<>();
+                extraHeaders.put("Referer", view.getUrl()); // 需要加上referer，否则有些服务器会拒绝加载页面
+                view.loadUrl(url, extraHeaders);
+                return true;
+            }
+            try {
+                final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                view.getContext().startActivity(intent);
+            } catch (Exception e) {
+                // 防止没有安装的情况
+                e.printStackTrace();
+            }
+            return true;
+        }
+
+        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+            Interceptor interceptor = new Interceptor();
+            Uri uri = request.getUrl();
+            interceptor.setWebview(view);
+            InterceptorHandler handler = interceptor.GetInterceptHandle(uri);
+            if (handler == null) {
+                return super.shouldInterceptRequest(view, request);
+            }
+
+            WebResourceResponse response = (WebResourceResponse) handler.handle(interceptor);
+            if (response == null) {
+                return super.shouldInterceptRequest(view, request);
+            }
+
+            HashMap<String, String> extraHeaders = new HashMap<>();
+            extraHeaders.put("Referer", uri.toString());
+            // 设置一个本地加载标签
+            extraHeaders.put("X-From-Mobile", "1");
+            response.setResponseHeaders(extraHeaders);
+            return response;
+        }
+    }
+
+    private class MyWebChromeClient extends WebChromeClient {
+        @Override
+        public boolean onJsAlert(WebView view, String url, String message, final JsResult result) {
+            new AlertDialog.Builder(ctx)
+                    .setTitle("提示")
+                    .setMessage(message)
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            result.confirm();
+                        }
+                    })
+                    .setCancelable(false)
+                    .create()
+                    .show();
+            return true;
+        }
+
+        @Override
+        public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, final JsPromptResult result) {
+            final EditText editText = new EditText(ctx);
+            new AlertDialog.Builder(ctx)
+                    .setMessage(message)
+                    .setView(editText)
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            result.confirm(editText.getText().toString());
+                            editText.setText("");
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            result.cancel();
+                        }
+                    })
+                    .setCancelable(false)
+                    .create()
+                    .show();
+            return true;
+        }
+
+        @Override
+        public boolean onJsConfirm(WebView view, String url, String message, final JsResult result) {
+            new AlertDialog.Builder(ctx)
+                    .setMessage(message)
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            result.confirm();
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            result.cancel();
+                        }
+                    })
+                    .setCancelable(false)
+                    .create()
+                    .show();
+            return true;
+        }
+
+        //                @Override
+//                public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
+//                    Toast.makeText(ctx, "Android WebView 呵呵", Toast.LENGTH_SHORT).show();
+////                    AndroidWebView childView = new AndroidWebView(ctx);
+////                    childView.setLayoutParams(new RelativeLayout.LayoutParams(-1, -1));
+//                    view.setWebViewClient(new WebViewClient() {
+//                        @Override
+//                        public boolean shouldOverrideUrlLoading(WebView wv, String url) {
+//                            wv.loadUrl(url);
+//                            return true;
+//                        }
+//                    });
+////                    initSettings(childView);
+//                    AndroidWebView awv = new AndroidWebView(ctx);
+//                    initSettings(awv);
+//                    AndroidWebView.WebViewTransport transport = (AndroidWebView.WebViewTransport) resultMsg.obj;
+//                    transport.setWebView(awv);
+//                    resultMsg.sendToTarget();
+////                    if (null != mApp) mApp.addView(view);
+//                    return true;
+//                }
+
+    }
+
 
     /**
      * getter

@@ -1,16 +1,16 @@
 {
   "buildFiles": [
-    "D:\\AndroidWorkspace\\Code\\webview_android\\argon2jni\\CMakeLists.txt"
+    "B:\\AndroidWorkSpace\\CompanyProject\\webview_android\\argon2jni\\CMakeLists.txt"
   ],
   "cleanCommands": [
-    "C:\\Users\\user\\AppData\\Local\\Android\\Sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\AndroidWorkspace\\Code\\webview_android\\argon2jni\\.externalNativeBuild\\cmake\\release\\x86 --target clean"
+    "B:\\AndroidSDK\\sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build B:\\AndroidWorkSpace\\CompanyProject\\webview_android\\argon2jni\\.externalNativeBuild\\cmake\\release\\x86 --target clean"
   ],
   "libraries": {
     "argon2jni-Release-x86": {
       "artifactName": "argon2jni",
-      "buildCommand": "C:\\Users\\user\\AppData\\Local\\Android\\Sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\AndroidWorkspace\\Code\\webview_android\\argon2jni\\.externalNativeBuild\\cmake\\release\\x86 --target argon2jni",
+      "buildCommand": "B:\\AndroidSDK\\sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build B:\\AndroidWorkSpace\\CompanyProject\\webview_android\\argon2jni\\.externalNativeBuild\\cmake\\release\\x86 --target argon2jni",
       "abi": "x86",
-      "output": "D:\\AndroidWorkspace\\Code\\webview_android\\argon2jni\\build\\intermediates\\cmake\\release\\obj\\x86\\libargon2jni.so"
+      "output": "B:\\AndroidWorkSpace\\CompanyProject\\webview_android\\argon2jni\\build\\intermediates\\cmake\\release\\obj\\x86\\libargon2jni.so"
     }
   }
 }

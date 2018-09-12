@@ -17,6 +17,7 @@ import com.kupay.kupay.common.js.JSEnv;
 import com.kupay.kupay.common.js.JSInterface;
 import com.kupay.kupay.iview.AppView;
 import com.kupay.kupay.presenter.AppPresenter;
+import com.kupay.kupay.widget.AndroidWebView;
 
 public class App extends BaseWebViewActivity implements AppView {
     private static final String TAG = "App";
@@ -67,8 +68,6 @@ public class App extends BaseWebViewActivity implements AppView {
         super.createWebView();
         mLlContent.removeAllViews();
         mLlContent.addView(mWebView);
-        Log.e(TAG, "onCreate: " + System.currentTimeMillis());
-
     }
 
 
