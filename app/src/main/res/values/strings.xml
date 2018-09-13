@@ -10,4 +10,7 @@
     <string name="launch_animation_least_last_time">600</string><!--动画的最低持续时间(ms)-->
     <string name="app_splash_anim_file_name">dotted_loader.json</string><!--启动的动画-->
     <string name="bool_des">1表示“真”、0表示“假”</string><!--描述-->
+    <!--下面开始是App内所需的String-->
+    <string name="tip_web_view_load_failed">加载失败</string>
+    <string name="tip_web_view_connect_time_out">与服务器的连接超时</string>
 </resources>

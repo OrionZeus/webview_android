@@ -3,5 +3,6 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="color_detail_web_view_des_color">#fff</color>
     <color name="animation_background">#ffff00</color>
 </resources>

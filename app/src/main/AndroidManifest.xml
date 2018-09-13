@@ -102,14 +102,19 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
-        <!--选择联系人-->
+        <!-- 选择联系人 -->
         <activity
             android:name=".app.SelectContactsActivity"
             android:label="选择联系人"
             android:theme="@style/MDTheme" />
-        <!--第二个WebView-->
+        <!-- 第二个WebView -->
         <activity
             android:name=".app.SecondWebView"
+            android:theme="@style/FullScreenWithStatusBar" />
+        <!--要打开查看详情的WebView-->
+        <activity
+            android:name=".app.DetailDesWebView"
+            android:screenOrientation="portrait"
             android:theme="@style/FullScreenWithStatusBar" />
     </application>
 

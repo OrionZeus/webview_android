@@ -39,7 +39,7 @@ public class WebViewManager {
     public void initWebView() {
         if (isX5Core()) {
             //Do not use Android's WebView
-            //Need init the X5 Chrome
+            //Need initData the X5 Chrome
             QbSdk.initX5Environment(YNApplication.getAppCtx(), new QbSdk.PreInitCallback() {
                 @Override
                 public void onViewInitFinished(boolean isX5Core) {

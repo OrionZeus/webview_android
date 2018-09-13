@@ -64,7 +64,7 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
             this.initViews()
         }
         registerAppLifeListener()
-        this.init()
+        this.initData()
     }
 
     /**
@@ -75,7 +75,7 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
     /**
      * Initialize basic data.
      */
-    protected abstract fun init()
+    protected abstract fun initData()
 
     /**
      * Show the toast tip

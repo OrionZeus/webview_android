@@ -37,7 +37,7 @@ public class AccelerometerProvider extends BaseJSModule {
             mSensorManager.unregisterListener(mSensorListener);
             JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
         } else {
-            JSCallback.callJS(callbackId, JSCallback.FAIL, "根本停不下来！");
+            JSCallback.callJS(callbackId, JSCallback.FAIL, "停止失败");
         }
     }
 

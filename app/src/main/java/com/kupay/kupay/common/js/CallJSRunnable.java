@@ -14,10 +14,10 @@ public class CallJSRunnable implements Runnable {
     @Override
     public void run() {
         try {
-            com.tencent.smtt.sdk.WebView webView = (com.tencent.smtt.sdk.WebView) JSEnv.getEnv(JSEnv.WEBVIEW);
+            android.webkit.WebView webView = (android.webkit.WebView) JSEnv.getEnv(JSEnv.WEBVIEW);
             webView.evaluateJavascript(func, null);
         } catch (Exception e) {
-            android.webkit.WebView webView = (android.webkit.WebView) JSEnv.getEnv(JSEnv.WEBVIEW);
+            com.tencent.smtt.sdk.WebView webView = (com.tencent.smtt.sdk.WebView) JSEnv.getEnv(JSEnv.WEBVIEW);
             webView.evaluateJavascript(func, null);
             e.printStackTrace();
         }

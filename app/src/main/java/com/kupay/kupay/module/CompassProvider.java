@@ -29,7 +29,7 @@ public class CompassProvider extends BaseJSModule implements SensorEventListener
             return;
         }
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_FASTEST);
-        JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+        JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
     }
 
     public void stopCompass(int callbackId) {

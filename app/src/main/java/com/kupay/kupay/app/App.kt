@@ -19,13 +19,12 @@ import com.kupay.kupay.widget.AndroidWebView
 import com.kupay.kupay.widget.X5Chrome
 
 class App : BaseWebViewActivity(), AppView {
-
     private lateinit var mRlContent: RelativeLayout
+
     private lateinit var mLlAnim: LinearLayout
     private lateinit var mAnimView: LottieAnimationView
     private var mPdDldPro: ProgressDialog? = null
     private val presenter = AppPresenter(this)
-
     /**
      * Get the layout resource from XML.
      *
@@ -58,15 +57,15 @@ class App : BaseWebViewActivity(), AppView {
     /**
      * Initialize basic data.
      */
-    override fun init() {
+    override fun initData() {
         presenter.initView(this)
         super.createWebView()
         mRlContent.removeAllViews()
         mRlContent.addView(mWebView)
         AndroidWebView.sViewRoot.add(mRlContent)
         X5Chrome.sViewRoot.add(mRlContent)
+        loadUrlIntoWebView(resources.getString(R.string.init_url))
     }
-
 
     /**
      * Show the download dialog.
@@ -75,6 +74,7 @@ class App : BaseWebViewActivity(), AppView {
         if (true == mPdDldPro?.isShowing)
             mPdDldPro?.show()
     }
+
 
     /**
      * Update X5Core's download Progress
@@ -169,24 +169,9 @@ class App : BaseWebViewActivity(), AppView {
      * @param resultCode  the code of result,this mark is set by user,this will be used as mark.
      * @param data        Callback data from last Activity.
      */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val jsImpl = JSEnv.getJsImpl()
-        jsImpl?.onActivityResult(requestCode, resultCode, data)
-        /*if (QRCodeEnable) {
-            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-            if (result == null || result.getContents() == null) {
-                JSCallback.callJS(JSQRCodeScanCallBackID, JSCallback.FAIL, "null");
-                super.onActivityResult(requestCode, resultCode, data);
-            } else {
-                JSCallback.callJS(JSQRCodeScanCallBackID, JSCallback.SUCCESS, result.getContents());
-            }
-        }*/
+        JSEnv.getJsImpl()?.onActivityResult(requestCode, resultCode, data)
     }
-
-    companion object {
-        private val TAG = "App"
-    }
-
 
 }

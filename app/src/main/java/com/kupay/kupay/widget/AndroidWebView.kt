@@ -46,10 +46,10 @@ class AndroidWebView constructor(private val ctx: Context) : WebView(ctx) {
      */
     private fun init() {
         Logger.wtf("Using WebView", "原生")
-        this.post {
+//        this.post {
             initClient(this@AndroidWebView)
             initSettings(this@AndroidWebView)
-        }
+//        }
     }
 
     /**
@@ -58,10 +58,6 @@ class AndroidWebView constructor(private val ctx: Context) : WebView(ctx) {
     @SuppressLint("SetJavaScriptEnabled")
     private fun initSettings(awv: AndroidWebView, initLp: Boolean = true) {
         val settings = awv.settings
-        //桥接接口
-        JSEnv.setEnv(JSEnv.WEBVIEW, awv)
-        awv.addJavascriptInterface(JSBridge(), "JSBridge")
-        awv.addJavascriptInterface(JSIntercept(), "JSIntercept")
         val ua = settings.userAgentString
         settings.userAgentString = "$ua YINENG_ANDROID/1.0"
         settings.javaScriptEnabled = true//可以与js交互
@@ -90,7 +86,7 @@ class AndroidWebView constructor(private val ctx: Context) : WebView(ctx) {
             val layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT)
             awv.layoutParams = layoutParams
         }
-        WebView.setWebContentsDebuggingEnabled(true)
+        setWebContentsDebuggingEnabled(true)
     }
 
     /**
@@ -100,11 +96,11 @@ class AndroidWebView constructor(private val ctx: Context) : WebView(ctx) {
         try {
             awv.webChromeClient = MyWebChromeClient()
             awv.webViewClient = MyWebViewClient()
-            val url = ctx.resources.getString(R.string.init_url)
-            // 需要加上referer，否则有些服务器会拒绝加载页面
-            val extraHeaders = HashMap<String, String>()
-            extraHeaders["Referer"] = url
-            loadUrl(url, extraHeaders)
+//            val url = ctx.resources.getString(R.string.init_url)
+//           //需要加上referer，否则有些服务器会拒绝加载页面
+//            val extraHeaders = HashMap<String, String>()
+//            extraHeaders["Referer"] = url
+//            loadUrl(url, extraHeaders)
         } catch (e: Exception) {
             e.printStackTrace()
         }

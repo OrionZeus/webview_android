@@ -12,7 +12,7 @@ import com.kupay.kupay.common.js.JSInterface;
  * Created by "iqos_jay@outlook.com" on 2018/7/5.
  * BaseJSModule has implemented {@link JSExecutable},
  * it means the class which extends {@link BaseJSModule} will auto implement {@link JSExecutable},
- * it will be also auto add into the JSBridge,then we need not call {@link JSEnv#setClass(String,Class)} as well.
+ * it will be also auto add into the JSBridge,then we need not call {@link JSEnv#setClass(String, Class)} as well.
  * this class will define some basic views or methods,
  * such as : how to show tip on dialog when user refused the application's Permission.
  * Cause is it is unnecessary for us to define the same property and method in different code files.

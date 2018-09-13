@@ -46,7 +46,7 @@ public class SelectContactsActivity extends BaseActivity implements SelectContac
      * Initialize basic data.
      */
     @Override
-    protected void init() {
+    protected void initData() {
         this.addBackButton();
         mFabAdd.setOnClickListener(this);
         LinearLayoutManager llm = new LinearLayoutManager(this);
