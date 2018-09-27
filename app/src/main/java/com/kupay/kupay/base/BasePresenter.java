@@ -7,7 +7,7 @@ import android.app.Activity;
  * BasePresenter
  */
 public abstract class BasePresenter<IV extends BaseView> {
-    protected Activity mActivity;
+    protected Activity ctx;
     protected IV iv;//View's callback for update Activity UI
 
     /**
@@ -17,7 +17,7 @@ public abstract class BasePresenter<IV extends BaseView> {
      * @param mActivity Activity,it is often used as context.
      */
     public BasePresenter(Activity mActivity) {
-        this.mActivity = mActivity;
+        this.ctx = mActivity;
     }
 
     /**

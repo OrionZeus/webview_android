@@ -9,7 +9,7 @@ import android.provider.ContactsContract;
 import android.support.v7.app.AlertDialog;
 
 import com.google.gson.Gson;
-import com.kupay.kupay.app.App;
+import com.kupay.kupay.app.MainActivity;
 import com.kupay.kupay.base.BasePresenter;
 import com.kupay.kupay.bean.ContactsInfo;
 import com.kupay.kupay.iview.SelectContactsView;
@@ -58,7 +58,7 @@ public class SelectContactsPresenter extends BasePresenter<SelectContactsView> {
         };
         mContactsInfoList.clear();
         //根据Uri查询相应的ContentProvider，cursor为获取到的数据集
-        Cursor cursor = mActivity.getContentResolver().query(uri, projection, null, null, null);
+        Cursor cursor = ctx.getContentResolver().query(uri, projection, null, null, null);
         Cursor phonesCursor = null;
         if (null == cursor) return;
         if (cursor.moveToFirst()) {
@@ -73,7 +73,7 @@ public class SelectContactsPresenter extends BasePresenter<SelectContactsView> {
                 };
                 info.setName(name);
                 //根据联系人的ID获取此人的电话号码
-                phonesCursor = mActivity.getContentResolver().query(
+                phonesCursor = ctx.getContentResolver().query(
                         ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                         phoneProjection,
                         ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + id,
@@ -120,7 +120,7 @@ public class SelectContactsPresenter extends BasePresenter<SelectContactsView> {
         if (ContainerUtil.isNullOrEmpty(selectedContacts)) {
             iv.onToast("您未选择任何联系人！");
         } else {
-            AlertDialog alertDialog = new AlertDialog.Builder(mActivity)
+            AlertDialog alertDialog = new AlertDialog.Builder(ctx)
                     .setTitle("提示")
                     .setMessage("确定添加所选择的联系人？")
                     .setNegativeButton("取消", null)
@@ -130,8 +130,8 @@ public class SelectContactsPresenter extends BasePresenter<SelectContactsView> {
                             Gson gson = new Gson();
                             String result = gson.toJson(selectedContacts);
                             intent.putExtra(SELECTED_CONTACTS, result);
-                            mActivity.setResult(App.APP_RESULT_CODE, intent);
-                            mActivity.finish();
+                            ctx.setResult(MainActivity.APP_RESULT_CODE, intent);
+                            ctx.finish();
                         }
                     })
                     .setCancelable(true)

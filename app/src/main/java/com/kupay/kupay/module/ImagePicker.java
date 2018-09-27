@@ -10,8 +10,7 @@ import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
 import com.iqos.imageselector.utils.ImageSelector;
 import com.iqos.imageselector.utils.ImageSelectorUtils;
-import com.kupay.kupay.app.App;
-import com.kupay.kupay.app.YNApplication;
+import com.kupay.kupay.app.MainActivity;
 import com.kupay.kupay.base.BaseJSModule;
 import com.kupay.kupay.common.js.JSCallback;
 import com.kupay.kupay.util.FileUtil;
@@ -43,7 +42,7 @@ public class ImagePicker extends BaseJSModule {
     public void chooseImage(final int callbackId, final int useCamera, final int single, final int max) {
         setUseCamera(1 == useCamera);
         this.callbackId = callbackId;
-        PermissionsUtil.requestPermission(YNApplication.getAppCtx(), new PermissionListener() {
+        PermissionsUtil.requestPermission(ctx, new PermissionListener() {
             @Override
             public void permissionGranted(@NonNull String[] permission) {
                 openGallery(1 == useCamera, 1 == single, max);
@@ -66,7 +65,7 @@ public class ImagePicker extends BaseJSModule {
                 .useCamera(useCamera)//设置是否使用拍照
                 .setSingle(single)//设置是否单选
                 .setMaxSelectCount(max)//图片的最大选择数量，小于等于0时，不限数量。
-                .start(ctx, App.APP_RESULT_CODE);//打开相册
+                .start(ctx, MainActivity.APP_RESULT_CODE);//打开相册
     }
 
     /**
@@ -130,7 +129,7 @@ public class ImagePicker extends BaseJSModule {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case App.APP_RESULT_CODE:
+            case MainActivity.APP_RESULT_CODE:
                 if (null == data) {
                     JSCallback.callJS(callbackId, JSCallback.FAIL, "未选择图片");
                     break;

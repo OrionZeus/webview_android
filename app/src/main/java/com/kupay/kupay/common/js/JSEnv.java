@@ -1,7 +1,5 @@
 package com.kupay.kupay.common.js;
 
-import com.kupay.kupay.util.Logger;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -133,12 +131,11 @@ public final class JSEnv {
         if (m == null) {
             throw new Exception("JSEnv.call method " + methodName + "in class " + className + " don't find");
         }
-        Object r;
+        Object r = null;
         try {
             r = m.invoke(obj, params);
         } catch (Exception e) {
-            Logger.error(TAG, e.getMessage());
-            throw e;
+            e.printStackTrace();
         }
         return r;
     }

@@ -8,10 +8,11 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.widget.Toast
-
 import com.kupay.kupay.common.js.JSEnv
 import com.kupay.kupay.util.Logger
 import com.kupay.kupay.util.ToastManager
+import com.kupay.kupay.widget.AndroidWebView
+import com.kupay.kupay.widget.X5Chrome
 
 /**
  * Created by "iqos_jay@outlook.com" on 2018/6/25.
@@ -139,15 +140,13 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
      */
     private fun gotoBackground() {
         Logger.error("BaseActivity", "App进入后台")
-        try {
-            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as android.webkit.WebView
+        if (BaseWebView.isX5) {
+            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as X5Chrome
             webView.evaluateJavascript(String.format(JS_CALLBACK, ON_APP_PAUSED), null)
-        } catch (e: ClassCastException) {
-            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as com.tencent.smtt.sdk.WebView
+        } else {
+            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as AndroidWebView
             webView.evaluateJavascript(String.format(JS_CALLBACK, ON_APP_PAUSED), null)
-            e.printStackTrace()
         }
-
     }
 
     /**
@@ -155,15 +154,13 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
      */
     private fun gotoForeground() {
         Logger.error("BaseActivity", "App进入前台")
-        try {
-            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as android.webkit.WebView
+        if (BaseWebView.isX5) {
+            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as X5Chrome
             webView.evaluateJavascript(String.format(JS_CALLBACK, ON_APP_RESUMED), null)
-        } catch (e: ClassCastException) {
-            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as com.tencent.smtt.sdk.WebView
+        } else {
+            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as AndroidWebView
             webView.evaluateJavascript(String.format(JS_CALLBACK, ON_APP_RESUMED), null)
-            e.printStackTrace()
         }
-
     }
 
     companion object {
@@ -173,7 +170,6 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
         const val ON_BACK_PRESSED = "onBackPressed"
         private const val SYSTEM_DIALOG_REASON_KEY = "reason"
         private const val SYSTEM_DIALOG_REASON_HOME_KEY = "homekey"
-        const val APP_RESULT_CODE = 134
         protected const val NO_LAYOUT = -1//No Layout Resources.
     }
 }

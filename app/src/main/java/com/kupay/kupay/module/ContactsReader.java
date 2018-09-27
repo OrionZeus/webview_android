@@ -8,7 +8,7 @@ import android.text.TextUtils;
 
 import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
-import com.kupay.kupay.app.App;
+import com.kupay.kupay.app.MainActivity;
 import com.kupay.kupay.app.SelectContactsActivity;
 import com.kupay.kupay.base.BaseJSModule;
 import com.kupay.kupay.common.js.JSCallback;
@@ -25,7 +25,7 @@ public class ContactsReader extends BaseJSModule {
             @Override
             public void permissionGranted(@NonNull String[] permission) {
                 Intent intent = new Intent(ctx, SelectContactsActivity.class);
-                ctx.startActivityForResult(intent, App.APP_RESULT_CODE);
+                ctx.startActivityForResult(intent, MainActivity.APP_RESULT_CODE);
             }
 
             @Override
@@ -76,7 +76,7 @@ public class ContactsReader extends BaseJSModule {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (resultCode) {
-            case App.APP_RESULT_CODE:
+            case MainActivity.APP_RESULT_CODE:
                 if (null == data) {
                     JSCallback.callJS(callbackId, JSCallback.FAIL, "");
                     break;

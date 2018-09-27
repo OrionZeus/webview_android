@@ -4,9 +4,11 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebView;
 
 import com.kupay.kupay.R;
-import com.kupay.kupay.app.YNApplication;
+import com.kupay.kupay.app.App;
 import com.kupay.kupay.common.js.JSEnv;
 
 import org.json.JSONArray;
@@ -14,35 +16,32 @@ import org.json.JSONArray;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class Interceptor {
 
-    Uri uri;
-    Object webview;
+    private Uri uri;
+    private static String[] domains = null;
+    private static boolean fetchFromMobile = true;
+    private Object mWebView;
+    private Context ctx;
 
-    static String[] domains = null;
-    static String bootDir = null;
-    static boolean fetchFromMobile = true;
-
-    public Interceptor() {
+    public Interceptor(Context ctx) {
+        this.ctx = ctx;
         uri = null;
-        webview = null;
     }
 
-    public void setWebview(Object webview) {
-        this.webview = webview;
+
+    public void setWebView(Object webView) {
+        this.mWebView = webView;
     }
+
 
     public InterceptorHandler GetInterceptHandle(Uri uri) {
-
-        String isIntercept = YNApplication.getAppCtx().getResources().getString(R.string.webview_intercept);
+        String isIntercept = ctx.getResources().getString(R.string.web_view_intercept);
         if (!"1".equals(isIntercept)) return null;
-
         if (null == uri) return null;
         if (uri.toString().startsWith("blob:")) return null;
-
         this.uri = uri;
         String path = uri.getPath();
         InterceptorHandler handler = null;
@@ -86,9 +85,9 @@ public class Interceptor {
             }
 
             Object response = null;
-            if (interceptor.webview instanceof android.webkit.WebView) {
+            if (interceptor.mWebView instanceof android.webkit.WebView) {
                 response = new android.webkit.WebResourceResponse("text/json", "UTF-8", in);
-            } else if (interceptor.webview instanceof com.tencent.smtt.sdk.WebView) {
+            } else if (interceptor.mWebView instanceof com.tencent.smtt.sdk.WebView) {
                 response = new com.tencent.smtt.export.external.interfaces.WebResourceResponse("text/json", "UTF-8", in);
             }
             return response;
@@ -106,12 +105,9 @@ public class Interceptor {
                 for (int i = 0; i < domainsArray.length(); i++) {
                     domains[i] = domainsArray.getString(i);
                 }
-
-                bootDir = interceptor.uri.getQueryParameter("bootdir");
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             String result = "true";
             InputStream in = null;
             try {
@@ -121,9 +117,9 @@ public class Interceptor {
             }
 
             Object response = null;
-            if (interceptor.webview instanceof android.webkit.WebView) {
+            if (interceptor.mWebView instanceof android.webkit.WebView) {
                 response = new android.webkit.WebResourceResponse("text/json", "UTF-8", in);
-            } else if (interceptor.webview instanceof com.tencent.smtt.sdk.WebView) {
+            } else if (interceptor.mWebView instanceof com.tencent.smtt.sdk.WebView) {
                 response = new com.tencent.smtt.export.external.interfaces.WebResourceResponse("text/json", "UTF-8", in);
             }
             return response;
@@ -149,9 +145,9 @@ public class Interceptor {
                     String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(interceptor.uri.toString()));
 
                     Object response = null;
-                    if (interceptor.webview instanceof android.webkit.WebView) {
+                    if (interceptor.mWebView instanceof android.webkit.WebView) {
                         response = new android.webkit.WebResourceResponse(mimeType, "UTF-8", stream);
-                    } else if (interceptor.webview instanceof com.tencent.smtt.sdk.WebView) {
+                    } else if (interceptor.mWebView instanceof com.tencent.smtt.sdk.WebView) {
                         response = new com.tencent.smtt.export.external.interfaces.WebResourceResponse(mimeType, "UTF-8", stream);
                     }
                     return response;
@@ -169,13 +165,13 @@ public class Interceptor {
                 }
 
                 Log.d("Intercept", "FetchFromLocalHandler--assets: " + path);
-                InputStream stream = YNApplication.getAppCtx().getAssets().open(path);
+                InputStream stream = ctx.getAssets().open(path);
                 String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(interceptor.uri.toString()));
 
                 Object response = null;
-                if (interceptor.webview instanceof android.webkit.WebView) {
+                if (interceptor.mWebView instanceof android.webkit.WebView) {
                     response = new android.webkit.WebResourceResponse(mimeType, "UTF-8", stream);
-                } else if (interceptor.webview instanceof com.tencent.smtt.sdk.WebView) {
+                } else if (interceptor.mWebView instanceof com.tencent.smtt.sdk.WebView) {
                     response = new com.tencent.smtt.export.external.interfaces.WebResourceResponse(mimeType, "UTF-8", stream);
                 }
                 return response;

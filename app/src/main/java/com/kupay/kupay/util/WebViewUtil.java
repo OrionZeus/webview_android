@@ -40,7 +40,7 @@ public class WebViewUtil {
      */
     public static boolean shouldUseAndroidWebView(WebView webView, Context ctx) {
         int wbCode = getWebViewVersionCode(webView);//get the version of webView
-        String minCode = ctx.getResources().getString(R.string.compile_web_view_version_code);
+        String minCode = ctx.getString(R.string.compile_web_view_version_code);
         //If this webView's version code is letter than value from config
         //The app will use the Android WebView,else use X5
         return wbCode >= Integer.parseInt(minCode);

@@ -33,16 +33,15 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- 读取SDCard权限 -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-    <!-- 读取手机的状态 -->
     <application
-        android:name=".app.YNApplication"
+        android:name=".app.App"
         android:allowBackup="true"
-        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/FullScreenWithStatusBar">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
 
         <!-- Android 7.0 文件共享配置，必须配置 -->
         <provider
@@ -54,7 +53,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        <!-- 启动页 -->
+
         <activity
             android:name=".app.SplashActivity"
             android:screenOrientation="portrait"
@@ -65,19 +64,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- 主Activity -->
         <activity
-            android:name=".app.App"
+            android:name=".app.MainActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/FullScreenWithStatusBar" />
-        <!--
-         &lt;!&ndash; 固定二维码扫描界面为竖屏方向 &ndash;&gt;
-         <activity
-             android:name="com.journeyapps.barcodescanner.CaptureActivity"
-             android:screenOrientation="portrait"
-             tools:replace="screenOrientation" />
-        -->
-        <!-- 相机 -->
+            android:theme="@style/FullScreenWithoutAny" />
+
         <!-- 选择照片 -->
         <activity
             android:name="com.iqos.imageselector.ImageSelectorActivity"
@@ -105,17 +97,8 @@
         <!-- 选择联系人 -->
         <activity
             android:name=".app.SelectContactsActivity"
-            android:label="选择联系人"
-            android:theme="@style/MDTheme" />
-        <!-- 第二个WebView -->
-        <activity
-            android:name=".app.SecondWebView"
-            android:theme="@style/FullScreenWithStatusBar" />
-        <!--要打开查看详情的WebView-->
-        <activity
-            android:name=".app.DetailDesWebView"
-            android:screenOrientation="portrait"
-            android:theme="@style/FullScreenWithStatusBar" />
+            android:label="@string/app_select_contacts_label"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

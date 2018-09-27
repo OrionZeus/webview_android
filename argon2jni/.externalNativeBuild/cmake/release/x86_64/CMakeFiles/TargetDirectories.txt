@@ -1,3 +1,0 @@
-B:/AndroidWorkSpace/CompanyProject/webview_android/argon2jni/.externalNativeBuild/cmake/release/x86_64/CMakeFiles/argon2jni.dir
-B:/AndroidWorkSpace/CompanyProject/webview_android/argon2jni/.externalNativeBuild/cmake/release/x86_64/CMakeFiles/edit_cache.dir
-B:/AndroidWorkSpace/CompanyProject/webview_android/argon2jni/.externalNativeBuild/cmake/release/x86_64/CMakeFiles/rebuild_cache.dir

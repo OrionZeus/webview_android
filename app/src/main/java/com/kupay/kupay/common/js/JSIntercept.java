@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
-import com.kupay.kupay.base.BaseJSModule;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +21,7 @@ public class JSIntercept {
     @JavascriptInterface
     public void saveFile(String path, String base64Str) {
         try {
-            Context context = (Context)JSEnv.getEnv(JSEnv.CONTEXT);
+            Context context = (Context) JSEnv.getEnv(JSEnv.CONTEXT);
             String fullPath = "/data/data/" + context.getPackageName() + "/" + path;
 
             Log.d("Intercept", "JSIntercept.saveFile: " + fullPath);

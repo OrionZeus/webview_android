@@ -3,7 +3,6 @@ package com.kupay.kupay.module;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.text.TextUtils;
-
 import com.kupay.kupay.base.BaseJSModule;
 import com.kupay.kupay.common.js.JSCallback;
 

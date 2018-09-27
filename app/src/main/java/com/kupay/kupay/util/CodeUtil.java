@@ -1,6 +1,6 @@
 package com.kupay.kupay.util;
 
-import com.kupay.kupay.app.YNApplication;
+import com.kupay.kupay.app.App;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -80,7 +80,7 @@ public class CodeUtil {
             for (DexFile file : dexFiles) {
                 for (Enumeration<String> entries = file.entries(); entries.hasMoreElements(); ) {
                     final String s1 = entries.nextElement();
-                    if (s1.contains(YNApplication.getAppCtx().getPackageName())) {
+                    if (s1.contains(App.sAppCtx.getPackageName())) {
                         if (clazz.isAssignableFrom(Class.forName(s1))) {
                             classes.add(Class.forName(s1));
                         }

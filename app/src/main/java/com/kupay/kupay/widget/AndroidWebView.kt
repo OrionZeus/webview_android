@@ -1,55 +1,36 @@
 package com.kupay.kupay.widget
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
 import android.os.Handler
 import android.os.Message
 import android.support.v7.app.AlertDialog
+import android.util.AttributeSet
 import android.webkit.*
 import android.widget.EditText
 import android.widget.RelativeLayout
 import com.kupay.kupay.R
-import com.kupay.kupay.app.App
 import com.kupay.kupay.callback.WebViewLoadProgressCallback
-import com.kupay.kupay.common.js.JSBridge
-import com.kupay.kupay.common.js.JSEnv
-import com.kupay.kupay.common.js.JSIntercept
 import com.kupay.kupay.intercepter.Interceptor
-import com.kupay.kupay.util.Logger
 import java.lang.ref.WeakReference
 import java.util.*
 
 /**
- * Created by "iqos_jay@outlook.com" on 2018/6/21.
- * Google 原生
+ * Created by "iqos_jay@outlook.com" on 2018/9/26.
  */
-class AndroidWebView constructor(private val ctx: Context) : WebView(ctx) {
-    private var connectTimeOut: Int = 0
+class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? = null) : WebView(ctx, attr) {
+    private val connectTimeOut = ctx.resources.getString(R.string.connect_url_time_out_value)
     private var loadCallback: WebViewLoadProgressCallback? = null
     private val mTimerOutHandler = TimerOutHandler(this)
     private var mTimer: Timer? = null
     private var isShowTimeOut = false
 
     init {
-        connectTimeOut = Integer.parseInt(resources.getString(R.string.connect_url_time_out_value))
-        connectTimeOut = if (connectTimeOut >= MIN_TIME_OUT) connectTimeOut else MIN_TIME_OUT
-        this.init()
-    }
-
-    /**
-     * 初始化
-     */
-    private fun init() {
-        Logger.wtf("Using WebView", "原生")
-//        this.post {
-            initClient(this@AndroidWebView)
-            initSettings(this@AndroidWebView)
-//        }
+        initClient(this@AndroidWebView)
+        initSettings(this@AndroidWebView)
     }
 
     /**
@@ -180,11 +161,10 @@ class AndroidWebView constructor(private val ctx: Context) : WebView(ctx) {
             return true
         }
 
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
-            val interceptor = Interceptor()
+            val interceptor = Interceptor(ctx)
             val uri = request.url
-            interceptor.setWebview(view)
+            interceptor.setWebView(view)
             val handler = interceptor.GetInterceptHandle(uri)
                     ?: return super.shouldInterceptRequest(view, request)
             var response = handler.handle(interceptor)
@@ -202,9 +182,9 @@ class AndroidWebView constructor(private val ctx: Context) : WebView(ctx) {
     private inner class MyWebChromeClient : WebChromeClient() {
         override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
             AlertDialog.Builder(ctx)
-                    .setTitle("提示")
+                    .setTitle(R.string.dialog_title_prompt)
                     .setMessage(message)
-                    .setPositiveButton("确定") { _, _ -> result.confirm() }
+                    .setPositiveButton(R.string.dialog_title_ok) { _, _ -> result.confirm() }
                     .setCancelable(false)
                     .create()
                     .show()
@@ -216,11 +196,11 @@ class AndroidWebView constructor(private val ctx: Context) : WebView(ctx) {
             AlertDialog.Builder(ctx)
                     .setMessage(message)
                     .setView(editText)
-                    .setPositiveButton("确定") { _, _ ->
+                    .setPositiveButton(R.string.dialog_title_ok) { _, _ ->
                         result.confirm(editText.text.toString())
                         editText.setText("")
                     }
-                    .setNegativeButton("取消") { _, _ -> result.cancel() }
+                    .setNegativeButton(R.string.dialog_title_cancel) { _, _ -> result.cancel() }
                     .setCancelable(false)
                     .create()
                     .show()
@@ -230,8 +210,8 @@ class AndroidWebView constructor(private val ctx: Context) : WebView(ctx) {
         override fun onJsConfirm(view: WebView, url: String, message: String, result: JsResult): Boolean {
             AlertDialog.Builder(ctx)
                     .setMessage(message)
-                    .setPositiveButton("确定") { _, _ -> result.confirm() }
-                    .setNegativeButton("取消") { _, _ -> result.cancel() }
+                    .setPositiveButton(R.string.dialog_title_ok) { _, _ -> result.confirm() }
+                    .setNegativeButton(R.string.dialog_title_cancel) { _, _ -> result.cancel() }
                     .setCancelable(false)
                     .create()
                     .show()
@@ -288,3 +268,4 @@ class AndroidWebView constructor(private val ctx: Context) : WebView(ctx) {
         val sViewRoot = mutableListOf<RelativeLayout>()
     }
 }
+

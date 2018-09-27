@@ -1,11 +1,7 @@
 <resources>
 
-    <style name="AppTheme" parent="@style/BaseTheme">
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowTranslucentStatus">false</item>
-    </style>
     <!-- Base application theme. -->
-    <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -16,27 +12,12 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:background">@drawable/splash</item>
     </style>
-    <!--满屏-->
-    <style name="FullScreenStyle" parent="@style/BaseTheme">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-    </style>
-    <!--透明-->
-    <style name="TransparentStyle" parent="@style/BaseTheme">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:colorBackground">@android:color/transparent</item>
-    </style>
-    <!--Material Design Standard Theme-->
-    <style name="MDTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="FullScreenWithoutAny" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-    </style>
-    <!--全屏-->
-    <style name="FullScreenWithStatusBar" parent="@style/BaseTheme">
-        <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
+
 </resources>

@@ -7,7 +7,7 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 
-import com.kupay.kupay.app.YNApplication;
+import com.kupay.kupay.app.App;
 import com.kupay.kupay.base.BaseJSModule;
 import com.kupay.kupay.common.js.JSCallback;
 import com.kupay.kupay.common.js.JSEnv;
@@ -24,7 +24,7 @@ public class GetDeviceID extends BaseJSModule {
         Context context = (Context) JSEnv.getEnv(JSEnv.CONTEXT);
         TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         if (tm != null) {
-            if (ActivityCompat.checkSelfPermission(YNApplication.getAppCtx(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(App.sAppCtx, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
             @SuppressLint("HardwareIds")

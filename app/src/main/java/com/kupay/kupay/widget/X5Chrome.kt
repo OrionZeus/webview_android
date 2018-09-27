@@ -54,10 +54,8 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
      */
     private fun init() {
         Logger.wtf("Using WebView", "腾讯")
-//        this.post {
-            initClient(this@X5Chrome)
-            initSettings(this@X5Chrome)
-//        }
+        initClient(this@X5Chrome)
+        initSettings(this@X5Chrome)
     }
 
     /**
@@ -106,11 +104,6 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
         try {
             x5.setWebChromeClient(MyWebChromeClient())
             x5.setWebViewClient(MyWebViewClient())
-//            val url = ctx.resources.getString(R.string.init_url)
-//            // 需要加上referer，否则有些服务器会拒绝加载页面
-//            val extraHeaders = HashMap<String, String>()
-//            extraHeaders["Referer"] = url
-//            loadUrl(url, extraHeaders)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -195,9 +188,9 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
 
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
-            val interceptor = Interceptor()
+            val interceptor = Interceptor(ctx)
             val uri = request.url
-            interceptor.setWebview(view)
+            interceptor.setWebView(view)
             val handler = interceptor.GetInterceptHandle(uri)
                     ?: return super.shouldInterceptRequest(view, request)
 
