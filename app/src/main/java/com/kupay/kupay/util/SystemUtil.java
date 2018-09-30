@@ -96,20 +96,9 @@ public class SystemUtil {
         return android.os.Build.BRAND;
     }
 
-    /**
-     * 获取手机IMEI(需要“android.permission.READ_PHONE_STATE”权限)
-     *
-     * @return 手机IMEI
-     */
-    @SuppressLint("HardwareIds")
+
     public static String getIMEI(Context ctx) {
-        TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Activity.TELEPHONY_SERVICE);
-        if (tm != null) {
-            if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                return tm.getDeviceId();
-            }
-        }
-        return null;
+        return GetDeviceId.getDeviceId(ctx);
     }
 
     /**

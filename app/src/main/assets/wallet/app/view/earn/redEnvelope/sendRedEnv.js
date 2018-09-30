@@ -20,7 +20,7 @@ var root_1 = require("../../../../pi/ui/root");
 var widget_1 = require("../../../../pi/widget/widget");
 var pull_1 = require("../../../net/pull");
 var interface_1 = require("../../../store/interface");
-var store_1 = require("../../../store/store");
+var tools_1 = require("../../../utils/tools");
 
 var SendRedEnv = function (_widget_1$Widget) {
     _inherits(SendRedEnv, _widget_1$Widget);
@@ -35,13 +35,8 @@ var SendRedEnv = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(SendRedEnv.prototype.__proto__ || Object.getPrototypeOf(SendRedEnv.prototype), "create", this).call(this);
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
             this.state = {
-                cfgData: cfg
+                cfgData: tools_1.getLanguage(this)
             };
         }
         /**

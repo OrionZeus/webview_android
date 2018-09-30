@@ -17,6 +17,23 @@
 
 						_node7["placeHolder"] = it1.cfgData.itemTitle[0];
 						//jpair suf
+						//jpair pre
+
+						{
+							var jvalue = "";
+							jvalue = "password";
+							//jpair suf
+
+							_node7["itype"] = jvalue;
+						}
+						//jpair pre
+
+						_node7["clearable"] = true;
+						//jpair suf
+						//jpair pre
+
+						_node7["autofocus"] = true;
+						//jpair suf
 						_addJson(_node7, _$parent7);
 					}_chFunc(_node6);_$parent6.children.push(_node6);
 				}_chFunc(_node5);_$parent5.children.push(_node5);
@@ -27,13 +44,26 @@
 
 						_node10["placeHolder"] = it1.cfgData.itemTitle[1];
 						//jpair suf
+						//jpair pre
+
+						_node10["hideTips"] = true;
+						//jpair suf
 						_addJson(_node10, _$parent10);
 					}_chFunc(_node9);_$parent9.children.push(_node9);
 				}_chFunc(_node8);_$parent8.children.push(_node8);
 			}_$temp = _node4;{
 				var _$parent11 = _$temp;var _node11 = { "attrs": {}, "tagName": "div", "sid": 7 };_node11.children = [];_node11.attrSize = 2;_node11.attrHash = 2036299803;_node11.attrs["w-class"] = "inputItem";_node11.attrs["ev-input-change"] = "rePswChange";_$temp = _node11;{
-					var _$parent12 = _$temp;var _node12 = { "attrs": {}, "tagName": "app-components1-input-input", "sid": 8 };_node12.hasChild = false;_node12.child = null;_node12.attrHash = 0;_$temp = _node12;{
+					var _$parent12 = _$temp;var _node12 = { "attrs": {}, "tagName": "app-components-input-suffixInput", "sid": 8 };_node12.hasChild = false;_node12.child = null;_node12.attrHash = 0;_$temp = _node12;{
 						var _$parent13 = _$temp;var _node13 = {}; //jpair pre
+
+						{
+							var _jvalue = "";
+							_jvalue = "password";
+							//jpair suf
+
+							_node13["itype"] = _jvalue;
+						}
+						//jpair pre
 
 						_node13["placeHolder"] = it1.cfgData.itemTitle[2];
 						//jpair suf
@@ -41,12 +71,16 @@
 
 						_node13["clearable"] = true;
 						//jpair suf
+						//jpair pre
+
+						_node13["available"] = it1.pswEqualed;
+						//jpair suf
 						_addJson(_node13, _$parent13);
 					}_chFunc(_node12);_$parent12.children.push(_node12);
 				}_chFunc(_node11);_$parent11.children.push(_node11);
 			}_chFunc(_node4);_$parent4.children.push(_node4);
 		}_$temp = _node;{
-			var _$parent14 = _$temp;var _node14 = { "attrs": {}, "tagName": "div", "sid": 9 };_node14.children = [];_node14.attrSize = 1;_node14.attrHash = 3929196694;_node14.attrs["style"] = "width: 100%;position: absolute;bottom: 60px;";_$temp = _node14;{
+			var _$parent14 = _$temp;var _node14 = { "attrs": {}, "tagName": "div", "sid": 9 };_node14.children = [];_node14.attrSize = 2;_node14.attrHash = 398681393;_node14.attrs["style"] = "width: 100%;position: absolute;bottom: 60px;";_node14.attrs["ev-btn-tap"] = "btnClicked";_$temp = _node14;{
 				var _$parent15 = _$temp;var _node15 = { "attrs": {}, "tagName": "app-components1-btn-btn", "sid": 10 };_node15.hasChild = false;_node15.child = null;_node15.attrHash = 0;_$temp = _node15;{
 					var _$parent16 = _$temp;var _node16 = {}; //jpair pre
 
@@ -55,20 +89,20 @@
 					//jpair pre
 
 					{
-						var jvalue = "";
-						jvalue = "blue";
+						var _jvalue2 = "";
+						_jvalue2 = "blue";
 						//jpair suf
 
-						_node16["color"] = jvalue;
+						_node16["color"] = _jvalue2;
 					}
 					//jpair pre
 
 					{
-						var _jvalue = "";
-						_jvalue = "margin:0 60px;";
+						var _jvalue3 = "";
+						_jvalue3 = "margin:0 60px;";
 						//jpair suf
 
-						_node16["style"] = _jvalue;
+						_node16["style"] = _jvalue3;
 					}
 					_addJson(_node16, _$parent16);
 				}_chFunc(_node15);_$parent15.children.push(_node15);

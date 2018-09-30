@@ -14,6 +14,7 @@ var push_1 = require("../../net/push");
 var localStorageStore_1 = require("../../store/localStorageStore");
 var store_1 = require("../../store/store");
 var tools_1 = require("../../utils/tools");
+var native_1 = require("../../logic/native");
 // import{getTransaction as Account, Transation, getTokenTransaction as Token, TokenTransations} from "../../../index/rpc_call.s";
 // import { Client } from "../../../pi/net/mqtt_c";
 // import { create } from "../../../pi/net/rpc";
@@ -43,34 +44,7 @@ exports.run = function (cb) {
     // dataCenter.init();
     root_1.popNew('app-view-base-app');
     // popNew('app-view-mine-account-home');
-    // popNew('app-view-wallet-cloudWallet-recharge',{ currencyName:'ETH' });
-    // const t = new Date();
-    // const tx:TransRecordLocal = {
-    //     hash:'0x960f0db2771931ac8d71569a6824793870ac1621396e232146048438d94e734e',
-    //     txType:1,
-    //     fromAddr: '0x040e7783a06e9b994f6e90df5b2933c03f1b8f21',
-    //     toAddr: '0x040e7783a06e9b994f6e90df5b2933c03f1b8f21',
-    //     pay: 0.01,
-    //     time: t.getTime(),
-    //     status:TxStatus.PENDING,
-    //     confirmBlock: 0,
-    //     info: '',
-    //     currencyName: 'ETH',
-    //     fee: 0.0001,
-    //     nonce:15,
-    //     minerFeeLevel:0
-    // };
-    // popNew('app-view-wallet-transaction-transactionDetails',{ tx });
-    // popNew('app-view-wallet-create-createWallet');
-    // popNew('app-view-wallet-create-createWalletByImage');
-    // popNew('app-view-wallet-import-home');
-    // popNew('app-view-earn-home-home',{});
-    // popNew('app-view-earn-redEnvelope-redEnvDetail',{ type:1 });
-    // popNew('app-view-earn-redEnvelope-redEnvHistory');
-    // popNew('app-view-wallet-coinConvert-coinConvert',{ currencyName:'ETH' });
-    // popNew('app-view-earn-exchange-exchange');
-    // popNew('app-view-mine-setting-setting');
-    // popNew('app-components-chooseCurrency-chooseCurrency',{ list:['KT','ETH','BTC'],selected:1 });
+    native_1.getDeviceInfo();
     // popNewPage();
     // 后台切前台
     // backToFront();
@@ -78,18 +52,6 @@ exports.run = function (cb) {
     setTimeout(function () {
         if (cb) cb();
     }, 20);
-    // test();
-    // test();
-    // let wallet = new BTCWallet();
-    // wallet.coinSelector("mjkzmtEEmJt7F6k5nMfJCEuXdcuFqJ37cN", 0.1 * 1e8).then(r => {
-    //     console.log("utxo", r)
-    // });
-    // let output = new Output();
-    // output.amount = 0.001;
-    // output.toAddr = "mzJ1AAKQpMj5eaCL3b4oNuSantXmVgz2tM"
-    // wallet.buildRawTransactionFromSingleAddress("mjkzmtEEmJt7F6k5nMfJCEuXdcuFqJ37cN", output, 10000).then(r => {
-    //     console.log("rawtx", r)
-    // })
 };
 // const rpcFunc = (req:Struct, respClass:Function, callback:Function, timeout: number) => {
 //     rpc(req, (r:Struct) =>{
@@ -154,7 +116,8 @@ var backToFront = function backToFront() {
         if (iType === 'onAppResumed' && ifNeedUnlockScreen()) {
             root_1.popNew('app-view-mine-lockScreen-unlockScreen-unlockScreen', { firstEnter: false });
         } else if (iType === 'onBackPressed') {
-            window.onpopstate();
+            root_1.backCall();
+            // (<any>window).onpopstate();
             // widget.ok && widget.ok();
         }
     };

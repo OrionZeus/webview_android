@@ -18,7 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var root_1 = require("../../../../pi/ui/root");
 var widget_1 = require("../../../../pi/widget/widget");
 var interface_1 = require("../../../store/interface");
-var store_1 = require("../../../store/store");
+var tools_1 = require("../../../utils/tools");
 
 var OpenRedEnvelope = function (_widget_1$Widget) {
     _inherits(OpenRedEnvelope, _widget_1$Widget);
@@ -34,24 +34,17 @@ var OpenRedEnvelope = function (_widget_1$Widget) {
         value: function setProps(props, oldProps) {
             _get(OpenRedEnvelope.prototype.__proto__ || Object.getPrototypeOf(OpenRedEnvelope.prototype), "setProps", this).call(this, props, oldProps);
             this.state = {
-                cfgData: this.config.value.simpleChinese
+                tag: '',
+                openClick: false,
+                cfgData: tools_1.getLanguage(this)
             };
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                this.state.cfgData = this.config.value[lan.languageList[lan.selected]];
-            }
-            var tag = '';
             if (props.rtype === interface_1.RedEnvelopeType.Normal) {
-                tag = this.state.cfgData.tips[0];
+                this.state.tag = this.state.cfgData.tips[0];
             } else if (props.rtype === interface_1.RedEnvelopeType.Random) {
-                tag = this.state.cfgData.tips[1];
+                this.state.tag = this.state.cfgData.tips[1];
             } else if (props.rtype === interface_1.RedEnvelopeType.Invite) {
-                tag = this.state.cfgData.tips[2];
+                this.state.tag = this.state.cfgData.tips[2];
             }
-            this.state = {
-                tag: tag,
-                openClick: false
-            };
         }
         /**
          * 开红包

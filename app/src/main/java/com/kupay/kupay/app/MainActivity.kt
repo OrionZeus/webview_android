@@ -1,6 +1,7 @@
 package com.kupay.kupay.app
 
 import android.content.Intent
+import android.view.WindowManager
 import android.widget.RelativeLayout
 import com.kupay.kupay.R
 import com.kupay.kupay.base.BaseActivity
@@ -10,7 +11,6 @@ import com.kupay.kupay.common.js.JSEnv
 import com.kupay.kupay.common.js.JSIntercept
 import com.kupay.kupay.widget.AndroidWebView
 import com.kupay.kupay.widget.X5Chrome
-import java.util.*
 
 class MainActivity : BaseWebView() {
     private lateinit var mRlRootView: RelativeLayout
@@ -34,6 +34,8 @@ class MainActivity : BaseWebView() {
      * Initialize basic data.
      */
     override fun initData() {
+        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)// 在setContentView之后，适配顶部状态栏
+        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)// 适配底部导航栏
         if (isX5) {
             mX5?.addJavascriptInterface(JSBridge(), JSBridge::class.java.simpleName)
             mX5?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)

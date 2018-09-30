@@ -16,6 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * modalbox
  */
 var widget_1 = require("../../../pi/widget/widget");
+var tools_1 = require("../../utils/tools");
 
 var ModalBox = function (_widget_1$Widget) {
     _inherits(ModalBox, _widget_1$Widget);
@@ -30,7 +31,9 @@ var ModalBox = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(ModalBox.prototype.__proto__ || Object.getPrototypeOf(ModalBox.prototype), "create", this).call(this);
-            this.config = { value: { group: 'top' } };
+            this.state = {
+                cfgData: tools_1.getLanguage(this)
+            };
         }
     }, {
         key: "cancelBtnClick",

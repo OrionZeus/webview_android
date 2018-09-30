@@ -53,7 +53,7 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
      * 初始化
      */
     private fun init() {
-        Logger.wtf("Using WebView", "腾讯")
+        Logger.wtf("Using WebView", "X5Chrome")
         initClient(this@X5Chrome)
         initSettings(this@X5Chrome)
     }

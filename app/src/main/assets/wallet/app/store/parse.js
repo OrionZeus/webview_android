@@ -3,7 +3,7 @@ _$define("app/store/parse", function (require, exports, module){
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var util_1 = require("../../pi/net/websocket/util");
-var config_1 = require("../config");
+var constants_1 = require("../utils/constants");
 // tslint:disable-next-line:max-line-length
 var tools_1 = require("../utils/tools");
 var unitTools_1 = require("../utils/unitTools");
@@ -39,27 +39,27 @@ exports.parseCloudAccountDetail = function (coinType, infos) {
         var behaviorIcon = '';
         switch (itype) {
             case interface_1.TaskSid.mines:
-                behavior = '挖矿';
+                behavior = tools_1.getStaticLanguage().cloudAccountDetail.types[0];
                 behaviorIcon = 'behavior1010.png';
                 break;
             case interface_1.TaskSid.inviteFriends:
-                behavior = '邀请红包';
+                behavior = tools_1.getStaticLanguage().cloudAccountDetail.types[1];
                 behaviorIcon = 'behavior_red_bag.png';
                 break;
             case interface_1.TaskSid.redEnvelope:
-                behavior = amount > 0 ? '领红包' : '发红包';
+                behavior = amount > 0 ? tools_1.getStaticLanguage().cloudAccountDetail.types[2] : tools_1.getStaticLanguage().cloudAccountDetail.types[3];
                 behaviorIcon = 'behavior_red_bag.png';
                 break;
             case interface_1.TaskSid.recharge:
-                behavior = '充值';
+                behavior = tools_1.getStaticLanguage().cloudAccountDetail.types[4];
                 behaviorIcon = 'cloud_charge_icon.png';
                 break;
             case interface_1.TaskSid.withdraw:
-                behavior = '提现';
+                behavior = tools_1.getStaticLanguage().cloudAccountDetail.types[5];
                 behaviorIcon = 'cloud_withdraw_icon.png';
                 break;
             case interface_1.TaskSid.financialManagement:
-                behavior = '理财买入';
+                behavior = tools_1.getStaticLanguage().cloudAccountDetail.types[6];
                 behaviorIcon = 'behavior_manage_money_port.png';
                 break;
             default:
@@ -95,7 +95,7 @@ exports.parseMineRank = function (data) {
         var userData = user ? JSON.parse(user) : '';
         data1.push({
             index: data.value[i][3],
-            name: userData ? userData.nickName : '昵称未设置',
+            name: userData ? userData.nickName : tools_1.getStaticLanguage().userInfo.name,
             avater: userData ? userData.avatar : '',
             num: unitTools_1.kpt2kt(data.value[i][2])
         });
@@ -123,13 +123,57 @@ exports.parseMiningRank = function (data) {
         var userData = user ? JSON.parse(user) : '';
         data2.push({
             index: data.value[i][3],
-            name: userData ? userData.nickName : '昵称未设置',
+            name: userData ? userData.nickName : tools_1.getStaticLanguage().userInfo.name,
             avater: userData ? userData.avatar : '',
             num: unitTools_1.kpt2kt(data.value[i][2])
         });
     }
     miningData.miningRank = data2;
     return miningData;
+};
+/**
+ * 解析挖矿历史记录
+ */
+exports.parseMiningHistory = function (data) {
+    var list = [];
+    for (var i = 0; i < data.value.length; i++) {
+        list.push({
+            num: unitTools_1.kpt2kt(data.value[i][0]),
+            total: unitTools_1.kpt2kt(data.value[i][1]),
+            time: tools_1.transDate(new Date(data.value[i][2]))
+        });
+    }
+    var miningHistory = store_1.find('miningHistory');
+    var rList = miningHistory && miningHistory.list || [];
+    var start = String(data.start);
+    var canLoadMore = list.length > constants_1.PAGELIMIT;
+    return {
+        list: rList.concat(list),
+        start: start,
+        canLoadMore: canLoadMore
+    };
+};
+/**
+ * 解析分红历史记录
+ */
+exports.parseDividHistory = function (data) {
+    var list = [];
+    for (var i = 0; i < data.value.length; i++) {
+        list.push({
+            num: unitTools_1.kpt2kt(data.value[i][0]),
+            total: unitTools_1.kpt2kt(data.value[i][1]),
+            time: tools_1.transDate(new Date(data.value[i][2]))
+        });
+    }
+    var dividHistory = store_1.find('dividHistory');
+    var rList = dividHistory && dividHistory.list || [];
+    var start = String(data.start);
+    var canLoadMore = list.length > constants_1.PAGELIMIT;
+    return {
+        list: rList.concat(list),
+        start: start,
+        canLoadMore: canLoadMore
+    };
 };
 /**
  * 解析矿山增加记录
@@ -256,7 +300,7 @@ exports.parseProductList = function (res) {
     for (var i = 0; i < res.value.length; i++) {
         var item = res.value[i];
         var id = item[0];
-        var product = config_1.financialProductList[id];
+        var product = tools_1.getStaticLanguage().financialProductList[id];
         product.coinType = interface_1.CurrencyTypeReverse["" + item[1]];
         product.unitPrice = unitTools_1.wei2Eth(item[2]);
         product.total = item[3];
@@ -315,7 +359,7 @@ exports.parseConvertLog = function (data) {
         var currencyName = interface_1.CurrencyTypeReverse[r[i][3]];
         var record = {
             suid: r[i][0],
-            rid: r[i][1],
+            rid: r[i][1].toString(),
             rtype: r[i][2],
             rtypeShow: tools_1.parseRtype(r[i][2]),
             ctype: r[i][3],
@@ -339,6 +383,7 @@ exports.parseExchangeDetail = function (value) {
     var data = value[1];
     var redBagList = [];
     var curNum = 0;
+    var totalAmount = 0;
     for (var i = 0; i < data.length; i++) {
         var amount = unitTools_1.smallUnit2LargeUnit(interface_1.CurrencyTypeReverse[data[i][3]], data[i][4]);
         if (data[i][1] !== 0 && data[i][5] !== 0) {
@@ -354,9 +399,10 @@ exports.parseExchangeDetail = function (value) {
             redBagList.push(redBag);
             curNum++;
         }
+        totalAmount += amount;
     }
     var message = tools_1.unicodeArray2Str(value[0]);
-    return [redBagList, message, curNum, data.length]; // 兑换人员列表，红包留言，已兑换个数，总个数
+    return [redBagList, message, curNum, data.length, totalAmount]; // 兑换人员列表，红包留言，已兑换个数，总个数，红包总金额
 };
 /**
  * 解析我的邀请红包被领取记录

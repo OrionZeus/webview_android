@@ -44,6 +44,7 @@ var forelet_1 = require("../../../../pi/widget/forelet");
 var widget_1 = require("../../../../pi/widget/widget");
 var pull_1 = require("../../../net/pull");
 var store_1 = require("../../../store/store");
+var tools_1 = require("../../../utils/tools");
 exports.forelet = new forelet_1.Forelet();
 exports.WIDGET_NAME = module.id.replace(/\//g, '-');
 
@@ -60,11 +61,7 @@ var Dividend = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(Dividend.prototype.__proto__ || Object.getPrototypeOf(Dividend.prototype), "create", this).call(this);
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
+            var cfg = tools_1.getLanguage(this);
             this.state = {
                 data: [{
                     isComplete: false,
@@ -140,7 +137,7 @@ var Dividend = function (_widget_1$Widget) {
                         switch (_context.prev = _context.next) {
                             case 0:
                                 if (this.state.data[ind].isComplete) {
-                                    _context.next = 11;
+                                    _context.next = 12;
                                     break;
                                 }
 
@@ -175,10 +172,15 @@ var Dividend = function (_widget_1$Widget) {
 
                             case 10:
                                 if (itemJump === 'bindPhone') {
+                                    // 绑定手机
                                     root_1.popNew('app-view-mine-setting-phone');
                                 }
+                                if (itemJump === 'buyFinancial') {
+                                    // 购买理财 
+                                    root_1.popNew('app-view-wallet-financialManagement-home');
+                                }
 
-                            case 11:
+                            case 12:
                             case "end":
                                 return _context.stop();
                         }

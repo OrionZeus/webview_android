@@ -34,11 +34,7 @@ var AddFriend = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(AddFriend.prototype.__proto__ || Object.getPrototypeOf(AddFriend.prototype), "create", this).call(this);
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
+            var cfg = tools_1.getLanguage(this);
             this.state = {
                 userName: cfg.defaultName,
                 userHead: '../../../res/image/default_avater_big.png',
@@ -50,12 +46,11 @@ var AddFriend = function (_widget_1$Widget) {
     }, {
         key: "initData",
         value: function initData() {
-            var wallet = store_1.find('curWallet');
+            var user = store_1.find('userInfo');
             var addr = tools_1.getFirstEthAddr();
-            if (wallet) {
-                var gwlt = JSON.parse(wallet.gwlt);
-                this.state.userHead = wallet.avatar ? wallet.avatar : '../../../res/image/default_avater_big.png';
-                this.state.userName = gwlt.nickName;
+            if (user) {
+                this.state.userHead = user.avatar ? user.avatar : '../../../res/image/default_avater_big.png';
+                this.state.userName = user.nickName;
                 this.state.address = addr;
             }
             this.paint();

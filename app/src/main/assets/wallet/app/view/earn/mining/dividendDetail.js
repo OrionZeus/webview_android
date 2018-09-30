@@ -18,7 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // ================================ 导入
 var forelet_1 = require("../../../../pi/widget/forelet");
 var widget_1 = require("../../../../pi/widget/widget");
-var store_1 = require("../../../store/store");
+var tools_1 = require("../../../utils/tools");
 exports.forelet = new forelet_1.Forelet();
 exports.WIDGET_NAME = module.id.replace(/\//g, '-');
 
@@ -36,12 +36,8 @@ var PlayHome = function (_widget_1$Widget) {
         value: function create() {
             _get(PlayHome.prototype.__proto__ || Object.getPrototypeOf(PlayHome.prototype), "create", this).call(this);
             this.state = {
-                cfgData: this.config.value.simpleChinese
+                cfgData: tools_1.getLanguage(this)
             };
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                this.state.cfgData = this.config.value[lan.languageList[lan.selected]];
-            }
         }
     }, {
         key: "backPrePage",

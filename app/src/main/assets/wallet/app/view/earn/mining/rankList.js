@@ -20,6 +20,7 @@ var forelet_1 = require("../../../../pi/widget/forelet");
 var widget_1 = require("../../../../pi/widget/widget");
 var pull_1 = require("../../../net/pull");
 var store_1 = require("../../../store/store");
+var tools_1 = require("../../../utils/tools");
 exports.forelet = new forelet_1.Forelet();
 exports.WIDGET_NAME = module.id.replace(/\//g, '-');
 
@@ -36,11 +37,7 @@ var Home = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(Home.prototype.__proto__ || Object.getPrototypeOf(Home.prototype), "create", this).call(this);
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
+            var cfg = tools_1.getLanguage(this);
             this.state = {
                 tabs: [{
                     tab: cfg.tabs[0],
@@ -91,7 +88,7 @@ var Home = function (_widget_1$Widget) {
 
     }, {
         key: "tabsChangeClick",
-        value: function tabsChangeClick(e, value) {
+        value: function tabsChangeClick(value) {
             this.state.activeNum = value;
             this.paint();
         }

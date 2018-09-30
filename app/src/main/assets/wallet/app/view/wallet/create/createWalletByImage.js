@@ -20,6 +20,7 @@ var widget_1 = require("../../../../pi/widget/widget");
 var native_1 = require("../../../logic/native");
 var interface_1 = require("../../../store/interface");
 var account_1 = require("../../../utils/account");
+var tools_1 = require("../../../utils/tools");
 
 var CreateWalletByImage = function (_widget_1$Widget) {
     _inherits(CreateWalletByImage, _widget_1$Widget);
@@ -46,7 +47,8 @@ var CreateWalletByImage = function (_widget_1$Widget) {
                 imagePsw: '',
                 imagePswAvailable: false,
                 imgagePswConfirm: '',
-                pswEqualed: false
+                pswEqualed: false,
+                cfgData: tools_1.getLanguage(this)
             };
         }
     }, {
@@ -64,6 +66,7 @@ var CreateWalletByImage = function (_widget_1$Widget) {
                 // tslint:disable-next-line:max-line-length
                 _this2.state.imageHtml = "<div style=\"background-image: url(" + base64 + ");width: 100%;height: 100%;position: absolute;top: 0;background-size: cover;background-position: center;background-repeat: no-repeat;\"></div>";
                 _this2.state.imageBase64 = base64;
+                // console.log(base64);
                 _this2.paint();
             });
         }
@@ -90,8 +93,12 @@ var CreateWalletByImage = function (_widget_1$Widget) {
     }, {
         key: "nextClick",
         value: function nextClick() {
+            if (!this.state.chooseImage) {
+                root_1.popNew('app-components-message-message', { content: this.state.cfgData.tips[0] });
+                return;
+            }
             if (!this.state.pswEqualed) {
-                root_1.popNew('app-components-message-message', { content: '两次输入密码不一致' });
+                root_1.popNew('app-components-message-message', { content: this.state.cfgData.tips[1] });
                 return;
             }
             // tslint:disable-next-line:max-line-length

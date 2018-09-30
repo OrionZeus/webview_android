@@ -46,6 +46,7 @@ var root_1 = require("../../../pi/ui/root");
 var event_1 = require("../../../pi/widget/event");
 var widget_1 = require("../../../pi/widget/widget");
 var pull_1 = require("../../net/pull");
+var tools_1 = require("../../utils/tools");
 // =================================================导出
 
 var BindPhone = function (_widget_1$Widget) {
@@ -63,12 +64,13 @@ var BindPhone = function (_widget_1$Widget) {
             _get(BindPhone.prototype.__proto__ || Object.getPrototypeOf(BindPhone.prototype), "create", this).call(this);
             this.state = {
                 oldCode: 86,
-                codeList: ['86', '44', '49', '1', '852', '81'],
+                codeList: ['86', '886'],
                 isShowNewCode: false,
                 countdown: 0,
                 phone: '',
                 limitTime: 60,
-                phoneReg: /^[1][3-8]\d{9}$|^([6|9])\d{7}$|^[0][9]\d{8}$|^[6]([8|6])\d{5}$/
+                phoneReg: /^[1][3-8]\d{9}$|^([6|9])\d{7}$|^[0][9]\d{8}$|^[6]([8|6])\d{5}$/,
+                cfgData: tools_1.getLanguage(this)
             };
             // const t = find('lastGetSmsCodeTime'); // 不保留获取验证码倒计时
             // if (t) {
@@ -99,7 +101,7 @@ var BindPhone = function (_widget_1$Widget) {
                                     break;
                                 }
 
-                                root_1.popNew('app-components-message-message', { itype: 'warn', center: true, content: "\u8BF7\u8F93\u5165\u6B63\u786E\u7684\u624B\u673A\u53F7" });
+                                root_1.popNew('app-components-message-message', { content: this.state.cfgData.tips });
                                 return _context.abrupt("return");
 
                             case 3:

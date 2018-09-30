@@ -17,8 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 // =============================================导入
 var widget_1 = require("../../../../pi/widget/widget");
-var store_1 = require("../../../store/store");
-var config_1 = require("../../base/config");
+var tools_1 = require("../../../utils/tools");
 // ================================================导出
 
 var FAQ = function (_widget_1$Widget) {
@@ -34,16 +33,10 @@ var FAQ = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(FAQ.prototype.__proto__ || Object.getPrototypeOf(FAQ.prototype), "create", this).call(this);
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
             this.state = {
-                htmlStrList: config_1.Config.helpAnswer,
-                cfgData: cfg
+                htmlStrList: tools_1.getStaticLanguage().helpAnswer,
+                cfgData: tools_1.getLanguage(this)
             };
-            console.log(this.state.htmlStrList);
         }
     }, {
         key: "backPrePage",

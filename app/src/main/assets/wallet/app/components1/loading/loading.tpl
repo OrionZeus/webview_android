@@ -8,7 +8,7 @@
         }_chFunc(_node3);_$parent3.children.push(_node3);
       }_$temp = _node2;{
         var _$parent5 = _$temp;var _node4 = { "attrs": {}, "tagName": "p", "sid": 3 };_node4.children = [];_node4.attrSize = 1;_node4.attrHash = 2886807430;_node4.attrs["w-class"] = "pi-loading-text";_$temp = _node4;{
-          var _$parent6 = _$temp;_addText(it && it.text || "加载中", _$parent6);
+          var _$parent6 = _$temp;_addText(it && it.text || it1.cfgData.loading, _$parent6);
         }_chFunc(_node4);_$parent5.children.push(_node4);
       }_chFunc(_node2);_$parent2.children.push(_node2);
     }_chFunc(_node);return _node;

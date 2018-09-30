@@ -13,6 +13,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var widget_1 = require("../../../pi/widget/widget");
+var tools_1 = require("../../utils/tools");
 
 var Loading = function (_widget_1$Widget) {
     _inherits(Loading, _widget_1$Widget);
@@ -35,7 +36,8 @@ var Loading = function (_widget_1$Widget) {
             _get(Loading.prototype.__proto__ || Object.getPrototypeOf(Loading.prototype), "setProps", this).call(this, props, oldProps);
             this.state = {
                 circular: "<svg viewBox='25 25 50 50' class='pi-circular'>\n            <circle cx='50' cy='50' r='20' fill='none' class=\"pi-path\">\n            </circle>\n            </svg>",
-                startTime: new Date().getTime()
+                startTime: new Date().getTime(),
+                cfgData: tools_1.getLanguage(this)
             };
         }
     }, {

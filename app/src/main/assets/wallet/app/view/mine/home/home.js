@@ -40,10 +40,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * wallet home
  */
 var root_1 = require("../../../../pi/ui/root");
+var forelet_1 = require("../../../../pi/widget/forelet");
 var widget_1 = require("../../../../pi/widget/widget");
+var native_1 = require("../../../logic/native");
 var store_1 = require("../../../store/store");
 var tools_1 = require("../../../utils/tools");
 var walletTools_1 = require("../../../utils/walletTools");
+exports.forelet = new forelet_1.Forelet();
+exports.WIDGET_NAME = module.id.replace(/\//g, '-');
 
 var Home = function (_widget_1$Widget) {
     _inherits(Home, _widget_1$Widget);
@@ -58,31 +62,44 @@ var Home = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(Home.prototype.__proto__ || Object.getPrototypeOf(Home.prototype), "create", this).call(this);
-            this.init();
-        }
-    }, {
-        key: "init",
-        value: function init() {
-            var userInfo = tools_1.getUserInfo();
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
+            var cfg = tools_1.getLanguage(this);
+            var wallet = store_1.find('curWallet');
+            var hasBackupMnemonic = false;
+            var hasWallet = false;
+            var address = '';
+            if (wallet) {
+                hasWallet = true;
+                address = tools_1.getFirstEthAddr();
+                hasBackupMnemonic = JSON.parse(wallet.gwlt).mnemonicBackup;
             }
             this.state = {
                 list: [{ img: '../../../res/image1/28.png', name: cfg.itemTitle[0], components: '' }, { img: '../../../res/image1/10.png', name: cfg.itemTitle[1], components: 'app-view-mine-other-help' }, { img: '../../../res/image1/21.png', name: cfg.itemTitle[2], components: 'app-view-mine-setting-setting' }, { img: '../../../res/image1/23.png', name: cfg.itemTitle[3], components: 'app-view-mine-other-contanctUs' }, { img: '../../../res/image1/24.png', name: cfg.itemTitle[4], components: 'app-view-mine-other-aboutus' }, { img: '../../../res/image1/43.png', name: 'GitHub Repository', components: '' }],
-                address: 'FGGF1512151512sd78d4s51af45466',
-                userName: userInfo.nickName,
-                avatar: userInfo.avatar,
+                address: address,
+                userName: '',
+                avatar: '',
                 close: false,
-                hasWallet: false,
+                hasWallet: hasWallet,
+                hasBackupMnemonic: hasBackupMnemonic,
                 cfgData: cfg
             };
+            this.initData();
+        }
+        /**
+         * 更新数据
+         */
+
+    }, {
+        key: "initData",
+        value: function initData() {
+            var userInfo = store_1.find('userInfo');
+            if (userInfo) {
+                this.state.userName = userInfo.nickName;
+                this.state.avatar = userInfo.avatar;
+            }
             var wallet = store_1.find('curWallet');
-            var addr = tools_1.getFirstEthAddr();
             if (wallet) {
                 this.state.hasWallet = true;
-                this.state.address = addr;
+                this.state.address = tools_1.getFirstEthAddr();
             }
             this.paint();
         }
@@ -145,13 +162,20 @@ var Home = function (_widget_1$Widget) {
         key: "itemClick",
         value: function itemClick(ind) {
             if (ind === 0) {
-                root_1.popNew('app-view-mine-account-home');
+                if (this.state.hasWallet) {
+                    root_1.popNew('app-view-mine-account-home');
+                } else {
+                    root_1.popNew('app-components-modalBox-modalBox', this.state.cfgData.modalBox, function () {
+                        root_1.popNew('app-view-wallet-create-home');
+                    });
+                }
             } else if (ind === 5) {
-                window.open('https://github.com/KuPayIo/kupay_wallet');
+                // window.open('https://github.com/KuPayIo/kupay_wallet');
+                native_1.openNewActivity('https://github.com/KuPayIo/kupay_wallet');
             } else {
                 root_1.popNew(this.state.list[ind].components);
             }
-            this.ok && this.ok();
+            this.backPrePage();
         }
         /**
          * 复制地址
@@ -186,6 +210,7 @@ var Home = function (_widget_1$Widget) {
         key: "showMyQrcode",
         value: function showMyQrcode() {
             root_1.popNew('app-view-mine-other-addFriend');
+            this.backPrePage();
         }
         /**
          * 创建钱包
@@ -195,9 +220,11 @@ var Home = function (_widget_1$Widget) {
         key: "login",
         value: function login() {
             if (this.state.hasWallet) {
-                return;
+                root_1.popNew('app-view-mine-account-home');
+            } else {
+                root_1.popNew('app-view-wallet-create-home');
             }
-            root_1.popNew('app-view-wallet-create-home');
+            this.backPrePage();
         }
     }]);
 
@@ -205,4 +232,18 @@ var Home = function (_widget_1$Widget) {
 }(widget_1.Widget);
 
 exports.Home = Home;
+// ===================================================== 本地
+// ===================================================== 立即执行
+store_1.register('curWallet', function () {
+    var w = exports.forelet.getWidget(exports.WIDGET_NAME);
+    if (w) {
+        w.initDate();
+    }
+});
+store_1.register('userInfo', function () {
+    var w = exports.forelet.getWidget(exports.WIDGET_NAME);
+    if (w) {
+        w.initDate();
+    }
+});
 })

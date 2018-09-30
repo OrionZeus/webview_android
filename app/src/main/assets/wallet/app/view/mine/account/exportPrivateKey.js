@@ -26,6 +26,7 @@ var wallet_1 = require("../../../core/btc/wallet");
 var wallet_2 = require("../../../core/eth/wallet");
 var store_1 = require("../../../store/store");
 var constants_1 = require("../../../utils/constants");
+var tools_1 = require("../../../utils/tools");
 exports.forelet = new forelet_1.Forelet();
 exports.WIDGET_NAME = module.id.replace(/\//g, '-');
 
@@ -89,14 +90,9 @@ var ExportPrivateKey = function (_widget_1$Widget) {
                 }
                 collapseList.push(obj);
             }
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
             this.state = {
                 collapseList: collapseList,
-                cfgData: cfg
+                cfgData: tools_1.getLanguage(this)
             };
             console.log(this.state.collapseList);
         }

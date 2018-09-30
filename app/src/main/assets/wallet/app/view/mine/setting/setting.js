@@ -11,6 +11,30 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var __awaiter = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) {
+            try {
+                step(generator.next(value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+        function rejected(value) {
+            try {
+                step(generator["throw"](value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+        function step(result) {
+            result.done ? resolve(result.value) : new P(function (resolve) {
+                resolve(result.value);
+            }).then(fulfilled, rejected);
+        }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * setting
@@ -19,6 +43,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var root_1 = require("../../../../pi/ui/root");
 var forelet_1 = require("../../../../pi/widget/forelet");
 var widget_1 = require("../../../../pi/widget/widget");
+var pull_1 = require("../../../net/pull");
 var store_1 = require("../../../store/store");
 var tools_1 = require("../../../utils/tools");
 var walletTools_1 = require("../../../utils/walletTools");
@@ -38,16 +63,7 @@ var Setting = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(Setting.prototype.__proto__ || Object.getPrototypeOf(Setting.prototype), "create", this).call(this);
-            this.initData();
-        }
-    }, {
-        key: "initData",
-        value: function initData() {
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
+            var cfg = tools_1.getLanguage(this);
             this.state = {
                 lockScreenPsw: '',
                 openLockScreen: false,
@@ -61,12 +77,18 @@ var Setting = function (_widget_1$Widget) {
                 wallet: null,
                 cfgData: cfg
             };
+            this.initData();
+        }
+    }, {
+        key: "initData",
+        value: function initData() {
+            var userInfo = store_1.find('userInfo');
+            if (userInfo) {
+                this.state.userHead = userInfo.avatar ? userInfo.avatar : '../../../res/image/default_avater_big.png';
+                this.state.userName = userInfo.nickName ? userInfo.nickName : this.state.cfgData.defaultName;
+            }
             var wallet = store_1.find('curWallet');
             if (wallet) {
-                // gwlt = GlobalWallet.fromJSON(wallet.gwlt);
-                var gwlt = JSON.parse(wallet.gwlt);
-                this.state.userHead = wallet.avatar ? wallet.avatar : '../../../res/image/default_avater_big.png';
-                this.state.userName = gwlt.nickName;
                 this.state.wallet = wallet;
             }
             var ls = store_1.find('lockScreen');
@@ -91,7 +113,6 @@ var Setting = function (_widget_1$Widget) {
             if (this.state.wallet) {
                 return true;
             }
-            // tslint:disable-next-line:max-line-length
             root_1.popNew('app-components-modalBox-modalBox', this.state.cfgData.modalBox1, function () {
                 root_1.popNew('app-view-wallet-create-home');
             });
@@ -152,7 +173,6 @@ var Setting = function (_widget_1$Widget) {
             var _this3 = this;
 
             root_1.popNew('app-components-keyboard-keyboard', { title: this.state.cfgData.keyboardTitle[1] }, function (r) {
-                console.error(r);
                 if (_this3.state.lockScreenPsw !== r) {
                     root_1.popNew('app-components-message-message', { content: _this3.state.cfgData.tips[0] });
                     _this3.reSetLockPsw();
@@ -184,8 +204,7 @@ var Setting = function (_widget_1$Widget) {
                     var fg = walletTools_1.VerifyIdentidy(wallet, r);
                     // const fg = true;
                     if (fg) {
-                        root_1.popNew('app-components-keyboard-keyboard', { title: _this4.state.cfg.keyboardTitle[0] }, function (r) {
-                            console.error(r);
+                        root_1.popNew('app-components-keyboard-keyboard', { title: _this4.state.cfgData.keyboardTitle[0] }, function (r) {
                             _this4.state.lockScreenPsw = r;
                             _this4.reSetLockPsw();
                         }, function () {
@@ -197,7 +216,7 @@ var Setting = function (_widget_1$Widget) {
             } else {
                 root_1.popNew('app-components-keyboard-keyboard', { title: this.state.errorTips[ind] }, function (r) {
                     if (tools_1.lockScreenVerify(r)) {
-                        root_1.popNew('app-components-keyboard-keyboard', { title: _this4.state.cfg.keyboardTitle[0] }, function (r) {
+                        root_1.popNew('app-components-keyboard-keyboard', { title: _this4.state.cfgData.keyboardTitle[0] }, function (r) {
                             _this4.state.lockScreenPsw = r;
                             _this4.reSetLockPsw();
                         }, function () {
@@ -252,7 +271,7 @@ var Setting = function (_widget_1$Widget) {
             this.paint();
         }
         /**
-         * 用户名修改
+         * 监听用户名修改
          */
 
     }, {
@@ -260,13 +279,67 @@ var Setting = function (_widget_1$Widget) {
         value: function userNameChange(e) {
             if (e.value !== this.state.userName) {
                 this.state.userName = e.value;
-                var walletList = store_1.find('walletList');
-                var gwlt = this.state.wallet.gwlt;
-                gwlt.nickName = e.value;
-                this.state.wallet.gwlt = JSON.parse(gwlt);
-                store_1.updateStore('walletList', walletList);
-                store_1.updateStore('curWallet', this.state.wallet);
             }
+        }
+        /**
+         * 取消聚焦后更新用户名
+         */
+
+    }, {
+        key: "userNameConfirm",
+        value: function userNameConfirm() {
+            var userInfo = store_1.find('userInfo');
+            if (userInfo.nickName !== this.state.userName) {
+                userInfo.nickName = this.state.userName;
+                store_1.updateStore('userInfo', userInfo);
+                pull_1.setUserInfo();
+            }
+        }
+        /**
+         * 备份
+         */
+
+    }, {
+        key: "backUp",
+        value: function backUp() {
+            return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+                var psw, ret;
+                return regeneratorRuntime.wrap(function _callee$(_context) {
+                    while (1) {
+                        switch (_context.prev = _context.next) {
+                            case 0:
+                                _context.next = 2;
+                                return tools_1.popPswBox();
+
+                            case 2:
+                                psw = _context.sent;
+
+                                if (psw) {
+                                    _context.next = 5;
+                                    break;
+                                }
+
+                                return _context.abrupt("return");
+
+                            case 5:
+                                _context.next = 7;
+                                return walletTools_1.backupMnemonic(psw);
+
+                            case 7:
+                                ret = _context.sent;
+
+                                if (ret) {
+                                    root_1.popNew('app-view-wallet-backup-index', Object.assign({}, ret));
+                                    this.ok && this.ok();
+                                }
+
+                            case 9:
+                            case "end":
+                                return _context.stop();
+                        }
+                    }
+                }, _callee, this);
+            }));
         }
         /**
          * 注销账户
@@ -281,10 +354,12 @@ var Setting = function (_widget_1$Widget) {
                 return;
             }
             root_1.popNew('app-components-modalBox-modalBox', this.state.cfgData.modalBox2, function () {
-                // popNew('');
+                _this6.backUp();
                 console.log('备份');
             }, function () {
                 root_1.popNew('app-components-modalBox-modalBox', { title: '', content: _this6.state.cfgData.tips[2], style: 'color:#F7931A;' }, function () {
+                    tools_1.logoutAccount();
+                    _this6.backPrePage();
                     console.log('注销账户');
                 });
             });
@@ -295,7 +370,26 @@ var Setting = function (_widget_1$Widget) {
 }(widget_1.Widget);
 
 exports.Setting = Setting;
+// ================================================本地，立即执行
 store_1.register('languageSet', function () {
+    var w = exports.forelet.getWidget(exports.WIDGET_NAME);
+    if (w) {
+        w.initData();
+    }
+});
+store_1.register('userInfo', function () {
+    var w = exports.forelet.getWidget(exports.WIDGET_NAME);
+    if (w) {
+        w.initData();
+    }
+});
+store_1.register('curWallet', function () {
+    var w = exports.forelet.getWidget(exports.WIDGET_NAME);
+    if (w) {
+        w.initData();
+    }
+});
+store_1.register('lockScreen', function () {
     var w = exports.forelet.getWidget(exports.WIDGET_NAME);
     if (w) {
         w.initData();

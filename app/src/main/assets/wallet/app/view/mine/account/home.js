@@ -72,17 +72,12 @@ var AccountHome = function (_widget_1$Widget) {
             var wallet = store_1.find('curWallet');
             var gwlt = wallet ? JSON.parse(wallet.gwlt) : null;
             var backup = gwlt.mnemonicBackup;
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
             this.state = {
                 avatar: userInfo.avatar,
                 nickName: userInfo.nickName,
                 isUpdatingWalletName: false,
                 backup: backup,
-                cfgData: cfg
+                cfgData: tools_1.getLanguage(this)
             };
         }
     }, {

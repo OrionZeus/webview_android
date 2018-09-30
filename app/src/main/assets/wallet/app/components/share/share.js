@@ -17,6 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 var shareToPlatforms_1 = require("../../../pi/browser/shareToPlatforms");
 var widget_1 = require("../../../pi/widget/widget");
+var tools_1 = require("../../utils/tools");
 
 var BaseShare = function (_widget_1$Widget) {
     _inherits(BaseShare, _widget_1$Widget);
@@ -31,7 +32,9 @@ var BaseShare = function (_widget_1$Widget) {
         key: "setProps",
         value: function setProps(props, oldProps) {
             _get(BaseShare.prototype.__proto__ || Object.getPrototypeOf(BaseShare.prototype), "setProps", this).call(this, props, oldProps);
-            this.state = {};
+            this.state = {
+                cfgData: tools_1.getLanguage(this)
+            };
             if (this.props.shareType !== shareToPlatforms_1.ShareToPlatforms.TYPE_TEXT) {
                 this.state.isShowQQ = true;
                 this.state.showCount = 4;
@@ -80,7 +83,7 @@ var BaseShare = function (_widget_1$Widget) {
                     fail: function fail(result) {
                         _this2.cancel(false);
                     },
-                    webName: this.props.webName || '钱包',
+                    webName: this.props.webName || this.state.cfgData.wallet,
                     url: this.props.url,
                     title: this.props.title,
                     content: this.props.content,
@@ -88,6 +91,8 @@ var BaseShare = function (_widget_1$Widget) {
                     platform: platform
                 });
             } else {
+                console.log('share text====', this.props.text);
+                console.log('share type====', this.props.shareType);
                 stp.shareCode({
                     success: function success(result) {
                         _this2.ok(true);

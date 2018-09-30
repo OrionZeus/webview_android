@@ -43,6 +43,7 @@ var parse_1 = require("../store/parse");
 var store_1 = require("../store/store");
 var constants_1 = require("../utils/constants");
 var toolMessages_1 = require("../utils/toolMessages");
+// tslint:disable-next-line:max-line-length
 var tools_1 = require("../utils/tools");
 var unitTools_1 = require("../utils/unitTools");
 exports.conIp = pi_modules.store.exports.severIp || '127.0.0.1';
@@ -52,7 +53,9 @@ console.log('conIp=', exports.conIp);
 console.log('conPort=', exports.conPort);
 // 分享链接前缀
 // export const sharePerUrl = `http://share.kupay.io/wallet/app/boot/share.html`;
-exports.sharePerUrl = "http://127.0.0.1:80/wallet/phoneRedEnvelope/openRedEnvelope.html";
+exports.sharePerUrl = "http://" + exports.conPort + ":" + exports.conIp + "/wallet/phoneRedEnvelope/openRedEnvelope.html";
+// 分享下载链接
+exports.shareDownload = "http://" + exports.conPort + ":" + exports.conIp + "/wallet/phoneRedEnvelope/download.html";
 // 上传图片url
 exports.uploadFileUrl = "http://" + exports.conIp + "/service/upload";
 // 上传的文件url前缀
@@ -183,7 +186,7 @@ exports.login = function (passwd) {
                         return _context3.abrupt("return");
 
                     case 2:
-                        close = root_1.popNew('app-components1-loading-loading', { text: '登录中...' });
+                        close = root_1.popNew('app-components1-loading-loading', { text: tools_1.getStaticLanguage().userInfo.loading });
                         wallet = store_1.find('curWallet');
                         GlobalWallet = pi_modules.commonjs.exports.relativeGet('app/core/globalWallet').exports.GlobalWallet;
                         sign = pi_modules.commonjs.exports.relativeGet('app/core/genmnemonic').exports.sign;
@@ -205,7 +208,7 @@ exports.login = function (passwd) {
                         close.callback(close.widget);
                         if (res.result === 1) {
                             store_1.updateStore('loginState', interface_1.LoginState.logined);
-                            root_1.popNew('app-components-message-message', { content: '登录成功' });
+                            root_1.popNew('app-components-message-message', { content: tools_1.getStaticLanguage().userInfo.loginSuccess });
                         } else {
                             store_1.updateStore('loginState', interface_1.LoginState.logerror);
                         }
@@ -452,11 +455,19 @@ exports.getRandom = function () {
             while (1) {
                 switch (_context9.prev = _context9.next) {
                     case 0:
+                        if (store_1.find('conUser')) {
+                            _context9.next = 2;
+                            break;
+                        }
+
+                        return _context9.abrupt("return");
+
+                    case 2:
                         msg = { type: 'get_random', param: { account: store_1.find('conUser').slice(2), pk: "04" + store_1.find('conUserPublicKey') } };
-                        _context9.next = 3;
+                        _context9.next = 5;
                         return exports.requestAsync(msg);
 
-                    case 3:
+                    case 5:
                         resp = _context9.sent;
 
                         store_1.updateStore('conRandom', resp.rand);
@@ -467,7 +478,7 @@ exports.getRandom = function () {
                         exports.fetchGasPrices();
                         // btc fees
                         exports.fetchBtcFees();
-                        //获取真实用户
+                        // 获取真实用户
                         exports.fetchRealUser();
                         flag = store_1.find('flag');
                         // 第一次创建不需要更新
@@ -482,7 +493,7 @@ exports.getRandom = function () {
                             exports.defaultLogin(hash);
                         }
 
-                    case 14:
+                    case 16:
                     case "end":
                         return _context9.stop();
                 }
@@ -649,15 +660,8 @@ exports.getMiningHistory = function () {
                         };
 
                         exports.requestAsync(msg).then(function (data) {
-                            var list = [];
-                            for (var i = 0; i < data.value.length; i++) {
-                                list.push({
-                                    num: unitTools_1.kpt2kt(data.value[i][0]),
-                                    total: unitTools_1.kpt2kt(data.value[i][1]),
-                                    time: tools_1.transDate(new Date(data.value[i][2]))
-                                });
-                            }
-                            store_1.updateStore('miningHistory', list);
+                            var miningHistory = parse_1.parseMiningHistory(data);
+                            store_1.updateStore('miningHistory', miningHistory);
                         });
 
                     case 2:
@@ -703,7 +707,7 @@ exports.inputInviteCdKey = function (code) {
                         msg = { type: 'wallet/cloud@input_cd_key', param: { code: code } };
                         _context16.prev = 1;
                         _context16.next = 4;
-                        return exports.requestLogined(msg);
+                        return exports.requestAsync(msg);
 
                     case 4:
                         return _context16.abrupt("return", []);
@@ -777,7 +781,7 @@ exports.sendRedEnvlope = function (rtype, ctype, totalAmount, redEnvelopeNumber,
                         };
                         _context18.prev = 1;
                         _context18.next = 4;
-                        return exports.requestLogined(msg);
+                        return exports.requestAsync(msg);
 
                     case 4:
                         res = _context18.sent;
@@ -811,7 +815,7 @@ exports.convertRedBag = function (cid) {
                         msg = { type: 'convert_red_bag', param: { cid: cid } };
                         _context19.prev = 1;
                         _context19.next = 4;
-                        return exports.requestLogined(msg);
+                        return exports.requestAsync(msg);
 
                     case 4:
                         res = _context19.sent;
@@ -960,7 +964,7 @@ exports.queryConvertLog = function (start) {
 /**
  * 查询某个红包兑换详情
  */
-exports.queryDetailLog = function (rid) {
+exports.queryDetailLog = function (uid, rid) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee23() {
         var msg, detail;
         return regeneratorRuntime.wrap(function _callee23$(_context23) {
@@ -970,7 +974,7 @@ exports.queryDetailLog = function (rid) {
                         msg = {
                             type: 'query_detail_log',
                             param: {
-                                uid: store_1.find('conUid'),
+                                uid: uid,
                                 rid: rid
                             }
                         };
@@ -1080,15 +1084,8 @@ exports.getDividHistory = function () {
                         };
 
                         exports.requestAsync(msg).then(function (data) {
-                            var list = [];
-                            for (var i = 0; i < data.value.length; i++) {
-                                list.push({
-                                    num: unitTools_1.wei2Eth(data.value[i][1][0]),
-                                    total: unitTools_1.wei2Eth(data.value[i][1][1]),
-                                    time: tools_1.transDate(new Date(data.value[i][0]))
-                                });
-                            }
-                            store_1.updateStore('dividHistory', list);
+                            var dividHistory = parse_1.parseDividHistory(data);
+                            store_1.updateStore('dividHistory', dividHistory);
                         });
 
                     case 2:
@@ -1151,11 +1148,19 @@ exports.setUserInfo = function () {
             while (1) {
                 switch (_context29.prev = _context29.next) {
                     case 0:
+                        if (!(store_1.find("loginState") !== interface_1.LoginState.logined)) {
+                            _context29.next = 2;
+                            break;
+                        }
+
+                        return _context29.abrupt("return");
+
+                    case 2:
                         userInfo = store_1.find('userInfo');
                         msg = { type: 'wallet/user@set_info', param: { value: JSON.stringify(userInfo) } };
                         return _context29.abrupt("return", exports.requestAsync(msg));
 
-                    case 3:
+                    case 5:
                     case "end":
                         return _context29.stop();
                 }
@@ -1164,7 +1169,7 @@ exports.setUserInfo = function () {
     }));
 };
 /**
- * 批量获取用户信息
+ * 获取当前用户信息
  */
 exports.getUserInfoFromServer = function (uids) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee30() {
@@ -1208,14 +1213,58 @@ exports.getUserInfoFromServer = function (uids) {
     }));
 };
 /**
- * 处理聊天
+ * 批量获取用户信息
  */
-exports.doChat = function () {
+exports.getUserList = function (uids) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee31() {
-        var msg;
+        var msg, res;
         return regeneratorRuntime.wrap(function _callee31$(_context31) {
             while (1) {
                 switch (_context31.prev = _context31.next) {
+                    case 0:
+                        msg = { type: 'wallet/user@get_infos', param: { list: "[" + uids.toString() + "]" } };
+                        _context31.prev = 1;
+                        _context31.next = 4;
+                        return exports.requestAsync(msg);
+
+                    case 4:
+                        res = _context31.sent;
+
+                        if (!res.value[0]) {
+                            _context31.next = 7;
+                            break;
+                        }
+
+                        return _context31.abrupt("return", JSON.parse(tools_1.unicodeArray2Str(res.value[0])));
+
+                    case 7:
+                        _context31.next = 13;
+                        break;
+
+                    case 9:
+                        _context31.prev = 9;
+                        _context31.t0 = _context31["catch"](1);
+
+                        toolMessages_1.showError(_context31.t0 && (_context31.t0.result || _context31.t0.type));
+                        return _context31.abrupt("return");
+
+                    case 13:
+                    case "end":
+                        return _context31.stop();
+                }
+            }
+        }, _callee31, this, [[1, 9]]);
+    }));
+};
+/**
+ * 处理聊天
+ */
+exports.doChat = function () {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee32() {
+        var msg;
+        return regeneratorRuntime.wrap(function _callee32$(_context32) {
+            while (1) {
+                switch (_context32.prev = _context32.next) {
                     case 0:
                         msg = { type: 'wallet/cloud@chat', param: {} };
 
@@ -1225,10 +1274,10 @@ exports.doChat = function () {
 
                     case 2:
                     case "end":
-                        return _context31.stop();
+                        return _context32.stop();
                 }
             }
-        }, _callee31, this);
+        }, _callee32, this);
     }));
 };
 /**
@@ -1236,12 +1285,12 @@ exports.doChat = function () {
  */
 exports.getAccountDetail = function (coin) {
     var start = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee32() {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee33() {
         var msg, res, nextStart, detail, canLoadMore, accountDetailMap, accountDetail, _accountDetail$list;
 
-        return regeneratorRuntime.wrap(function _callee32$(_context32) {
+        return regeneratorRuntime.wrap(function _callee33$(_context33) {
             while (1) {
-                switch (_context32.prev = _context32.next) {
+                switch (_context33.prev = _context33.next) {
                     case 0:
                         msg = void 0;
 
@@ -1263,12 +1312,12 @@ exports.getAccountDetail = function (coin) {
                                 }
                             };
                         }
-                        _context32.prev = 2;
-                        _context32.next = 5;
+                        _context33.prev = 2;
+                        _context33.next = 5;
                         return exports.requestAsync(msg);
 
                     case 5:
-                        res = _context32.sent;
+                        res = _context33.sent;
                         nextStart = res.start;
                         detail = parse_1.parseCloudAccountDetail(coin, res.value);
                         canLoadMore = detail.length >= constants_1.PAGELIMIT;
@@ -1284,64 +1333,39 @@ exports.getAccountDetail = function (coin) {
                         accountDetail.canLoadMore = canLoadMore;
                         accountDetailMap.set(interface_1.CurrencyType[coin], accountDetail);
                         store_1.updateStore('accountDetail', accountDetailMap);
-                        _context32.next = 22;
+                        _context33.next = 22;
                         break;
 
                     case 18:
-                        _context32.prev = 18;
-                        _context32.t0 = _context32["catch"](2);
+                        _context33.prev = 18;
+                        _context33.t0 = _context33["catch"](2);
 
-                        toolMessages_1.showError(_context32.t0 && (_context32.t0.result || _context32.t0.type));
-                        return _context32.abrupt("return");
+                        toolMessages_1.showError(_context33.t0 && (_context33.t0.result || _context33.t0.type));
+                        return _context33.abrupt("return");
 
                     case 22:
                     case "end":
-                        return _context32.stop();
+                        return _context33.stop();
                 }
             }
-        }, _callee32, this, [[2, 18]]);
+        }, _callee33, this, [[2, 18]]);
     }));
 };
 /**
  * 获取矿山排名列表
  */
 exports.getMineRank = function (num) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee33() {
-        var msg;
-        return regeneratorRuntime.wrap(function _callee33$(_context33) {
-            while (1) {
-                switch (_context33.prev = _context33.next) {
-                    case 0:
-                        msg = { type: 'wallet/cloud@mine_top', param: { num: num } };
-
-                        exports.requestAsync(msg).then(function (data) {
-                            var mineData = parse_1.parseMineRank(data);
-                            store_1.updateStore('mineRank', mineData);
-                        });
-
-                    case 2:
-                    case "end":
-                        return _context33.stop();
-                }
-            }
-        }, _callee33, this);
-    }));
-};
-/**
- * 获取挖矿排名列表
- */
-exports.getMiningRank = function (num) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee34() {
         var msg;
         return regeneratorRuntime.wrap(function _callee34$(_context34) {
             while (1) {
                 switch (_context34.prev = _context34.next) {
                     case 0:
-                        msg = { type: 'wallet/cloud@get_mine_top', param: { num: num } };
+                        msg = { type: 'wallet/cloud@mine_top', param: { num: num } };
 
                         exports.requestAsync(msg).then(function (data) {
-                            var miningData = parse_1.parseMiningRank(data);
-                            store_1.updateStore('miningRank', miningData);
+                            var mineData = parse_1.parseMineRank(data);
+                            store_1.updateStore('mineRank', mineData);
                         });
 
                     case 2:
@@ -1353,17 +1377,21 @@ exports.getMiningRank = function (num) {
     }));
 };
 /**
- * 发送验证码
+ * 获取挖矿排名列表
  */
-exports.sendCode = function (phone, num) {
+exports.getMiningRank = function (num) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee35() {
         var msg;
         return regeneratorRuntime.wrap(function _callee35$(_context35) {
             while (1) {
                 switch (_context35.prev = _context35.next) {
                     case 0:
-                        msg = { type: 'wallet/sms@send_sms_code', param: { phone: phone, num: num, name: '钱包' } };
-                        return _context35.abrupt("return", exports.requestAsync(msg));
+                        msg = { type: 'wallet/cloud@get_mine_top', param: { num: num } };
+
+                        exports.requestAsync(msg).then(function (data) {
+                            var miningData = parse_1.parseMiningRank(data);
+                            store_1.updateStore('miningRank', miningData);
+                        });
 
                     case 2:
                     case "end":
@@ -1374,23 +1402,17 @@ exports.sendCode = function (phone, num) {
     }));
 };
 /**
- * 注册手机
+ * 发送验证码
  */
-exports.regPhone = function (phone, code) {
+exports.sendCode = function (phone, num) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee36() {
         var msg;
         return regeneratorRuntime.wrap(function _callee36$(_context36) {
             while (1) {
                 switch (_context36.prev = _context36.next) {
                     case 0:
-                        msg = { type: 'wallet/user@reg_phone', param: { phone: phone, code: code } };
-                        return _context36.abrupt("return", exports.requestAsync(msg).catch(function (error) {
-                            if (error.type === -300) {
-                                root_1.popNew('app-components-message-message', { itype: 'error', center: true, content: "\u9A8C\u8BC1\u7801\u5DF2\u5931\u6548" });
-                            } else {
-                                root_1.popNew('app-components-message-message', { itype: 'error', center: true, content: "\u9519\u8BEF" + error.type });
-                            }
-                        }));
+                        msg = { type: 'wallet/sms@send_sms_code', param: { phone: phone, num: num, name: '钱包' } };
+                        return _context36.abrupt("return", exports.requestAsync(msg));
 
                     case 2:
                     case "end":
@@ -1401,17 +1423,24 @@ exports.regPhone = function (phone, code) {
     }));
 };
 /**
- * 获取代理
+ * 注册手机
  */
-exports.getProxy = function () {
+exports.regPhone = function (phone, code) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee37() {
         var msg;
         return regeneratorRuntime.wrap(function _callee37$(_context37) {
             while (1) {
                 switch (_context37.prev = _context37.next) {
                     case 0:
-                        msg = { type: 'wallet/proxy@get_proxy', param: {} };
-                        return _context37.abrupt("return", exports.requestAsync(msg));
+                        msg = { type: 'wallet/user@reg_phone', param: { phone: phone, code: code } };
+                        return _context37.abrupt("return", exports.requestAsync(msg).catch(function (error) {
+                            if (error.type === -300) {
+                                root_1.popNew('app-components-message-message', { itype: 'error', center: true, content: tools_1.getStaticLanguage().userInfo.bindPhone });
+                            } else {
+                                // tslint:disable-next-line:max-line-length
+                                root_1.popNew('app-components-message-message', { itype: 'error', center: true, content: tools_1.getStaticLanguage().userInfo.wrong + error.type });
+                            }
+                        }));
 
                     case 2:
                     case "end":
@@ -1422,17 +1451,19 @@ exports.getProxy = function () {
     }));
 };
 /**
- * 矿山增加项目跳转详情
+ * 获取代理
  */
-exports.getMineItemJump = function (itemJump) {
+exports.getProxy = function () {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee38() {
+        var msg;
         return regeneratorRuntime.wrap(function _callee38$(_context38) {
             while (1) {
                 switch (_context38.prev = _context38.next) {
                     case 0:
-                        store_1.updateStore('mineItemJump', itemJump);
+                        msg = { type: 'wallet/proxy@get_proxy', param: {} };
+                        return _context38.abrupt("return", exports.requestAsync(msg));
 
-                    case 1:
+                    case 2:
                     case "end":
                         return _context38.stop();
                 }
@@ -1440,48 +1471,30 @@ exports.getMineItemJump = function (itemJump) {
         }, _callee38, this);
     }));
 };
+/**
+ * 矿山增加项目跳转详情
+ */
+exports.getMineItemJump = function (itemJump) {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee39() {
+        return regeneratorRuntime.wrap(function _callee39$(_context39) {
+            while (1) {
+                switch (_context39.prev = _context39.next) {
+                    case 0:
+                        store_1.updateStore('mineItemJump', itemJump);
+
+                    case 1:
+                    case "end":
+                        return _context39.stop();
+                }
+            }
+        }, _callee39, this);
+    }));
+};
 // ===============================充值提现
 /**
  * 获取服务端eth钱包地址
  */
 exports.getBankAddr = function () {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee39() {
-        var msg, res;
-        return regeneratorRuntime.wrap(function _callee39$(_context39) {
-            while (1) {
-                switch (_context39.prev = _context39.next) {
-                    case 0:
-                        msg = {
-                            type: 'wallet/bank@get_bank_addr',
-                            param: {}
-                        };
-                        _context39.prev = 1;
-                        _context39.next = 4;
-                        return exports.requestAsync(msg);
-
-                    case 4:
-                        res = _context39.sent;
-                        return _context39.abrupt("return", res.value);
-
-                    case 8:
-                        _context39.prev = 8;
-                        _context39.t0 = _context39["catch"](1);
-
-                        toolMessages_1.showError(_context39.t0 && (_context39.t0.result || _context39.t0.type));
-                        return _context39.abrupt("return");
-
-                    case 12:
-                    case "end":
-                        return _context39.stop();
-                }
-            }
-        }, _callee39, this, [[1, 8]]);
-    }));
-};
-/**
- * 获取服务端btc钱包地址
- */
-exports.getBtcBankAddr = function () {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee40() {
         var msg, res;
         return regeneratorRuntime.wrap(function _callee40$(_context40) {
@@ -1489,7 +1502,7 @@ exports.getBtcBankAddr = function () {
                 switch (_context40.prev = _context40.next) {
                     case 0:
                         msg = {
-                            type: 'wallet/bank@get_btc_bank_addr',
+                            type: 'wallet/bank@get_bank_addr',
                             param: {}
                         };
                         _context40.prev = 1;
@@ -1516,16 +1529,53 @@ exports.getBtcBankAddr = function () {
     }));
 };
 /**
- * 向服务器发起充值请求
+ * 获取服务端btc钱包地址
  */
-// tslint:disable-next-line:max-line-length
-exports.rechargeToServer = function (fromAddr, toAddr, tx, nonce, gas, value) {
-    var coin = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 101;
+exports.getBtcBankAddr = function () {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee41() {
         var msg, res;
         return regeneratorRuntime.wrap(function _callee41$(_context41) {
             while (1) {
                 switch (_context41.prev = _context41.next) {
+                    case 0:
+                        msg = {
+                            type: 'wallet/bank@get_btc_bank_addr',
+                            param: {}
+                        };
+                        _context41.prev = 1;
+                        _context41.next = 4;
+                        return exports.requestAsync(msg);
+
+                    case 4:
+                        res = _context41.sent;
+                        return _context41.abrupt("return", res.value);
+
+                    case 8:
+                        _context41.prev = 8;
+                        _context41.t0 = _context41["catch"](1);
+
+                        toolMessages_1.showError(_context41.t0 && (_context41.t0.result || _context41.t0.type));
+                        return _context41.abrupt("return");
+
+                    case 12:
+                    case "end":
+                        return _context41.stop();
+                }
+            }
+        }, _callee41, this, [[1, 8]]);
+    }));
+};
+/**
+ * 向服务器发起充值请求
+ */
+// tslint:disable-next-line:max-line-length
+exports.rechargeToServer = function (fromAddr, toAddr, tx, nonce, gas, value) {
+    var coin = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 101;
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee42() {
+        var msg, res;
+        return regeneratorRuntime.wrap(function _callee42$(_context42) {
+            while (1) {
+                switch (_context42.prev = _context42.next) {
                     case 0:
                         msg = {
                             type: 'wallet/bank@pay',
@@ -1539,29 +1589,29 @@ exports.rechargeToServer = function (fromAddr, toAddr, tx, nonce, gas, value) {
                                 coin: coin
                             }
                         };
-                        _context41.prev = 1;
-                        _context41.next = 4;
+                        _context42.prev = 1;
+                        _context42.next = 4;
                         return exports.requestAsync(msg);
 
                     case 4:
-                        res = _context41.sent;
+                        res = _context42.sent;
 
                         console.log('rechargeToServer', res);
-                        return _context41.abrupt("return", true);
+                        return _context42.abrupt("return", true);
 
                     case 9:
-                        _context41.prev = 9;
-                        _context41.t0 = _context41["catch"](1);
+                        _context42.prev = 9;
+                        _context42.t0 = _context42["catch"](1);
 
-                        toolMessages_1.showError(_context41.t0 && (_context41.t0.result || _context41.t0.type));
-                        return _context41.abrupt("return", false);
+                        toolMessages_1.showError(_context42.t0 && (_context42.t0.result || _context42.t0.type));
+                        return _context42.abrupt("return", false);
 
                     case 13:
                     case "end":
-                        return _context41.stop();
+                        return _context42.stop();
                 }
             }
-        }, _callee41, this, [[1, 9]]);
+        }, _callee42, this, [[1, 9]]);
     }));
 };
 /**
@@ -1569,12 +1619,13 @@ exports.rechargeToServer = function (fromAddr, toAddr, tx, nonce, gas, value) {
  */
 // tslint:disable-next-line:max-line-length
 exports.btcRechargeToServer = function (toAddr, tx, value, fees, oldHash) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee42() {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee43() {
         var old_tx, msg, res;
-        return regeneratorRuntime.wrap(function _callee42$(_context42) {
+        return regeneratorRuntime.wrap(function _callee43$(_context43) {
             while (1) {
-                switch (_context42.prev = _context42.next) {
+                switch (_context43.prev = _context43.next) {
                     case 0:
+                        // tslint:disable-next-line:variable-name
                         old_tx = oldHash || 'none';
                         msg = {
                             type: 'wallet/bank@btc_pay',
@@ -1586,77 +1637,35 @@ exports.btcRechargeToServer = function (toAddr, tx, value, fees, oldHash) {
                                 old_tx: old_tx
                             }
                         };
-                        _context42.prev = 2;
-                        _context42.next = 5;
+                        _context43.prev = 2;
+                        _context43.next = 5;
                         return exports.requestAsync(msg);
 
                     case 5:
-                        res = _context42.sent;
+                        res = _context43.sent;
 
                         console.log('btcRechargeToServer', res);
-                        return _context42.abrupt("return", true);
+                        return _context43.abrupt("return", true);
 
                     case 10:
-                        _context42.prev = 10;
-                        _context42.t0 = _context42["catch"](2);
+                        _context43.prev = 10;
+                        _context43.t0 = _context43["catch"](2);
 
-                        toolMessages_1.showError(_context42.t0 && (_context42.t0.result || _context42.t0.type));
-                        return _context42.abrupt("return", false);
+                        toolMessages_1.showError(_context43.t0 && (_context43.t0.result || _context43.t0.type));
+                        return _context43.abrupt("return", false);
 
                     case 14:
                     case "end":
-                        return _context42.stop();
+                        return _context43.stop();
                 }
             }
-        }, _callee42, this, [[2, 10]]);
+        }, _callee43, this, [[2, 10]]);
     }));
 };
 /**
  * 提现
  */
 exports.withdrawFromServer = function (toAddr, value) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee43() {
-        var msg, res;
-        return regeneratorRuntime.wrap(function _callee43$(_context43) {
-            while (1) {
-                switch (_context43.prev = _context43.next) {
-                    case 0:
-                        msg = {
-                            type: 'wallet/bank@to_cash',
-                            param: {
-                                to: toAddr,
-                                value: value
-                            }
-                        };
-                        _context43.prev = 1;
-                        _context43.next = 4;
-                        return exports.requestAsync(msg);
-
-                    case 4:
-                        res = _context43.sent;
-
-                        console.log('withdrawFromServer', res);
-                        return _context43.abrupt("return", res.txid);
-
-                    case 9:
-                        _context43.prev = 9;
-                        _context43.t0 = _context43["catch"](1);
-
-                        toolMessages_1.showError(_context43.t0 && (_context43.t0.result || _context43.t0.type));
-                        return _context43.abrupt("return");
-
-                    case 13:
-                    case "end":
-                        return _context43.stop();
-                }
-            }
-        }, _callee43, this, [[1, 9]]);
-    }));
-};
-/**
- * btc提现
- */
-exports.btcWithdrawFromServer = function (toAddr, value) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee44() {
         var msg, res;
         return regeneratorRuntime.wrap(function _callee44$(_context44) {
@@ -1664,7 +1673,7 @@ exports.btcWithdrawFromServer = function (toAddr, value) {
                 switch (_context44.prev = _context44.next) {
                     case 0:
                         msg = {
-                            type: 'wallet/bank@btc_to_cash',
+                            type: 'wallet/bank@to_cash',
                             param: {
                                 to: toAddr,
                                 value: value
@@ -1677,7 +1686,7 @@ exports.btcWithdrawFromServer = function (toAddr, value) {
                     case 4:
                         res = _context44.sent;
 
-                        console.log('btcWithdrawFromServer', res);
+                        console.log('withdrawFromServer', res);
                         return _context44.abrupt("return", res.txid);
 
                     case 9:
@@ -1696,109 +1705,59 @@ exports.btcWithdrawFromServer = function (toAddr, value) {
     }));
 };
 /**
- * 充值历史记录
+ * btc提现
  */
-exports.getRechargeLogs = function (coin, start) {
+exports.btcWithdrawFromServer = function (toAddr, value) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee45() {
-        var type, msg, res, nextStart, detail, canLoadMore, rechargeLogsMap, rechargeLogs, _rechargeLogs$list;
-
+        var msg, res;
         return regeneratorRuntime.wrap(function _callee45$(_context45) {
             while (1) {
                 switch (_context45.prev = _context45.next) {
                     case 0:
-                        type = void 0;
-
-                        if (!(coin === 'BTC')) {
-                            _context45.next = 5;
-                            break;
-                        }
-
-                        type = 'wallet/bank@btc_pay_log';
-                        _context45.next = 10;
-                        break;
-
-                    case 5:
-                        if (!(coin === 'ETH')) {
-                            _context45.next = 9;
-                            break;
-                        }
-
-                        type = 'wallet/bank@pay_log';
-                        _context45.next = 10;
-                        break;
-
-                    case 9:
-                        return _context45.abrupt("return");
-
-                    case 10:
-                        msg = void 0;
-
-                        if (start) {
-                            msg = {
-                                type: type,
-                                param: {
-                                    start: start,
-                                    count: constants_1.PAGELIMIT
-                                }
-                            };
-                        } else {
-                            msg = {
-                                type: type,
-                                param: {
-                                    count: constants_1.PAGELIMIT
-                                }
-                            };
-                        }
-                        _context45.prev = 12;
-                        _context45.next = 15;
+                        msg = {
+                            type: 'wallet/bank@btc_to_cash',
+                            param: {
+                                to: toAddr,
+                                value: value
+                            }
+                        };
+                        _context45.prev = 1;
+                        _context45.next = 4;
                         return exports.requestAsync(msg);
 
-                    case 15:
+                    case 4:
                         res = _context45.sent;
-                        nextStart = res.start && coin === 'ETH' ? res.start.toJSNumber() : res.start;
-                        detail = parse_1.parseRechargeWithdrawalLog(coin, res.value);
-                        canLoadMore = detail.length >= constants_1.PAGELIMIT;
-                        rechargeLogsMap = store_1.getBorn('rechargeLogs');
-                        rechargeLogs = rechargeLogsMap.get(interface_1.CurrencyType[coin]) || { list: [] };
 
-                        if (!start) {
-                            rechargeLogs.list = detail;
-                        } else {
-                            (_rechargeLogs$list = rechargeLogs.list).push.apply(_rechargeLogs$list, _toConsumableArray(detail));
-                        }
-                        rechargeLogs.start = nextStart;
-                        rechargeLogs.canLoadMore = canLoadMore;
-                        rechargeLogsMap.set(interface_1.CurrencyType[coin], rechargeLogs);
-                        store_1.updateStore('rechargeLogs', rechargeLogsMap);
-                        _context45.next = 32;
-                        break;
+                        console.log('btcWithdrawFromServer', res);
+                        return _context45.abrupt("return", res.txid);
 
-                    case 28:
-                        _context45.prev = 28;
-                        _context45.t0 = _context45["catch"](12);
+                    case 9:
+                        _context45.prev = 9;
+                        _context45.t0 = _context45["catch"](1);
 
                         toolMessages_1.showError(_context45.t0 && (_context45.t0.result || _context45.t0.type));
                         return _context45.abrupt("return");
 
-                    case 32:
+                    case 13:
                     case "end":
                         return _context45.stop();
                 }
             }
-        }, _callee45, this, [[12, 28]]);
+        }, _callee45, this, [[1, 9]]);
     }));
 };
 /**
- * 提现历史记录
+ * 充值历史记录
  */
-exports.getWithdrawLogs = function (coin, start) {
+exports.getRechargeLogs = function (coin, start) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee46() {
-        var type, msg, res, nextStart, detail, canLoadMore, withdrawLogsMap, withdrawLogs, _withdrawLogs$list;
+        var type, msg, res, nextStart, detail, canLoadMore, rechargeLogsMap, rechargeLogs, _rechargeLogs$list;
 
         return regeneratorRuntime.wrap(function _callee46$(_context46) {
             while (1) {
                 switch (_context46.prev = _context46.next) {
                     case 0:
+                        // tslint:disable-next-line:no-reserved-keywords
                         type = void 0;
 
                         if (!(coin === 'BTC')) {
@@ -1806,7 +1765,7 @@ exports.getWithdrawLogs = function (coin, start) {
                             break;
                         }
 
-                        type = 'wallet/bank@btc_to_cash_log';
+                        type = 'wallet/bank@btc_pay_log';
                         _context46.next = 10;
                         break;
 
@@ -1816,7 +1775,7 @@ exports.getWithdrawLogs = function (coin, start) {
                             break;
                         }
 
-                        type = 'wallet/bank@to_cash_log';
+                        type = 'wallet/bank@pay_log';
                         _context46.next = 10;
                         break;
 
@@ -1848,21 +1807,21 @@ exports.getWithdrawLogs = function (coin, start) {
 
                     case 15:
                         res = _context46.sent;
-                        nextStart = res.start && res.start.toJSNumber();
+                        nextStart = res.start.toJSNumber ? res.start.toJSNumber() : res.start;
                         detail = parse_1.parseRechargeWithdrawalLog(coin, res.value);
                         canLoadMore = detail.length >= constants_1.PAGELIMIT;
-                        withdrawLogsMap = store_1.getBorn('withdrawLogs');
-                        withdrawLogs = withdrawLogsMap.get(interface_1.CurrencyType[coin]) || { list: [] };
+                        rechargeLogsMap = store_1.getBorn('rechargeLogs');
+                        rechargeLogs = rechargeLogsMap.get(interface_1.CurrencyType[coin]) || { list: [] };
 
                         if (!start) {
-                            withdrawLogs.list = detail;
+                            rechargeLogs.list = detail;
                         } else {
-                            (_withdrawLogs$list = withdrawLogs.list).push.apply(_withdrawLogs$list, _toConsumableArray(detail));
+                            (_rechargeLogs$list = rechargeLogs.list).push.apply(_rechargeLogs$list, _toConsumableArray(detail));
                         }
-                        withdrawLogs.start = nextStart;
-                        withdrawLogs.canLoadMore = canLoadMore;
-                        withdrawLogsMap.set(interface_1.CurrencyType[coin], withdrawLogs);
-                        store_1.updateStore('withdrawLogs', withdrawLogsMap);
+                        rechargeLogs.start = nextStart;
+                        rechargeLogs.canLoadMore = canLoadMore;
+                        rechargeLogsMap.set(interface_1.CurrencyType[coin], rechargeLogs);
+                        store_1.updateStore('rechargeLogs', rechargeLogsMap);
                         _context46.next = 32;
                         break;
 
@@ -1882,54 +1841,148 @@ exports.getWithdrawLogs = function (coin, start) {
     }));
 };
 /**
- * 获取理财列表
+ * 提现历史记录
  */
-exports.getProductList = function () {
+exports.getWithdrawLogs = function (coin, start) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee47() {
-        var msg, res, result;
+        var type, msg, res, nextStart, detail, canLoadMore, withdrawLogsMap, withdrawLogs, _withdrawLogs$list;
+
         return regeneratorRuntime.wrap(function _callee47$(_context47) {
             while (1) {
                 switch (_context47.prev = _context47.next) {
+                    case 0:
+                        // tslint:disable-next-line:no-reserved-keywords
+                        type = void 0;
+
+                        if (!(coin === 'BTC')) {
+                            _context47.next = 5;
+                            break;
+                        }
+
+                        type = 'wallet/bank@btc_to_cash_log';
+                        _context47.next = 10;
+                        break;
+
+                    case 5:
+                        if (!(coin === 'ETH')) {
+                            _context47.next = 9;
+                            break;
+                        }
+
+                        type = 'wallet/bank@to_cash_log';
+                        _context47.next = 10;
+                        break;
+
+                    case 9:
+                        return _context47.abrupt("return");
+
+                    case 10:
+                        msg = void 0;
+
+                        if (start) {
+                            msg = {
+                                type: type,
+                                param: {
+                                    start: start,
+                                    count: constants_1.PAGELIMIT
+                                }
+                            };
+                        } else {
+                            msg = {
+                                type: type,
+                                param: {
+                                    count: constants_1.PAGELIMIT
+                                }
+                            };
+                        }
+                        _context47.prev = 12;
+                        _context47.next = 15;
+                        return exports.requestAsync(msg);
+
+                    case 15:
+                        res = _context47.sent;
+                        nextStart = res.start.toJSNumber ? res.start.toJSNumber() : res.start;
+                        detail = parse_1.parseRechargeWithdrawalLog(coin, res.value);
+                        canLoadMore = detail.length >= constants_1.PAGELIMIT;
+                        withdrawLogsMap = store_1.getBorn('withdrawLogs');
+                        withdrawLogs = withdrawLogsMap.get(interface_1.CurrencyType[coin]) || { list: [] };
+
+                        if (!start) {
+                            withdrawLogs.list = detail;
+                        } else {
+                            (_withdrawLogs$list = withdrawLogs.list).push.apply(_withdrawLogs$list, _toConsumableArray(detail));
+                        }
+                        withdrawLogs.start = nextStart;
+                        withdrawLogs.canLoadMore = canLoadMore;
+                        withdrawLogsMap.set(interface_1.CurrencyType[coin], withdrawLogs);
+                        store_1.updateStore('withdrawLogs', withdrawLogsMap);
+                        _context47.next = 32;
+                        break;
+
+                    case 28:
+                        _context47.prev = 28;
+                        _context47.t0 = _context47["catch"](12);
+
+                        toolMessages_1.showError(_context47.t0 && (_context47.t0.result || _context47.t0.type));
+                        return _context47.abrupt("return");
+
+                    case 32:
+                    case "end":
+                        return _context47.stop();
+                }
+            }
+        }, _callee47, this, [[12, 28]]);
+    }));
+};
+/**
+ * 获取理财列表
+ */
+exports.getProductList = function () {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee48() {
+        var msg, res, result;
+        return regeneratorRuntime.wrap(function _callee48$(_context48) {
+            while (1) {
+                switch (_context48.prev = _context48.next) {
                     case 0:
                         msg = {
                             type: 'wallet/manage_money@get_product_list',
                             param: {}
                         };
-                        _context47.prev = 1;
-                        _context47.next = 4;
+                        _context48.prev = 1;
+                        _context48.next = 4;
                         return exports.requestAsync(msg);
 
                     case 4:
-                        res = _context47.sent;
+                        res = _context48.sent;
                         result = parse_1.parseProductList(res);
 
                         store_1.updateStore('productList', result);
-                        return _context47.abrupt("return", result);
+                        return _context48.abrupt("return", result);
 
                     case 10:
-                        _context47.prev = 10;
-                        _context47.t0 = _context47["catch"](1);
+                        _context48.prev = 10;
+                        _context48.t0 = _context48["catch"](1);
 
-                        toolMessages_1.showError(_context47.t0 && (_context47.t0.result || _context47.t0.type));
-                        return _context47.abrupt("return", []);
+                        toolMessages_1.showError(_context48.t0 && (_context48.t0.result || _context48.t0.type));
+                        return _context48.abrupt("return", []);
 
                     case 14:
                     case "end":
-                        return _context47.stop();
+                        return _context48.stop();
                 }
             }
-        }, _callee47, this, [[1, 10]]);
+        }, _callee48, this, [[1, 10]]);
     }));
 };
 /**
  * 购买理财
  */
 exports.buyProduct = function (pid, count) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee48() {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee49() {
         var msg, res;
-        return regeneratorRuntime.wrap(function _callee48$(_context48) {
+        return regeneratorRuntime.wrap(function _callee49$(_context49) {
             while (1) {
-                switch (_context48.prev = _context48.next) {
+                switch (_context49.prev = _context49.next) {
                     case 0:
                         pid = Number(pid);
                         count = Number(count);
@@ -1940,43 +1993,43 @@ exports.buyProduct = function (pid, count) {
                                 count: count
                             }
                         };
-                        _context48.prev = 3;
-                        _context48.next = 6;
+                        _context49.prev = 3;
+                        _context49.next = 6;
                         return exports.requestAsync(msg);
 
                     case 6:
-                        res = _context48.sent;
+                        res = _context49.sent;
 
                         console.log('buyProduct', res);
 
                         if (!(res.result === 1)) {
-                            _context48.next = 13;
+                            _context49.next = 13;
                             break;
                         }
 
                         exports.getProductList();
-                        return _context48.abrupt("return", true);
+                        return _context49.abrupt("return", true);
 
                     case 13:
-                        return _context48.abrupt("return", false);
+                        return _context49.abrupt("return", false);
 
                     case 14:
-                        _context48.next = 20;
+                        _context49.next = 20;
                         break;
 
                     case 16:
-                        _context48.prev = 16;
-                        _context48.t0 = _context48["catch"](3);
+                        _context49.prev = 16;
+                        _context49.t0 = _context49["catch"](3);
 
-                        toolMessages_1.showError(_context48.t0 && (_context48.t0.result || _context48.t0.type));
-                        return _context48.abrupt("return", false);
+                        toolMessages_1.showError(_context49.t0 && (_context49.t0.result || _context49.t0.type));
+                        return _context49.abrupt("return", false);
 
                     case 20:
                     case "end":
-                        return _context48.stop();
+                        return _context49.stop();
                 }
             }
-        }, _callee48, this, [[3, 16]]);
+        }, _callee49, this, [[3, 16]]);
     }));
 };
 /**
@@ -1984,61 +2037,17 @@ exports.buyProduct = function (pid, count) {
  */
 exports.getPurchaseRecord = function () {
     var start = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee49() {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee50() {
         var msg, res, record;
-        return regeneratorRuntime.wrap(function _callee49$(_context49) {
+        return regeneratorRuntime.wrap(function _callee50$(_context50) {
             while (1) {
-                switch (_context49.prev = _context49.next) {
+                switch (_context50.prev = _context50.next) {
                     case 0:
                         msg = {
                             type: 'wallet/manage_money@get_pay_list',
                             param: {
                                 start: start,
                                 count: constants_1.PAGELIMIT
-                            }
-                        };
-                        _context49.prev = 1;
-                        _context49.next = 4;
-                        return exports.requestAsync(msg);
-
-                    case 4:
-                        res = _context49.sent;
-
-                        console.log('getPurchaseRecord', res);
-                        record = parse_1.parsePurchaseRecord(res);
-
-                        store_1.updateStore('purchaseRecord', record);
-                        _context49.next = 13;
-                        break;
-
-                    case 10:
-                        _context49.prev = 10;
-                        _context49.t0 = _context49["catch"](1);
-
-                        toolMessages_1.showError(_context49.t0 && (_context49.t0.result || _context49.t0.type));
-
-                    case 13:
-                    case "end":
-                        return _context49.stop();
-                }
-            }
-        }, _callee49, this, [[1, 10]]);
-    }));
-};
-/**
- * 赎回理财产品
- */
-exports.buyBack = function (timeStamp) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee50() {
-        var msg, res;
-        return regeneratorRuntime.wrap(function _callee50$(_context50) {
-            while (1) {
-                switch (_context50.prev = _context50.next) {
-                    case 0:
-                        msg = {
-                            type: 'wallet/manage_money@sell',
-                            param: {
-                                time: timeStamp
                             }
                         };
                         _context50.prev = 1;
@@ -2048,38 +2057,42 @@ exports.buyBack = function (timeStamp) {
                     case 4:
                         res = _context50.sent;
 
-                        console.log('buyBack', res);
-                        return _context50.abrupt("return", true);
+                        console.log('getPurchaseRecord', res);
+                        record = parse_1.parsePurchaseRecord(res);
 
-                    case 9:
-                        _context50.prev = 9;
+                        store_1.updateStore('purchaseRecord', record);
+                        _context50.next = 13;
+                        break;
+
+                    case 10:
+                        _context50.prev = 10;
                         _context50.t0 = _context50["catch"](1);
 
                         toolMessages_1.showError(_context50.t0 && (_context50.t0.result || _context50.t0.type));
-                        return _context50.abrupt("return", false);
 
                     case 13:
                     case "end":
                         return _context50.stop();
                 }
             }
-        }, _callee50, this, [[1, 9]]);
+        }, _callee50, this, [[1, 10]]);
     }));
 };
 /**
- * 获取gasPrice
+ * 赎回理财产品
  */
-exports.fetchGasPrices = function () {
+exports.buyBack = function (timeStamp) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee51() {
-        var msg, _gasPrice, res, gasPrice;
-
+        var msg, res;
         return regeneratorRuntime.wrap(function _callee51$(_context51) {
             while (1) {
                 switch (_context51.prev = _context51.next) {
                     case 0:
                         msg = {
-                            type: 'wallet/bank@get_gas',
-                            param: {}
+                            type: 'wallet/manage_money@sell',
+                            param: {
+                                time: timeStamp
+                            }
                         };
                         _context51.prev = 1;
                         _context51.next = 4;
@@ -2087,19 +2100,18 @@ exports.fetchGasPrices = function () {
 
                     case 4:
                         res = _context51.sent;
-                        gasPrice = (_gasPrice = {}, _defineProperty(_gasPrice, interface_1.MinerFeeLevel.STANDARD, Number(res.standard)), _defineProperty(_gasPrice, interface_1.MinerFeeLevel.FAST, Number(res.fast)), _defineProperty(_gasPrice, interface_1.MinerFeeLevel.FASTEST, Number(res.fastest)), _gasPrice);
 
-                        store_1.updateStore('gasPrice', gasPrice);
-                        _context51.next = 12;
-                        break;
+                        console.log('buyBack', res);
+                        return _context51.abrupt("return", true);
 
                     case 9:
                         _context51.prev = 9;
                         _context51.t0 = _context51["catch"](1);
 
                         toolMessages_1.showError(_context51.t0 && (_context51.t0.result || _context51.t0.type));
+                        return _context51.abrupt("return", false);
 
-                    case 12:
+                    case 13:
                     case "end":
                         return _context51.stop();
                 }
@@ -2110,16 +2122,16 @@ exports.fetchGasPrices = function () {
 /**
  * 获取gasPrice
  */
-exports.fetchBtcFees = function () {
+exports.fetchGasPrices = function () {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee52() {
-        var msg, _btcMinerFee, res, obj, btcMinerFee;
+        var msg, _gasPrice, res, gasPrice;
 
         return regeneratorRuntime.wrap(function _callee52$(_context52) {
             while (1) {
                 switch (_context52.prev = _context52.next) {
                     case 0:
                         msg = {
-                            type: 'wallet/bank@get_fees',
+                            type: 'wallet/bank@get_gas',
                             param: {}
                         };
                         _context52.prev = 1;
@@ -2128,39 +2140,39 @@ exports.fetchBtcFees = function () {
 
                     case 4:
                         res = _context52.sent;
-                        obj = JSON.parse(res.btc);
+                        gasPrice = (_gasPrice = {}, _defineProperty(_gasPrice, interface_1.MinerFeeLevel.STANDARD, Number(res.standard)), _defineProperty(_gasPrice, interface_1.MinerFeeLevel.FAST, Number(res.fast)), _defineProperty(_gasPrice, interface_1.MinerFeeLevel.FASTEST, Number(res.fastest)), _gasPrice);
 
-                        console.log('fetchBtcFees------------', obj);
-                        btcMinerFee = (_btcMinerFee = {}, _defineProperty(_btcMinerFee, interface_1.MinerFeeLevel.STANDARD, Number(obj.low_fee_per_kb)), _defineProperty(_btcMinerFee, interface_1.MinerFeeLevel.FAST, Number(obj.medium_fee_per_kb)), _defineProperty(_btcMinerFee, interface_1.MinerFeeLevel.FASTEST, Number(obj.high_fee_per_kb)), _btcMinerFee);
-
-                        store_1.updateStore('btcMinerFee', btcMinerFee);
-                        _context52.next = 14;
+                        store_1.updateStore('gasPrice', gasPrice);
+                        _context52.next = 12;
                         break;
 
-                    case 11:
-                        _context52.prev = 11;
+                    case 9:
+                        _context52.prev = 9;
                         _context52.t0 = _context52["catch"](1);
 
                         toolMessages_1.showError(_context52.t0 && (_context52.t0.result || _context52.t0.type));
 
-                    case 14:
+                    case 12:
                     case "end":
                         return _context52.stop();
                 }
             }
-        }, _callee52, this, [[1, 11]]);
+        }, _callee52, this, [[1, 9]]);
     }));
 };
-// 获取真实用户
-exports.fetchRealUser = function () {
+/**
+ * 获取gasPrice
+ */
+exports.fetchBtcFees = function () {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee53() {
-        var msg, res, realUserMap, conUser;
+        var msg, _btcMinerFee, res, obj, btcMinerFee;
+
         return regeneratorRuntime.wrap(function _callee53$(_context53) {
             while (1) {
                 switch (_context53.prev = _context53.next) {
                     case 0:
                         msg = {
-                            type: 'wallet/user@get_real_user',
+                            type: 'wallet/bank@get_fees',
                             param: {}
                         };
                         _context53.prev = 1;
@@ -2169,22 +2181,22 @@ exports.fetchRealUser = function () {
 
                     case 4:
                         res = _context53.sent;
-                        realUserMap = store_1.getBorn('realUserMap');
-                        conUser = store_1.find('conUser');
+                        obj = JSON.parse(res.btc);
 
-                        realUserMap.set(conUser, res.value === 'false' ? false : true);
-                        store_1.updateStore('realUserMap', realUserMap);
-                        _context53.next = 15;
+                        console.log('fetchBtcFees------------', obj);
+                        btcMinerFee = (_btcMinerFee = {}, _defineProperty(_btcMinerFee, interface_1.MinerFeeLevel.STANDARD, Number(obj.low_fee_per_kb)), _defineProperty(_btcMinerFee, interface_1.MinerFeeLevel.FAST, Number(obj.medium_fee_per_kb)), _defineProperty(_btcMinerFee, interface_1.MinerFeeLevel.FASTEST, Number(obj.high_fee_per_kb)), _btcMinerFee);
+
+                        store_1.updateStore('btcMinerFee', btcMinerFee);
+                        _context53.next = 14;
                         break;
 
                     case 11:
                         _context53.prev = 11;
                         _context53.t0 = _context53["catch"](1);
 
-                        console.log('wallet/user@get_real_user--------', _context53.t0);
                         toolMessages_1.showError(_context53.t0 && (_context53.t0.result || _context53.t0.type));
 
-                    case 15:
+                    case 14:
                     case "end":
                         return _context53.stop();
                 }
@@ -2192,13 +2204,62 @@ exports.fetchRealUser = function () {
         }, _callee53, this, [[1, 11]]);
     }));
 };
-// 上传文件
-exports.uploadFile = function (base64) {
+// 获取真实用户
+exports.fetchRealUser = function () {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee54() {
-        var file, formData;
+        var msg, res, realUserMap, conUser;
         return regeneratorRuntime.wrap(function _callee54$(_context54) {
             while (1) {
                 switch (_context54.prev = _context54.next) {
+                    case 0:
+                        msg = {
+                            type: 'wallet/user@get_real_user',
+                            param: {}
+                        };
+                        _context54.prev = 1;
+                        _context54.next = 4;
+                        return exports.requestAsync(msg);
+
+                    case 4:
+                        res = _context54.sent;
+                        realUserMap = store_1.getBorn('realUserMap');
+                        conUser = store_1.find('conUser');
+
+                        if (conUser) {
+                            _context54.next = 9;
+                            break;
+                        }
+
+                        return _context54.abrupt("return");
+
+                    case 9:
+                        realUserMap.set(conUser, res.value === 'false' ? false : true);
+                        store_1.updateStore('realUserMap', realUserMap);
+                        _context54.next = 17;
+                        break;
+
+                    case 13:
+                        _context54.prev = 13;
+                        _context54.t0 = _context54["catch"](1);
+
+                        console.log('wallet/user@get_real_user--------', _context54.t0);
+                        toolMessages_1.showError(_context54.t0 && (_context54.t0.result || _context54.t0.type));
+
+                    case 17:
+                    case "end":
+                        return _context54.stop();
+                }
+            }
+        }, _callee54, this, [[1, 13]]);
+    }));
+};
+// 上传文件
+exports.uploadFile = function (base64) {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee55() {
+        var file, formData;
+        return regeneratorRuntime.wrap(function _callee55$(_context55) {
+            while (1) {
+                switch (_context55.prev = _context55.next) {
                     case 0:
                         file = tools_1.base64ToFile(base64);
                         formData = new FormData();
@@ -2230,10 +2291,18 @@ exports.uploadFile = function (base64) {
 
                     case 4:
                     case "end":
-                        return _context54.stop();
+                        return _context55.stop();
                 }
             }
-        }, _callee54, this);
+        }, _callee55, this);
     }));
+};
+/**
+ * 语言设置
+ */
+exports.languageSet = {
+    simpleChinese: {},
+    tranditionalChinese: {},
+    english: {}
 };
 })

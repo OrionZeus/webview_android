@@ -2,7 +2,7 @@
 	var _$temp = void 0,
 	    node = void 0;_$temp = node;{
 		var _$parent = _$temp;var _node = { "attrs": {}, "tagName": "div", "sid": 0 };_node.children = [];_node.attrHash = 0;_$temp = _node;{
-			var _$parent2 = _$temp;var _node2 = { "attrs": {}, "tagName": "div", "sid": 1 };_node2.children = [];_node2.attrSize = 4;_node2.attrHash = 3674832360;_node2.attrs["w-class"] = "pswInput";_node2.attrs["ev-input-change"] = "pswChange";_node2.attrs["ev-input-focus"] = "iconChange(1)";_node2.attrs["ev-input-blur"] = "iconChange(2)";_$temp = _node2;{
+			var _$parent2 = _$temp;var _node2 = { "attrs": {}, "tagName": "div", "sid": 1 };_node2.children = [];_node2.attrSize = 3;_node2.attrHash = 1024234499;_node2.attrs["w-class"] = "pswInput";_node2.attrs["ev-input-change"] = "pswChange";_node2.attrs["ev-input-focus"] = "iconChange()";_$temp = _node2;{
 				var _$parent3 = _$temp;var _node3 = { "attrs": {}, "tagName": "div", "sid": 2 };_node3.children = [];_node3.attrSize = 1;_node3.attrHash = 3711312999;_node3.attrs["style"] = "flex: 1";_$temp = _node3;{
 					var _$parent4 = _$temp;var _node4 = { "attrs": {}, "tagName": "app-components1-input-input", "sid": 3 };_node4.hasChild = false;_node4.child = null;_node4.attrHash = 0;_$temp = _node4;{
 						var _$parent5 = _$temp;var _node5 = {}; //jpair pre
@@ -16,7 +16,11 @@
 						}
 						//jpair pre
 
-						_node5["placeHolder"] = it.placeHolder ? it.placeHolder : '密码';
+						_node5["placeHolder"] = it.placeHolder ? it.placeHolder : it1.cfgData.password;
+						//jpair suf
+						//jpair pre
+
+						_node5["input"] = it1.password;
 						//jpair suf
 						_addJson(_node5, _$parent5);
 					}_chFunc(_node4);_$parent4.children.push(_node4);
@@ -27,7 +31,7 @@
 				}
 			} else if (it1.showIcon) {
 				_$temp = _node2;{
-					var _$parent7 = _$temp;var _node7 = { "attrs": {}, "tagName": "img", "sid": 5 };_node7.children = [];_node7.childHash = 0;_node7.attrSize = 3;_node7.attrHash = 1620558843;_node7.attrs["src"] = "../../res/image/btn_img_close.png";_node7.attrs["w-class"] = "successPic";_node7.attrs["on-tap"] = "clear";_$parent7.children.push(_node7);
+					var _$parent7 = _$temp;var _node7 = { "attrs": {}, "tagName": "img", "sid": 5 };_node7.children = [];_node7.childHash = 0;_node7.attrSize = 3;_node7.attrHash = 101892505;_node7.attrs["src"] = "../../res/image/fail.png";_node7.attrs["w-class"] = "successPic";_node7.attrs["on-tap"] = "clear";_$parent7.children.push(_node7);
 				}
 			}_chFunc(_node2);_$parent2.children.push(_node2);
 		}_$temp = _node;{
@@ -47,7 +51,7 @@
 		}if (it1.showTips) {
 			_$temp = _node;{
 				var _$parent12 = _$temp;var _node12 = { "attrs": {}, "tagName": "div", "sid": 10 };_node12.children = [];_node12.attrSize = 1;_node12.attrHash = 819962544;_node12.attrs["w-class"] = "tips";_$temp = _node12;{
-					var _$parent13 = _$temp;_addText(it.tips ? it.tips : "至少8位字符，并包含英文、数字、特殊字符其中两种类型", _$parent13);
+					var _$parent13 = _$temp;_addText(it.tips ? it.tips : it1.cfgData.tips, _$parent13);
 				}_chFunc(_node12);_$parent12.children.push(_node12);
 			}
 		}_chFunc(_node);return _node;

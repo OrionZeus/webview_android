@@ -45,6 +45,7 @@ var widget_1 = require("../../../../pi/widget/widget");
 var pull_1 = require("../../../net/pull");
 var interface_1 = require("../../../store/interface");
 var store_1 = require("../../../store/store");
+var tools_1 = require("../../../utils/tools");
 
 var RedEnvDetail = function (_widget_1$Widget) {
     _inherits(RedEnvDetail, _widget_1$Widget);
@@ -59,23 +60,21 @@ var RedEnvDetail = function (_widget_1$Widget) {
         key: "setProps",
         value: function setProps(props, oldProps) {
             _get(RedEnvDetail.prototype.__proto__ || Object.getPrototypeOf(RedEnvDetail.prototype), "setProps", this).call(this, props, oldProps);
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
+            var cfg = tools_1.getLanguage(this);
             this.state = {
                 message: cfg.message,
                 redBagList: [
-                    // { cuid:111,amount:1,timeShow:'04-30 14:32:00' },
-                    // { cuid:111,amount:1,timeShow:'04-30 14:32:00' },
                     // { cuid:111,amount:1,timeShow:'04-30 14:32:00' },
                     // { cuid:111,amount:1,timeShow:'04-30 14:32:00' },
                     // { cuid:111,amount:1,timeShow:'04-30 14:32:00' } 
                 ],
                 scroll: false,
                 showPin: this.props.rtype === 1,
-                cfgData: cfg
+                cfgData: cfg,
+                userName: cfg.defaultUserName,
+                userHead: '../../res/image/default_avater_big.png',
+                greatAmount: 0,
+                greatUser: -1
             };
             this.initData();
         }
@@ -83,13 +82,14 @@ var RedEnvDetail = function (_widget_1$Widget) {
         key: "initData",
         value: function initData() {
             return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-                var value;
+                var value, user, redBagList, i, _user;
+
                 return regeneratorRuntime.wrap(function _callee$(_context) {
                     while (1) {
                         switch (_context.prev = _context.next) {
                             case 0:
                                 _context.next = 2;
-                                return pull_1.queryDetailLog(this.props.rid);
+                                return pull_1.queryDetailLog(store_1.find('conUid'), this.props.rid);
 
                             case 2:
                                 value = _context.sent;
@@ -104,9 +104,47 @@ var RedEnvDetail = function (_widget_1$Widget) {
                             case 5:
                                 this.state.redBagList = value[0];
                                 this.state.message = value[1];
+                                user = store_1.find('userInfo');
+
+                                if (user) {
+                                    _context.next = 10;
+                                    break;
+                                }
+
+                                return _context.abrupt("return");
+
+                            case 10:
+                                this.state.userName = user.nickName ? user.nickName : this.state.cfgData.defaultUserName;
+                                this.state.userHead = user.avatar ? user.avatar : '../../res/image/default_avater_big.png';
+                                redBagList = value[0];
+                                _context.t0 = regeneratorRuntime.keys(redBagList);
+
+                            case 14:
+                                if ((_context.t1 = _context.t0()).done) {
+                                    _context.next = 24;
+                                    break;
+                                }
+
+                                i = _context.t1.value;
+                                _context.next = 18;
+                                return pull_1.getUserList([redBagList[i].cuid]);
+
+                            case 18:
+                                _user = _context.sent;
+
+                                this.state.redBagList[i].userName = _user.nickName ? _user.nickName : this.state.cfgData.defaultUserName;
+                                this.state.redBagList[i].avatar = _user.avatar ? _user.avatar : '../../res/image/default_avater_big.png';
+                                if (this.props.rtype === 1 && redBagList.length === this.props.totalNum && this.state.greatAmount < redBagList[i].amount) {
+                                    this.state.greatAmount = redBagList.amount;
+                                    this.state.greatUser = i;
+                                }
+                                _context.next = 14;
+                                break;
+
+                            case 24:
                                 this.paint();
 
-                            case 8:
+                            case 25:
                             case "end":
                                 return _context.stop();
                         }

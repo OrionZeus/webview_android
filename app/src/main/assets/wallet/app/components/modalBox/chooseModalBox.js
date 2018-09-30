@@ -17,6 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 var widget_1 = require("../../../pi/widget/widget");
 var interface_1 = require("../../store/interface");
+var tools_1 = require("../../utils/tools");
 
 var ChooseModalBox = function (_widget_1$Widget) {
     _inherits(ChooseModalBox, _widget_1$Widget);
@@ -31,14 +32,10 @@ var ChooseModalBox = function (_widget_1$Widget) {
         key: "setProps",
         value: function setProps(props, oldProps) {
             _get(ChooseModalBox.prototype.__proto__ || Object.getPrototypeOf(ChooseModalBox.prototype), "setProps", this).call(this, props, oldProps);
-            this.init();
-        }
-    }, {
-        key: "init",
-        value: function init() {
             this.state = {
                 minerFeeList: this.props.minerFeeList,
-                level: this.props.curLevel ? this.props.curLevel : interface_1.MinerFeeLevel.STANDARD
+                level: this.props.curLevel ? this.props.curLevel : interface_1.MinerFeeLevel.STANDARD,
+                cfgData: tools_1.getLanguage(this)
             };
         }
     }, {

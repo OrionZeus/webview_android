@@ -38,7 +38,7 @@ var __awaiter = undefined && undefined.__awaiter || function (thisArg, _argument
 Object.defineProperty(exports, "__esModule", { value: true });
 var widget_1 = require("../../../../pi/widget/widget");
 var pull_1 = require("../../../net/pull");
-var store_1 = require("../../../store/store");
+var tools_1 = require("../../../utils/tools");
 
 var ExchangeDetail = function (_widget_1$Widget) {
     _inherits(ExchangeDetail, _widget_1$Widget);
@@ -54,7 +54,7 @@ var ExchangeDetail = function (_widget_1$Widget) {
         value: function setProps(props, oldProps) {
             _get(ExchangeDetail.prototype.__proto__ || Object.getPrototypeOf(ExchangeDetail.prototype), "setProps", this).call(this, props, oldProps);
             this.state = {
-                message: this.props.message ? this.props.message : this.config.value.simpleChinese.defaultMess,
+                message: '',
                 redBagList: [
                     // { cuid:111,amount:1,timeShow:'04-30 14:32:00' },
                     // { cuid:111,amount:1,timeShow:'04-30 14:32:00' },
@@ -62,13 +62,16 @@ var ExchangeDetail = function (_widget_1$Widget) {
                 ],
                 scroll: false,
                 showPin: this.props.rtype === 1,
-                cfgData: this.config.value.simpleChinese
+                cfgData: tools_1.getLanguage(this),
+                userName: '',
+                curNum: 0,
+                totalNum: 0,
+                totalAmount: 0,
+                greatUser: -1,
+                greatAmount: 0
             };
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                this.state.cfgData = this.config.value[lan.languageList[lan.selected]];
-                this.state.message = this.props.message ? this.props.message : this.state.cfgData.defaultMess;
-            }
+            this.state.message = this.props.message ? this.props.message : this.state.cfgData.defaultMess;
+            this.initData();
         }
     }, {
         key: "backPrePage",
@@ -96,13 +99,14 @@ var ExchangeDetail = function (_widget_1$Widget) {
         key: "initData",
         value: function initData() {
             return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-                var value;
+                var value, user, redBagList, i, _user;
+
                 return regeneratorRuntime.wrap(function _callee$(_context) {
                     while (1) {
                         switch (_context.prev = _context.next) {
                             case 0:
                                 _context.next = 2;
-                                return pull_1.queryDetailLog(this.props.rid);
+                                return pull_1.queryDetailLog(this.props.suid, this.props.rid);
 
                             case 2:
                                 value = _context.sent;
@@ -117,9 +121,54 @@ var ExchangeDetail = function (_widget_1$Widget) {
                             case 5:
                                 this.state.redBagList = value[0];
                                 this.state.message = value[1];
+                                this.state.curNum = value[2];
+                                this.state.totalNum = value[3];
+                                this.state.totalAmount = value[4];
+                                _context.next = 12;
+                                return pull_1.getUserList([this.props.suid]);
+
+                            case 12:
+                                user = _context.sent;
+
+                                if (user) {
+                                    _context.next = 15;
+                                    break;
+                                }
+
+                                return _context.abrupt("return");
+
+                            case 15:
+                                this.state.userName = user.nickName;
+                                redBagList = value[0];
+                                i = 0;
+
+                            case 18:
+                                if (!(i < redBagList.length)) {
+                                    _context.next = 27;
+                                    break;
+                                }
+
+                                _context.next = 21;
+                                return pull_1.getUserList([redBagList[i].cuid]);
+
+                            case 21:
+                                _user = _context.sent;
+
+                                this.state.redBagList[i].userName = _user ? _user.nickName : this.state.cfgData.defaultUserName;
+                                if (this.props.rtype === 1 && redBagList.length === this.state.totalNum && this.state.greatAmount < redBagList[i].amount) {
+                                    this.state.greatAmount = redBagList.amount;
+                                    this.state.greatUser = i;
+                                }
+
+                            case 24:
+                                i++;
+                                _context.next = 18;
+                                break;
+
+                            case 27:
                                 this.paint();
 
-                            case 8:
+                            case 28:
                             case "end":
                                 return _context.stop();
                         }

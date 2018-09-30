@@ -19,7 +19,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var shareToPlatforms_1 = require("../../../../pi/browser/shareToPlatforms");
 var root_1 = require("../../../../pi/ui/root");
 var widget_1 = require("../../../../pi/widget/widget");
-var store_1 = require("../../../store/store");
+var pull_1 = require("../../../net/pull");
+var tools_1 = require("../../../utils/tools");
 // =========================================导出
 
 var Aboutus = function (_widget_1$Widget) {
@@ -35,13 +36,9 @@ var Aboutus = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(Aboutus.prototype.__proto__ || Object.getPrototypeOf(Aboutus.prototype), "create", this).call(this);
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
+            var cfg = tools_1.getLanguage(this);
             this.state = {
-                data: [{ value: cfg.itemTitle[0], components: 'app-view-mine-other-privacypolicy' }, { value: cfg.itemTitle[0], components: '' }, { value: cfg.itemTitle[0], components: '' }],
+                data: [{ value: cfg.itemTitle[0], components: 'app-view-mine-other-privacypolicy' }, { value: cfg.itemTitle[1], components: '' }, { value: cfg.itemTitle[2], components: '' }],
                 cfgData: cfg
             };
         }
@@ -54,11 +51,12 @@ var Aboutus = function (_widget_1$Widget) {
                 root_1.popNew('app-components-message-message', { content: this.state.cfgData.tips });
             } else {
                 // TODO 分享下载
-                root_1.popNew('app-components-share-share', { text: 'This is a test QRCode', shareType: shareToPlatforms_1.ShareToPlatforms.TYPE_IMG }, function (result) {
+                root_1.popNew('app-components-share-share', { shareType: shareToPlatforms_1.ShareToPlatforms.TYPE_LINK, url: pull_1.shareDownload }, function (result) {
                     // alert(result);
                 }, function (result) {
                     // alert(result);
                 });
+                console.error(pull_1.shareDownload);
             }
         }
     }, {

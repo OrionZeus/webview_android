@@ -84,11 +84,11 @@
 								var ind = _$i++;_$temp = _node14;{
 									var _$parent24 = _$temp;var _node19 = { "attrs": {}, "tagName": "div", "sid": 16 };_node19.children = [];_node19.attrSize = 1;_node19.attrHash = 738844491;{
 										var attrvalue = "";attrvalue += "goDetail(";attrvalue += ind;attrvalue += ")";_node19.attrs["on-tap"] = attrvalue;
-									}_node19.attrHash = _hash.nextHash(_node19.attrHash, _calTextHash(_node19.attrs["on-tap"]));var desc = val.totalNum ? val.curNum + "/" + val.totalNum + it1.cfgData.tips[4] : "";_$temp = _node19;{
+									}_node19.attrHash = _hash.nextHash(_node19.attrHash, _calTextHash(_node19.attrs["on-tap"]));_$temp = _node19;{
 										var _$parent25 = _$temp;var _node20 = { "attrs": {}, "tagName": "app-components-fourParaItem-fourParaItem", "sid": 17 };_node20.hasChild = false;_node20.child = null;_node20.attrHash = 0;_$temp = _node20;{
 											var _$parent26 = _$temp;var _node21 = {}; //jpair pre
 
-											_node21["name"] = val.rtypeShow;
+											_node21["name"] = val.userName;
 											//jpair suf
 											//jpair pre
 
@@ -100,7 +100,7 @@
 											//jpair suf
 											//jpair pre
 
-											_node21["describe"] = desc;
+											_node21["showPin"] = val.rtype == 1;
 											//jpair suf
 											_addJson(_node21, _$parent26);
 										}_chFunc(_node20);_$parent25.children.push(_node20);

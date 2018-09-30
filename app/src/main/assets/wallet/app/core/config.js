@@ -10,7 +10,7 @@ exports.config = {
     // 当前网络处于什么环境  dev--开发，prod--发布
     dev_mode: config_1.dev_mode,
     dev: {
-        //https://api.blockcypher.com/v1/btc/main
+        // https://api.blockcypher.com/v1/btc/main
         // tslint:disable-next-line:no-http-string
         BtcApiBaseUrl: 'http://192.168.33.115:3002/insight-api',
         BtcMarketPriceOracleUrl: 'https://api.coinmarketcap.com/v2/ticker/1/?convert=CNY',

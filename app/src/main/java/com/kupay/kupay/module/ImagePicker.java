@@ -14,6 +14,7 @@ import com.kupay.kupay.app.MainActivity;
 import com.kupay.kupay.base.BaseJSModule;
 import com.kupay.kupay.common.js.JSCallback;
 import com.kupay.kupay.util.FileUtil;
+import com.kupay.kupay.util.ToastManager;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -60,12 +61,16 @@ public class ImagePicker extends BaseJSModule {
      * Open the gallery to choose a piece of photo.
      */
     private void openGallery(boolean useCamera, boolean single, int max) {
-        //限数量的多选(比如最多9张)
-        ImageSelector.builder()
-                .useCamera(useCamera)//设置是否使用拍照
-                .setSingle(single)//设置是否单选
-                .setMaxSelectCount(max)//图片的最大选择数量，小于等于0时，不限数量。
-                .start(ctx, MainActivity.APP_RESULT_CODE);//打开相册
+        try {
+            //限数量的多选(比如最多9张)
+            ImageSelector.builder()
+                    .useCamera(useCamera)//设置是否使用拍照
+                    .setSingle(single)//设置是否单选
+                    .setMaxSelectCount(max)//图片的最大选择数量，小于等于0时，不限数量。
+                    .start(ctx, MainActivity.APP_RESULT_CODE);//打开相册
+        } catch (IndexOutOfBoundsException e) {
+            ToastManager.toast(ctx, "手机里面没有照片！");
+        }
     }
 
     /**

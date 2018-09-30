@@ -4,6 +4,8 @@ _$define("app/logic/native", function (require, exports, module){
 Object.defineProperty(exports, "__esModule", { value: true });
 var imagePicker_1 = require("../../pi/browser/imagePicker");
 var qrcode_1 = require("../../pi/browser/qrcode");
+var systemInfoProvider_1 = require("../../pi/browser/systemInfoProvider");
+var webViewHelper_1 = require("../../pi/browser/webViewHelper");
 var root_1 = require("../../pi/ui/root");
 /**
  * 一些底层操作
@@ -47,6 +49,36 @@ exports.doScanQrCode = function (ok, cancel) {
     qrcode.close({
         success: function success(r) {
             console.log("close result:" + r);
+        }
+    });
+};
+/**
+ * 打开新网页
+ */
+exports.openNewActivity = function (url) {
+    var title = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '测试';
+
+    var newWebView = new webViewHelper_1.WebViewHelper();
+    newWebView.init();
+    newWebView.open({
+        success: function success(result) {},
+        fail: function fail(result) {},
+        loadUrl: url,
+        title: title
+    });
+};
+/**
+ * 获取设备信息
+ */
+exports.getDeviceInfo = function () {
+    var systemInfo = new systemInfoProvider_1.SystemInfoProvider();
+    systemInfo.init();
+    systemInfo.getDeviceInfo({
+        success: function success(result) {
+            console.log('获取设备的系统信息成功\t' + result);
+        },
+        fail: function fail(result) {
+            console.log('获取设备的系统信息失败\t' + result);
         }
     });
 };

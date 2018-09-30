@@ -88,7 +88,8 @@ var ExchangeHistory = function (_widget_1$Widget) {
                                     hasMore: false,
                                     showMoreTips: false,
                                     inviteObj: null,
-                                    cfgData: this.config.value.simpleChinese
+                                    userList: [],
+                                    cfgData: tools_1.getLanguage(this)
                                 };
                                 this.initData();
 
@@ -107,10 +108,6 @@ var ExchangeHistory = function (_widget_1$Widget) {
     }, {
         key: "initData",
         value: function initData() {
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                this.state.cfgData = this.config.value[lan.languageList[lan.selected]];
-            }
             this.getInviteRedEnvelope();
             var cHisRec = store_1.find('cHisRec');
             if (cHisRec) {
@@ -159,18 +156,12 @@ var ExchangeHistory = function (_widget_1$Widget) {
 
                                 i = _context2.t1.value;
                                 _context2.next = 5;
-                                return pull_1.queryDetailLog(this.state.recordList[i].rid);
+                                return pull_1.getUserList([this.state.recordList[i].suid]);
 
                             case 5:
                                 data = _context2.sent;
 
-                                if (data) {
-                                    this.state.recordList[i].curNum = data[2];
-                                    this.state.recordList[i].totalNum = data[3];
-                                } else {
-                                    this.state.recordList[i].curNum = 0;
-                                    this.state.recordList[i].totalNum = 0;
-                                }
+                                this.state.recordList[i].userName = data ? data.nickName : this.state.cfgData.defaultName;
                                 _context2.next = 1;
                                 break;
 
@@ -227,7 +218,7 @@ var ExchangeHistory = function (_widget_1$Widget) {
                                 if (data.value && data.value !== '$nil') {
                                     this.state.inviteObj = {
                                         suid: 0,
-                                        rid: -1,
+                                        rid: '-1',
                                         rtype: 99,
                                         rtypeShow: tools_1.parseRtype(99),
                                         ctype: interface_1.CurrencyType.ETH,
@@ -275,17 +266,43 @@ var ExchangeHistory = function (_widget_1$Widget) {
     }, {
         key: "loadMore",
         value: function loadMore() {
-            var cHisRec = store_1.find('cHisRec');
-            if (!cHisRec) return;
-            var hList = cHisRec.list;
-            var start = this.state.recordList.length;
-            this.state.recordList = this.state.recordList.concat(hList.slice(start, start + constants_1.PAGELIMIT));
-            this.state.convertNumber = cHisRec.convertNumber;
-            this.state.start = cHisRec.start;
-            this.state.hasMore = this.state.convertNumber > this.state.recordList.length;
-            this.state.showMoreTips = this.state.convertNumber >= constants_1.PAGELIMIT;
-            this.initRedEnv();
-            this.innerPaint();
+            return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+                var cHisRec, hList, start;
+                return regeneratorRuntime.wrap(function _callee4$(_context4) {
+                    while (1) {
+                        switch (_context4.prev = _context4.next) {
+                            case 0:
+                                cHisRec = store_1.find('cHisRec');
+
+                                if (cHisRec) {
+                                    _context4.next = 3;
+                                    break;
+                                }
+
+                                return _context4.abrupt("return");
+
+                            case 3:
+                                hList = cHisRec.list;
+                                start = this.state.recordList.length;
+
+                                this.state.recordList = this.state.recordList.concat(hList.slice(start, start + constants_1.PAGELIMIT));
+                                this.state.convertNumber = cHisRec.convertNumber;
+                                this.state.start = cHisRec.start;
+                                this.state.hasMore = this.state.convertNumber > this.state.recordList.length;
+                                this.state.showMoreTips = this.state.convertNumber >= constants_1.PAGELIMIT;
+                                _context4.next = 12;
+                                return this.initRedEnv();
+
+                            case 12:
+                                this.innerPaint();
+
+                            case 13:
+                            case "end":
+                                return _context4.stop();
+                        }
+                    }
+                }, _callee4, this);
+            }));
         }
         /**
          * 页面滑动，加载更多数据

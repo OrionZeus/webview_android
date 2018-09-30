@@ -38,6 +38,7 @@ var api_2 = require("../core/eth/api");
 var wallet_1 = require("../core/eth/wallet");
 var globalWallet_1 = require("../core/globalWallet");
 var shapeshift_1 = require("../exchange/shapeshift/shapeshift");
+var dataCenter_1 = require("../logic/dataCenter");
 var interface_1 = require("../store/interface");
 var store_1 = require("../store/store");
 var constants_1 = require("../utils/constants");
@@ -45,7 +46,7 @@ var toolMessages_1 = require("../utils/toolMessages");
 var tools_1 = require("../utils/tools");
 var unitTools_1 = require("../utils/unitTools");
 var walletTools_1 = require("../utils/walletTools");
-var dataCenter_1 = require("../logic/dataCenter");
+// tslint:disable-next-line:max-line-length
 var pull_1 = require("./pull");
 // ===================================================== 导出
 /**
@@ -62,7 +63,7 @@ exports.transfer = function (psw, txRecord) {
                         fromAddr = txRecord.fromAddr;
                         currencyName = txRecord.currencyName;
                         ret = void 0;
-                        loading = root_1.popNew('app-components1-loading-loading', { text: '交易中...' });
+                        loading = root_1.popNew('app-components1-loading-loading', { text: tools_1.getStaticLanguage().transfer.loading });
                         _context.prev = 5;
                         addrIndex = globalWallet_1.GlobalWallet.getWltAddrIndex(wallet, fromAddr, currencyName);
 
@@ -150,7 +151,7 @@ exports.transfer = function (psw, txRecord) {
                             trans.push(tx);
                             store_1.updateStore('transactions', trans);
                             dataCenter_1.dataCenter.refreshTrans(tx.addr, tx.currencyName);
-                            root_1.popNew('app-components-message-message', { content: '转账成功' });
+                            root_1.popNew('app-components-message-message', { content: tools_1.getStaticLanguage().transfer.transSuccess });
                             root_1.popNew('app-view-wallet-transaction-transactionDetails', { hash: tx.hash });
                         }
                         return _context.abrupt("return", ret);
@@ -603,7 +604,7 @@ exports.doBtcTransfer = function (wlt, txRecord) {
                         wlt.lock();
                         // const rawHexString: string = retArr[0];
                         // console.log('rawTx',rawHexString);
-                        rawHexString = retArr['rawTx'];
+                        rawHexString = retArr.rawTx;
                         return _context9.abrupt("return", api_1.BtcApi.sendRawTransaction(rawHexString));
 
                     case 15:
@@ -716,43 +717,100 @@ exports.signRawTransactionBTC = function (psw, fromAddr, toAddr, pay, minerFeeLe
     }));
 };
 /**
- * 发送BTC交易
- * @param signedTx 签名交易
+ * BTC重发交易签名
  */
-exports.sendRawTransactionBTC = function (rawHexString) {
+exports.resendSignRawTransactionBTC = function (hash, psw, fromAddr, minerFeeLevel) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee12() {
-        var hash, ret;
+        var wallet, addrIndex, wlt, retArr;
         return regeneratorRuntime.wrap(function _callee12$(_context12) {
             while (1) {
                 switch (_context12.prev = _context12.next) {
                     case 0:
-                        hash = '';
+                        wallet = store_1.find('curWallet');
                         _context12.prev = 1;
-                        _context12.next = 4;
-                        return api_1.BtcApi.sendRawTransaction(rawHexString);
+                        addrIndex = globalWallet_1.GlobalWallet.getWltAddrIndex(wallet, fromAddr, 'BTC');
 
-                    case 4:
-                        ret = _context12.sent;
+                        if (!(addrIndex >= 0)) {
+                            _context12.next = 15;
+                            break;
+                        }
 
-                        hash = ret.txid;
-                        _context12.next = 11;
+                        _context12.next = 6;
+                        return globalWallet_1.GlobalWallet.createWlt('BTC', psw, wallet, addrIndex);
+
+                    case 6:
+                        wlt = _context12.sent;
+
+                        wlt.unlock();
+                        _context12.next = 10;
+                        return wlt.init();
+
+                    case 10:
+                        _context12.next = 12;
+                        return wlt.resendTx(hash, tools_1.fetchBtcMinerFee(minerFeeLevel));
+
+                    case 12:
+                        retArr = _context12.sent;
+
+                        wlt.lock();
+                        return _context12.abrupt("return", retArr);
+
+                    case 15:
+                        _context12.next = 20;
                         break;
 
-                    case 8:
-                        _context12.prev = 8;
+                    case 17:
+                        _context12.prev = 17;
                         _context12.t0 = _context12["catch"](1);
 
                         toolMessages_1.doErrorShow(_context12.t0);
 
-                    case 11:
-                        return _context12.abrupt("return", hash);
-
-                    case 12:
+                    case 20:
                     case "end":
                         return _context12.stop();
                 }
             }
-        }, _callee12, this, [[1, 8]]);
+        }, _callee12, this, [[1, 17]]);
+    }));
+};
+/**
+ * 发送BTC交易
+ * @param signedTx 签名交易
+ */
+exports.sendRawTransactionBTC = function (rawHexString) {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee13() {
+        var hash, ret;
+        return regeneratorRuntime.wrap(function _callee13$(_context13) {
+            while (1) {
+                switch (_context13.prev = _context13.next) {
+                    case 0:
+                        hash = '';
+                        _context13.prev = 1;
+                        _context13.next = 4;
+                        return api_1.BtcApi.sendRawTransaction(rawHexString);
+
+                    case 4:
+                        ret = _context13.sent;
+
+                        hash = ret.txid;
+                        _context13.next = 11;
+                        break;
+
+                    case 8:
+                        _context13.prev = 8;
+                        _context13.t0 = _context13["catch"](1);
+
+                        toolMessages_1.doErrorShow(_context13.t0);
+
+                    case 11:
+                        return _context13.abrupt("return", hash);
+
+                    case 12:
+                    case "end":
+                        return _context13.stop();
+                }
+            }
+        }, _callee13, this, [[1, 8]]);
     }));
 };
 // ===================================================shapeShift相关start
@@ -797,20 +855,20 @@ exports.beginShift = function (withdrawalAddress, returnAddress, pair, success, 
         apiKey: constants_1.shapeshiftApiPublicKey
     };
     shapeshift_1.shapeshift.shift(withdrawalAddress, pair, options, function (err, returnData) {
-        return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee13() {
-            return regeneratorRuntime.wrap(function _callee13$(_context13) {
+        return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee14() {
+            return regeneratorRuntime.wrap(function _callee14$(_context14) {
                 while (1) {
-                    switch (_context13.prev = _context13.next) {
+                    switch (_context14.prev = _context14.next) {
                         case 0:
                             console.log('returnData', returnData);
 
                             if (!err) {
-                                _context13.next = 4;
+                                _context14.next = 4;
                                 break;
                             }
 
                             fail && fail(err);
-                            return _context13.abrupt("return");
+                            return _context14.abrupt("return");
 
                         case 4:
                             // ShapeShift owned BTC address that you send your BTC to
@@ -832,10 +890,10 @@ exports.beginShift = function (withdrawalAddress, returnAddress, pair, success, 
 
                         case 5:
                         case "end":
-                            return _context13.stop();
+                            return _context14.stop();
                     }
                 }
-            }, _callee13, this);
+            }, _callee14, this);
         }));
     });
 };
@@ -844,11 +902,11 @@ exports.beginShift = function (withdrawalAddress, returnAddress, pair, success, 
  * @param addr 要获取交易记录的地址
  */
 exports.getTransactionsByAddr = function (addr) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee14() {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee15() {
         var addrLowerCase, transactions, getTxByHash, shapeShiftTxsMap, shapeShiftTxs, count, txs;
-        return regeneratorRuntime.wrap(function _callee14$(_context14) {
+        return regeneratorRuntime.wrap(function _callee15$(_context15) {
             while (1) {
-                switch (_context14.prev = _context14.next) {
+                switch (_context15.prev = _context15.next) {
                     case 0:
                         addrLowerCase = addr.toLowerCase();
 
@@ -879,27 +937,27 @@ exports.getTransactionsByAddr = function (addr) {
 
                     case 6:
                         if (!(count >= 0)) {
-                            _context14.next = 26;
+                            _context15.next = 26;
                             break;
                         }
 
                         txs = void 0;
-                        _context14.prev = 8;
-                        _context14.next = 11;
+                        _context15.prev = 8;
+                        _context15.next = 11;
                         return transactions(addrLowerCase);
 
                     case 11:
-                        txs = _context14.sent;
-                        _context14.next = 16;
+                        txs = _context15.sent;
+                        _context15.next = 16;
                         break;
 
                     case 14:
-                        _context14.prev = 14;
-                        _context14.t0 = _context14["catch"](8);
+                        _context15.prev = 14;
+                        _context15.t0 = _context15["catch"](8);
 
                     case 16:
                         if (!txs) {
-                            _context14.next = 22;
+                            _context15.next = 22;
                             break;
                         }
 
@@ -914,12 +972,12 @@ exports.getTransactionsByAddr = function (addr) {
                         });
                         shapeShiftTxsMap.set(addrLowerCase, shapeShiftTxs);
                         store_1.updateStore('shapeShiftTxsMap', shapeShiftTxsMap);
-                        return _context14.abrupt("return");
+                        return _context15.abrupt("return");
 
                     case 22:
                         count--;
                         console.log(count);
-                        _context14.next = 6;
+                        _context15.next = 6;
                         break;
 
                     case 26:
@@ -927,10 +985,10 @@ exports.getTransactionsByAddr = function (addr) {
 
                     case 27:
                     case "end":
-                        return _context14.stop();
+                        return _context15.stop();
                 }
             }
-        }, _callee14, this, [[8, 14]]);
+        }, _callee15, this, [[8, 14]]);
     }));
 };
 // ===================================================shapeShift相关end
@@ -940,99 +998,99 @@ exports.getTransactionsByAddr = function (addr) {
  * 普通转账重发
  */
 exports.resendNormalTransfer = function (psw, txRecord) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee15() {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee16() {
         var loading, wallet, fromAddr, currencyName, ret, addrIndex, wlt, res, t, tx, oldHash, index, trans, i;
-        return regeneratorRuntime.wrap(function _callee15$(_context15) {
+        return regeneratorRuntime.wrap(function _callee16$(_context16) {
             while (1) {
-                switch (_context15.prev = _context15.next) {
+                switch (_context16.prev = _context16.next) {
                     case 0:
                         console.log('----------resendNormalTransfer--------------');
-                        loading = root_1.popNew('app-components1-loading-loading', { text: '重发中...' });
+                        loading = root_1.popNew('app-components1-loading-loading', { text: tools_1.getStaticLanguage().transfer.againSend });
                         wallet = store_1.find('curWallet');
                         fromAddr = txRecord.fromAddr;
                         currencyName = txRecord.currencyName;
                         ret = void 0;
-                        _context15.prev = 6;
+                        _context16.prev = 6;
                         addrIndex = globalWallet_1.GlobalWallet.getWltAddrIndex(wallet, fromAddr, currencyName);
 
                         if (!(addrIndex >= 0)) {
-                            _context15.next = 31;
+                            _context16.next = 31;
                             break;
                         }
 
-                        _context15.next = 11;
+                        _context16.next = 11;
                         return globalWallet_1.GlobalWallet.createWlt(currencyName, psw, wallet, addrIndex);
 
                     case 11:
-                        wlt = _context15.sent;
+                        wlt = _context16.sent;
 
                         if (!(currencyName === 'ETH')) {
-                            _context15.next = 19;
+                            _context16.next = 19;
                             break;
                         }
 
-                        _context15.next = 15;
+                        _context16.next = 15;
                         return exports.doEthTransfer(wlt, txRecord);
 
                     case 15:
-                        ret = _context15.sent;
+                        ret = _context16.sent;
 
                         console.log('--------------ret', ret);
-                        _context15.next = 31;
+                        _context16.next = 31;
                         break;
 
                     case 19:
                         if (!(currencyName === 'BTC')) {
-                            _context15.next = 27;
+                            _context16.next = 27;
                             break;
                         }
 
-                        _context15.next = 22;
+                        _context16.next = 22;
                         return exports.resendBtcTransfer(wlt, txRecord);
 
                     case 22:
-                        res = _context15.sent;
+                        res = _context16.sent;
 
                         console.log('btc res-----', res);
                         ret = {
                             hash: res.txid,
                             nonce: -1
                         };
-                        _context15.next = 31;
+                        _context16.next = 31;
                         break;
 
                     case 27:
                         if (!config_1.ERC20Tokens[currencyName]) {
-                            _context15.next = 31;
+                            _context16.next = 31;
                             break;
                         }
 
-                        _context15.next = 30;
+                        _context16.next = 30;
                         return exports.doERC20TokenTransfer(wlt, txRecord);
 
                     case 30:
-                        ret = _context15.sent;
+                        ret = _context16.sent;
 
                     case 31:
-                        _context15.next = 37;
+                        _context16.next = 37;
                         break;
 
                     case 33:
-                        _context15.prev = 33;
-                        _context15.t0 = _context15["catch"](6);
+                        _context16.prev = 33;
+                        _context16.t0 = _context16["catch"](6);
 
-                        console.log(_context15.t0.message);
-                        toolMessages_1.doErrorShow(_context15.t0);
+                        console.log(_context16.t0.message);
+                        toolMessages_1.doErrorShow(_context16.t0);
 
                     case 37:
-                        _context15.prev = 37;
+                        _context16.prev = 37;
 
                         loading.callback(loading.widget);
-                        return _context15.finish(37);
+                        return _context16.finish(37);
 
                     case 40:
                         if (!ret) {
-                            _context15.next = 60;
+                            _context16.next = 60;
                             break;
                         }
 
@@ -1045,280 +1103,190 @@ exports.resendNormalTransfer = function (psw, txRecord) {
 
                     case 47:
                         if (!(i < trans.length)) {
-                            _context15.next = 54;
+                            _context16.next = 54;
                             break;
                         }
 
                         if (!(trans[i].hash === oldHash)) {
-                            _context15.next = 51;
+                            _context16.next = 51;
                             break;
                         }
 
                         index = i;
-                        return _context15.abrupt("break", 54);
+                        return _context16.abrupt("break", 54);
 
                     case 51:
                         i++;
-                        _context15.next = 47;
+                        _context16.next = 47;
                         break;
 
                     case 54:
-                        trans.splice(index, 1, tx); //删除重发前的本地记录
+                        trans.splice(index, 1, tx); // 删除重发前的本地记录
                         store_1.updateStore('transactions', trans);
-                        dataCenter_1.dataCenter.clearTimer(oldHash); //删除定时器
+                        dataCenter_1.dataCenter.clearTimer(oldHash); // 删除定时器
                         dataCenter_1.dataCenter.refreshTrans(tx.fromAddr, tx.currencyName);
-                        root_1.popNew('app-components-message-message', { content: '重发成功' });
+                        root_1.popNew('app-components-message-message', { content: tools_1.getStaticLanguage().transfer.againSuccess });
                         root_1.popNew('app-view-wallet-transaction-transactionDetails', { hash: tx.hash });
 
                     case 60:
-                        return _context15.abrupt("return", ret);
+                        return _context16.abrupt("return", ret);
 
                     case 61:
                     case "end":
-                        return _context15.stop();
+                        return _context16.stop();
                 }
             }
-        }, _callee15, this, [[6, 33, 37, 40]]);
+        }, _callee16, this, [[6, 33, 37, 40]]);
     }));
 };
 /**
  * 充值重发
  */
 exports.resendRecharge = function (psw, txRecord) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee16() {
-        var loading, h, t, tx, oldHash, index, trans, i;
-        return regeneratorRuntime.wrap(function _callee16$(_context16) {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee17() {
+        var loading, tx, oldHash, index, trans, i;
+        return regeneratorRuntime.wrap(function _callee17$(_context17) {
             while (1) {
-                switch (_context16.prev = _context16.next) {
+                switch (_context17.prev = _context17.next) {
                     case 0:
-                        console.log('----------resendNormalTransfer--------------');
-                        loading = root_1.popNew('app-components1-loading-loading', { text: '重发中...' });
-                        h = void 0;
-                        _context16.prev = 3;
+                        console.log('----------resendRecharge--------------');
+                        loading = root_1.popNew('app-components1-loading-loading', { text: tools_1.getStaticLanguage().transfer.againSend });
+                        tx = void 0;
+                        _context17.prev = 3;
 
                         if (!(txRecord.currencyName === 'BTC')) {
-                            _context16.next = 10;
+                            _context17.next = 10;
                             break;
                         }
 
-                        _context16.next = 7;
-                        return exports.btcRecharge(psw, txRecord);
+                        _context17.next = 7;
+                        return exports.resendBtcRecharge(psw, txRecord);
 
                     case 7:
-                        h = _context16.sent;
-                        _context16.next = 13;
+                        tx = _context17.sent;
+                        _context17.next = 13;
                         break;
 
                     case 10:
-                        _context16.next = 12;
+                        _context17.next = 12;
                         return exports.ethRecharge(psw, txRecord);
 
                     case 12:
-                        h = _context16.sent;
+                        tx = _context17.sent;
 
                     case 13:
-                        _context16.next = 19;
+                        _context17.next = 19;
                         break;
 
                     case 15:
-                        _context16.prev = 15;
-                        _context16.t0 = _context16["catch"](3);
+                        _context17.prev = 15;
+                        _context17.t0 = _context17["catch"](3);
 
-                        console.log(_context16.t0.message);
-                        toolMessages_1.doErrorShow(_context16.t0);
+                        console.log(_context17.t0.message);
+                        toolMessages_1.doErrorShow(_context17.t0);
 
                     case 19:
-                        _context16.prev = 19;
+                        _context17.prev = 19;
 
                         loading.callback(loading.widget);
-                        return _context16.finish(19);
+                        return _context17.finish(19);
 
                     case 22:
-                        if (!h) {
-                            _context16.next = 42;
+                        if (!tx) {
+                            _context17.next = 41;
                             break;
                         }
 
-                        t = new Date();
-                        tx = Object.assign({}, txRecord, { hash: h, time: t.getTime() });
                         oldHash = txRecord.hash;
                         index = -1;
                         trans = store_1.find('transactions');
                         i = 0;
 
-                    case 29:
+                    case 27:
                         if (!(i < trans.length)) {
-                            _context16.next = 36;
+                            _context17.next = 34;
                             break;
                         }
 
                         if (!(trans[i].hash === oldHash)) {
-                            _context16.next = 33;
+                            _context17.next = 31;
                             break;
                         }
 
                         index = i;
-                        return _context16.abrupt("break", 36);
+                        return _context17.abrupt("break", 34);
 
-                    case 33:
+                    case 31:
                         i++;
-                        _context16.next = 29;
+                        _context17.next = 27;
                         break;
 
-                    case 36:
-                        trans.splice(index, 1, tx); //删除重发前的本地记录
+                    case 34:
+                        trans.splice(index, 1, tx); // 删除重发前的本地记录
                         store_1.updateStore('transactions', trans);
-                        dataCenter_1.dataCenter.clearTimer(oldHash); //删除定时器
+                        dataCenter_1.dataCenter.clearTimer(oldHash); // 删除定时器
                         dataCenter_1.dataCenter.refreshTrans(tx.fromAddr, tx.currencyName);
-                        root_1.popNew('app-components-message-message', { content: '重发成功' });
+                        pull_1.getRechargeLogs(tx.currencyName);
+                        root_1.popNew('app-components-message-message', { content: tools_1.getStaticLanguage().transfer.againSuccess });
                         root_1.popNew('app-view-wallet-transaction-transactionDetails', { hash: tx.hash });
 
+                    case 41:
+                        return _context17.abrupt("return", tx.hash);
+
                     case 42:
-                        return _context16.abrupt("return", h);
-
-                    case 43:
-                    case "end":
-                        return _context16.stop();
-                }
-            }
-        }, _callee16, this, [[3, 15, 19, 22]]);
-    }));
-};
-// ================================重发
-exports.recharge = function (psw, txRecord) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee17() {
-        return regeneratorRuntime.wrap(function _callee17$(_context17) {
-            while (1) {
-                switch (_context17.prev = _context17.next) {
-                    case 0:
-                        if (!(txRecord.currencyName === 'BTC')) {
-                            _context17.next = 4;
-                            break;
-                        }
-
-                        return _context17.abrupt("return", exports.btcRecharge(psw, txRecord));
-
-                    case 4:
-                        return _context17.abrupt("return", exports.ethRecharge(psw, txRecord));
-
-                    case 5:
                     case "end":
                         return _context17.stop();
                 }
             }
-        }, _callee17, this);
+        }, _callee17, this, [[3, 15, 19, 22]]);
     }));
 };
-/**
- * eth充值
- */
-exports.ethRecharge = function (psw, txRecord) {
+// ================================重发
+exports.recharge = function (psw, txRecord) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee18() {
-        var close, toAddr, fromAddr, minerFeeLevel, gasPrice, pay, info, gasLimit, minerFee, nonce, obj, signedTX, hash, canTransfer, h, nonceMap, t, record, trans;
+        var tx, close, trans;
         return regeneratorRuntime.wrap(function _callee18$(_context18) {
             while (1) {
                 switch (_context18.prev = _context18.next) {
                     case 0:
-                        close = root_1.popNew('app-components1-loading-loading', { text: '正在充值...' });
-                        _context18.next = 3;
-                        return pull_1.getBankAddr();
+                        tx = void 0;
+                        close = root_1.popNew('app-components1-loading-loading', { text: tools_1.getStaticLanguage().transfer.recharge });
 
-                    case 3:
-                        toAddr = _context18.sent;
-
-                        if (toAddr) {
-                            _context18.next = 7;
+                        if (!(txRecord.currencyName === 'BTC')) {
+                            _context18.next = 8;
                             break;
                         }
 
-                        close.callback(close.widget);
-                        return _context18.abrupt("return");
+                        _context18.next = 5;
+                        return exports.btcRecharge(psw, txRecord);
 
-                    case 7:
-                        fromAddr = txRecord.fromAddr;
-                        minerFeeLevel = txRecord.minerFeeLevel;
-                        gasPrice = tools_1.fetchGasPrice(minerFeeLevel);
-                        pay = txRecord.pay;
-                        info = txRecord.info;
-                        _context18.next = 14;
-                        return exports.estimateGasETH(toAddr, info);
+                    case 5:
+                        tx = _context18.sent;
+                        _context18.next = 11;
+                        break;
+
+                    case 8:
+                        _context18.next = 10;
+                        return exports.ethRecharge(psw, txRecord);
+
+                    case 10:
+                        tx = _context18.sent;
+
+                    case 11:
+                        close.callback(close.widget);
+                        if (tx) {
+                            root_1.popNew('app-components-message-message', { content: tools_1.getStaticLanguage().transfer.rechargeSuccess });
+                            trans = store_1.find('transactions');
+
+                            trans.push(tx);
+                            store_1.updateStore('transactions', trans);
+                            dataCenter_1.dataCenter.refreshTrans(tx.fromAddr, tx.currencyName);
+                            pull_1.getRechargeLogs(tx.currencyName);
+                            root_1.popNew('app-view-wallet-transaction-transactionDetails', { hash: tx.hash });
+                        }
+                        return _context18.abrupt("return", tx.hash);
 
                     case 14:
-                        gasLimit = _context18.sent;
-                        minerFee = unitTools_1.wei2Eth(gasLimit * tools_1.fetchGasPrice(minerFeeLevel));
-                        nonce = txRecord.nonce;
-                        _context18.next = 19;
-                        return exports.signRawTransactionETH(psw, fromAddr, toAddr, pay, minerFeeLevel, info, nonce);
-
-                    case 19:
-                        obj = _context18.sent;
-
-                        if (obj) {
-                            _context18.next = 23;
-                            break;
-                        }
-
-                        close.callback(close.widget);
-                        return _context18.abrupt("return");
-
-                    case 23:
-                        signedTX = obj.signedTx;
-                        hash = "0x" + obj.hash;
-
-                        nonce = Number(obj.nonce);
-                        _context18.next = 28;
-                        return pull_1.rechargeToServer(fromAddr, toAddr, hash, nonce, gasPrice, unitTools_1.eth2Wei(pay));
-
-                    case 28:
-                        canTransfer = _context18.sent;
-
-                        if (canTransfer) {
-                            _context18.next = 32;
-                            break;
-                        }
-
-                        close.callback(close.widget);
-                        return _context18.abrupt("return");
-
-                    case 32:
-                        _context18.next = 34;
-                        return exports.sendRawTransactionETH(signedTX);
-
-                    case 34:
-                        h = _context18.sent;
-
-                        close.callback(close.widget);
-
-                        if (h) {
-                            _context18.next = 38;
-                            break;
-                        }
-
-                        return _context18.abrupt("return");
-
-                    case 38:
-                        if (!txRecord.nonce) {
-                            nonceMap = store_1.getBorn('nonceMap');
-
-                            nonceMap.set(fromAddr, nonce + 1);
-                            store_1.updateStore('nonceMap', nonceMap);
-                        }
-                        root_1.popNew('app-components-message-message', { content: '充值成功' });
-                        // 维护本地交易记录
-                        t = new Date();
-                        record = Object.assign({}, txRecord, { nonce: nonce,
-                            hash: hash,
-                            toAddr: toAddr, time: t.getTime(), fee: minerFee, minerFeeLevel: minerFeeLevel });
-                        trans = store_1.find('transactions');
-
-                        trans.push(record);
-                        store_1.updateStore('transactions', trans);
-                        dataCenter_1.dataCenter.refreshTrans(record.fromAddr, record.currencyName);
-                        pull_1.getRechargeLogs('ETH');
-                        root_1.popNew('app-view-wallet-transaction-transactionDetails', { hash: record.hash });
-                        return _context18.abrupt("return", h);
-
-                    case 49:
                     case "end":
                         return _context18.stop();
                 }
@@ -1327,99 +1295,103 @@ exports.ethRecharge = function (psw, txRecord) {
     }));
 };
 /**
- * btc充值
+ * eth充值
  */
-exports.btcRecharge = function (psw, txRecord) {
+exports.ethRecharge = function (psw, txRecord) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee19() {
-        var close, toAddr, fromAddr, minerFeeLevel, pay, minerFee, obj, oldHash, signedTX, hash, canTransfer, h, t, record, trans;
+        var toAddr, fromAddr, minerFeeLevel, gasPrice, pay, info, gasLimit, minerFee, nonce, obj, signedTX, hash, canTransfer, h, nonceMap, t, record;
         return regeneratorRuntime.wrap(function _callee19$(_context19) {
             while (1) {
                 switch (_context19.prev = _context19.next) {
                     case 0:
-                        close = root_1.popNew('app-components1-loading-loading', { text: '正在充值...' });
-                        _context19.next = 3;
-                        return pull_1.getBtcBankAddr();
+                        _context19.next = 2;
+                        return pull_1.getBankAddr();
 
-                    case 3:
+                    case 2:
                         toAddr = _context19.sent;
 
                         if (toAddr) {
-                            _context19.next = 7;
+                            _context19.next = 5;
                             break;
                         }
 
-                        close.callback(close.widget);
                         return _context19.abrupt("return");
 
-                    case 7:
+                    case 5:
                         fromAddr = txRecord.fromAddr;
                         minerFeeLevel = txRecord.minerFeeLevel;
+                        gasPrice = tools_1.fetchGasPrice(minerFeeLevel);
                         pay = txRecord.pay;
-                        minerFee = tools_1.fetchBtcMinerFee(minerFeeLevel);
-                        _context19.next = 13;
-                        return exports.signRawTransactionBTC(psw, fromAddr, toAddr, pay, minerFeeLevel);
+                        info = txRecord.info;
+                        _context19.next = 12;
+                        return exports.estimateGasETH(toAddr, info);
 
-                    case 13:
+                    case 12:
+                        gasLimit = _context19.sent;
+                        minerFee = unitTools_1.wei2Eth(gasLimit * tools_1.fetchGasPrice(minerFeeLevel));
+                        nonce = txRecord.nonce;
+                        _context19.next = 17;
+                        return exports.signRawTransactionETH(psw, fromAddr, toAddr, pay, minerFeeLevel, info, nonce);
+
+                    case 17:
                         obj = _context19.sent;
 
                         if (obj) {
-                            _context19.next = 17;
+                            _context19.next = 20;
                             break;
                         }
 
-                        close.callback(close.widget);
                         return _context19.abrupt("return");
 
-                    case 17:
-                        oldHash = txRecord.hash;
-                        signedTX = obj['rawTx'];
-                        hash = obj['hash'];
-                        _context19.next = 22;
-                        return pull_1.btcRechargeToServer(toAddr, hash, unitTools_1.btc2Sat(pay).toString(), minerFee, oldHash);
+                    case 20:
+                        signedTX = obj.signedTx;
+                        hash = "0x" + obj.hash;
 
-                    case 22:
+                        nonce = Number(obj.nonce);
+                        _context19.next = 25;
+                        return pull_1.rechargeToServer(fromAddr, toAddr, hash, nonce, gasPrice, unitTools_1.eth2Wei(pay));
+
+                    case 25:
                         canTransfer = _context19.sent;
 
                         if (canTransfer) {
-                            _context19.next = 26;
+                            _context19.next = 28;
                             break;
                         }
 
-                        close.callback(close.widget);
                         return _context19.abrupt("return");
-
-                    case 26:
-                        _context19.next = 28;
-                        return exports.sendRawTransactionBTC(signedTX);
 
                     case 28:
+                        _context19.next = 30;
+                        return exports.sendRawTransactionETH(signedTX);
+
+                    case 30:
                         h = _context19.sent;
 
-                        close.callback(close.widget);
-
                         if (h) {
-                            _context19.next = 32;
+                            _context19.next = 33;
                             break;
                         }
 
                         return _context19.abrupt("return");
 
-                    case 32:
-                        root_1.popNew('app-components-message-message', { content: '充值成功' });
+                    case 33:
+                        if (!txRecord.nonce) {
+                            nonceMap = store_1.getBorn('nonceMap');
+
+                            nonceMap.set(fromAddr, nonce + 1);
+                            store_1.updateStore('nonceMap', nonceMap);
+                        }
                         // 维护本地交易记录
                         t = new Date();
-                        record = Object.assign({}, txRecord, { hash: hash,
+                        // tslint:disable-next-line:no-unnecessary-local-variable
+
+                        record = Object.assign({}, txRecord, { nonce: nonce,
+                            hash: hash,
                             toAddr: toAddr, time: t.getTime(), fee: minerFee, minerFeeLevel: minerFeeLevel });
-                        trans = store_1.find('transactions');
+                        return _context19.abrupt("return", record);
 
-                        trans.push(record);
-                        store_1.updateStore('transactions', trans);
-                        dataCenter_1.dataCenter.refreshTrans(record.fromAddr, record.currencyName);
-                        pull_1.getRechargeLogs('BTC');
-                        root_1.popNew('app-view-wallet-transaction-transactionDetails', { hash: record.hash });
-                        return _context19.abrupt("return", h);
-
-                    case 42:
+                    case 37:
                     case "end":
                         return _context19.stop();
                 }
@@ -1428,26 +1400,87 @@ exports.btcRecharge = function (psw, txRecord) {
     }));
 };
 /**
- *
- * 提现
+ * btc充值
  */
-exports.withdraw = function (passwd, toAddr, currencyName, amount) {
+exports.btcRecharge = function (psw, txRecord) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee20() {
+        var toAddr, fromAddr, minerFeeLevel, pay, minerFee, obj, oldHash, signedTX, hash, canTransfer, h, t, record;
         return regeneratorRuntime.wrap(function _callee20$(_context20) {
             while (1) {
                 switch (_context20.prev = _context20.next) {
                     case 0:
-                        if (!(currencyName === 'BTC')) {
-                            _context20.next = 4;
+                        _context20.next = 2;
+                        return pull_1.getBtcBankAddr();
+
+                    case 2:
+                        toAddr = _context20.sent;
+
+                        if (toAddr) {
+                            _context20.next = 5;
                             break;
                         }
 
-                        return _context20.abrupt("return", exports.btcWithdraw(passwd, toAddr, amount));
-
-                    case 4:
-                        return _context20.abrupt("return", exports.ethWithdraw(passwd, toAddr, amount));
+                        return _context20.abrupt("return");
 
                     case 5:
+                        fromAddr = txRecord.fromAddr;
+                        minerFeeLevel = txRecord.minerFeeLevel;
+                        pay = txRecord.pay;
+                        minerFee = tools_1.fetchBtcMinerFee(minerFeeLevel);
+                        _context20.next = 11;
+                        return exports.signRawTransactionBTC(psw, fromAddr, toAddr, pay, minerFeeLevel);
+
+                    case 11:
+                        obj = _context20.sent;
+
+                        if (obj) {
+                            _context20.next = 14;
+                            break;
+                        }
+
+                        return _context20.abrupt("return");
+
+                    case 14:
+                        oldHash = txRecord.hash;
+                        signedTX = obj.rawTx;
+                        hash = obj.hash;
+                        _context20.next = 19;
+                        return pull_1.btcRechargeToServer(toAddr, hash, unitTools_1.btc2Sat(pay).toString(), minerFee, oldHash);
+
+                    case 19:
+                        canTransfer = _context20.sent;
+
+                        if (canTransfer) {
+                            _context20.next = 22;
+                            break;
+                        }
+
+                        return _context20.abrupt("return");
+
+                    case 22:
+                        _context20.next = 24;
+                        return exports.sendRawTransactionBTC(signedTX);
+
+                    case 24:
+                        h = _context20.sent;
+
+                        if (h) {
+                            _context20.next = 27;
+                            break;
+                        }
+
+                        return _context20.abrupt("return");
+
+                    case 27:
+                        // 维护本地交易记录
+                        t = new Date();
+                        // tslint:disable-next-line:no-unnecessary-local-variable
+
+                        record = Object.assign({}, txRecord, { hash: hash,
+                            toAddr: toAddr, time: t.getTime(), fee: minerFee, minerFeeLevel: minerFeeLevel });
+                        return _context20.abrupt("return", record);
+
+                    case 30:
                     case "end":
                         return _context20.stop();
                 }
@@ -1455,46 +1488,162 @@ exports.withdraw = function (passwd, toAddr, currencyName, amount) {
         }, _callee20, this);
     }));
 };
-// eth提现
-exports.ethWithdraw = function (passwd, toAddr, amount) {
+/**
+ * btc重发充值
+ */
+exports.resendBtcRecharge = function (psw, txRecord) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee21() {
-        var wallet, close, verify, hash, tx;
+        var toAddr, fromAddr, minerFeeLevel, pay, minerFee, ret, oldHash, hash, signedTx, canTransfer, h, t, record;
         return regeneratorRuntime.wrap(function _callee21$(_context21) {
             while (1) {
                 switch (_context21.prev = _context21.next) {
                     case 0:
+                        _context21.next = 2;
+                        return pull_1.getBtcBankAddr();
+
+                    case 2:
+                        toAddr = _context21.sent;
+
+                        if (toAddr) {
+                            _context21.next = 5;
+                            break;
+                        }
+
+                        return _context21.abrupt("return");
+
+                    case 5:
+                        fromAddr = txRecord.fromAddr;
+                        minerFeeLevel = txRecord.minerFeeLevel;
+                        pay = txRecord.pay;
+                        minerFee = tools_1.fetchBtcMinerFee(minerFeeLevel);
+                        _context21.next = 11;
+                        return exports.resendSignRawTransactionBTC(txRecord.hash, psw, fromAddr, minerFeeLevel);
+
+                    case 11:
+                        ret = _context21.sent;
+
+                        if (ret) {
+                            _context21.next = 14;
+                            break;
+                        }
+
+                        return _context21.abrupt("return");
+
+                    case 14:
+                        oldHash = txRecord.hash;
+                        hash = ret.newTxid;
+                        signedTx = ret.rawTx;
+                        _context21.next = 19;
+                        return pull_1.btcRechargeToServer(toAddr, hash, unitTools_1.btc2Sat(pay).toString(), minerFee, oldHash);
+
+                    case 19:
+                        canTransfer = _context21.sent;
+
+                        if (canTransfer) {
+                            _context21.next = 22;
+                            break;
+                        }
+
+                        return _context21.abrupt("return");
+
+                    case 22:
+                        _context21.next = 24;
+                        return exports.sendRawTransactionBTC(signedTx);
+
+                    case 24:
+                        h = _context21.sent;
+
+                        if (h) {
+                            _context21.next = 27;
+                            break;
+                        }
+
+                        return _context21.abrupt("return");
+
+                    case 27:
+                        // 维护本地交易记录
+                        t = new Date();
+                        // tslint:disable-next-line:no-unnecessary-local-variable
+
+                        record = Object.assign({}, txRecord, { hash: hash, time: t.getTime(), fee: minerFee, minerFeeLevel: minerFeeLevel });
+                        return _context21.abrupt("return", record);
+
+                    case 30:
+                    case "end":
+                        return _context21.stop();
+                }
+            }
+        }, _callee21, this);
+    }));
+};
+/**
+ *
+ * 提现
+ */
+exports.withdraw = function (passwd, toAddr, currencyName, amount) {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee22() {
+        return regeneratorRuntime.wrap(function _callee22$(_context22) {
+            while (1) {
+                switch (_context22.prev = _context22.next) {
+                    case 0:
+                        if (!(currencyName === 'BTC')) {
+                            _context22.next = 4;
+                            break;
+                        }
+
+                        return _context22.abrupt("return", exports.btcWithdraw(passwd, toAddr, amount));
+
+                    case 4:
+                        return _context22.abrupt("return", exports.ethWithdraw(passwd, toAddr, amount));
+
+                    case 5:
+                    case "end":
+                        return _context22.stop();
+                }
+            }
+        }, _callee22, this);
+    }));
+};
+// eth提现
+exports.ethWithdraw = function (passwd, toAddr, amount) {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee23() {
+        var wallet, close, verify, hash, tx;
+        return regeneratorRuntime.wrap(function _callee23$(_context23) {
+            while (1) {
+                switch (_context23.prev = _context23.next) {
+                    case 0:
                         wallet = store_1.find('curWallet');
-                        close = root_1.popNew('app-components1-loading-loading', { text: '正在提现...' });
-                        _context21.next = 4;
+                        close = root_1.popNew('app-components1-loading-loading', { text: tools_1.getStaticLanguage().transfer.withdraw });
+                        _context23.next = 4;
                         return walletTools_1.VerifyIdentidy(wallet, passwd);
 
                     case 4:
-                        verify = _context21.sent;
+                        verify = _context23.sent;
 
                         if (verify) {
-                            _context21.next = 9;
+                            _context23.next = 9;
                             break;
                         }
 
                         close.callback(close.widget);
-                        root_1.popNew('app-components-message-message', { content: '密码错误' });
-                        return _context21.abrupt("return");
+                        root_1.popNew('app-components-message-message', { content: tools_1.getStaticLanguage().transfer.wrongPsw });
+                        return _context23.abrupt("return");
 
                     case 9:
-                        _context21.next = 11;
+                        _context23.next = 11;
                         return pull_1.withdrawFromServer(toAddr, unitTools_1.eth2Wei(amount));
 
                     case 11:
-                        hash = _context21.sent;
+                        hash = _context23.sent;
 
                         close.callback(close.widget);
                         if (hash) {
-                            root_1.popNew('app-components-message-message', { content: '提现成功' });
+                            root_1.popNew('app-components-message-message', { content: tools_1.getStaticLanguage().transfer.withdrawSuccess });
                             tx = {
                                 hash: hash,
                                 addr: toAddr,
                                 txType: interface_1.TxType.RECEIPT,
-                                fromAddr: "",
+                                fromAddr: '',
                                 toAddr: toAddr,
                                 pay: Number(amount),
                                 time: new Date().getTime(),
@@ -1510,56 +1659,56 @@ exports.ethWithdraw = function (passwd, toAddr, amount) {
                             dataCenter_1.dataCenter.timerUpdateTxWithdraw(tx);
                             pull_1.getWithdrawLogs('ETH');
                         }
-                        return _context21.abrupt("return", hash);
+                        return _context23.abrupt("return", hash);
 
                     case 15:
                     case "end":
-                        return _context21.stop();
+                        return _context23.stop();
                 }
             }
-        }, _callee21, this);
+        }, _callee23, this);
     }));
 };
 // btc提现
 exports.btcWithdraw = function (passwd, toAddr, amount) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee22() {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee24() {
         var wallet, close, verify, hash, tx;
-        return regeneratorRuntime.wrap(function _callee22$(_context22) {
+        return regeneratorRuntime.wrap(function _callee24$(_context24) {
             while (1) {
-                switch (_context22.prev = _context22.next) {
+                switch (_context24.prev = _context24.next) {
                     case 0:
                         wallet = store_1.find('curWallet');
-                        close = root_1.popNew('app-components1-loading-loading', { text: '正在提现...' });
-                        _context22.next = 4;
+                        close = root_1.popNew('app-components1-loading-loading', { text: tools_1.getStaticLanguage().transfer.withdraw });
+                        _context24.next = 4;
                         return walletTools_1.VerifyIdentidy(wallet, passwd);
 
                     case 4:
-                        verify = _context22.sent;
+                        verify = _context24.sent;
 
                         if (verify) {
-                            _context22.next = 9;
+                            _context24.next = 9;
                             break;
                         }
 
                         close.callback(close.widget);
-                        root_1.popNew('app-components-message-message', { content: '密码错误' });
-                        return _context22.abrupt("return");
+                        root_1.popNew('app-components-message-message', { content: tools_1.getStaticLanguage().transfer.wrongPsw });
+                        return _context24.abrupt("return");
 
                     case 9:
-                        _context22.next = 11;
+                        _context24.next = 11;
                         return pull_1.btcWithdrawFromServer(toAddr, unitTools_1.btc2Sat(amount).toString());
 
                     case 11:
-                        hash = _context22.sent;
+                        hash = _context24.sent;
 
                         close.callback(close.widget);
                         if (hash) {
-                            root_1.popNew('app-components-message-message', { content: '提现成功' });
+                            root_1.popNew('app-components-message-message', { content: tools_1.getStaticLanguage().transfer.withdrawSuccess });
                             tx = {
                                 hash: hash,
                                 addr: toAddr,
                                 txType: interface_1.TxType.RECEIPT,
-                                fromAddr: "",
+                                fromAddr: '',
                                 toAddr: toAddr,
                                 pay: Number(amount),
                                 time: new Date().getTime(),
@@ -1575,14 +1724,14 @@ exports.btcWithdraw = function (passwd, toAddr, amount) {
                             dataCenter_1.dataCenter.timerUpdateTxWithdraw(tx);
                             pull_1.getWithdrawLogs('BTC');
                         }
-                        return _context22.abrupt("return", hash);
+                        return _context24.abrupt("return", hash);
 
                     case 15:
                     case "end":
-                        return _context22.stop();
+                        return _context24.stop();
                 }
             }
-        }, _callee22, this);
+        }, _callee24, this);
     }));
 };
 })

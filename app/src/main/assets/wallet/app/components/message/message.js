@@ -54,7 +54,7 @@ var Message = function (_widget_1$Widget) {
                 setTimeout(function () {
                     _this2.ok && _this2.ok();
                 }, 300);
-            }, 3000);
+            }, 2000);
         }
     }]);
 

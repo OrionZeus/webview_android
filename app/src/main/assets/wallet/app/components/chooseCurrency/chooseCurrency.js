@@ -31,11 +31,6 @@ var ChooseCurrency = function (_widget_1$Widget) {
         key: "setProps",
         value: function setProps(props, oldProps) {
             _get(ChooseCurrency.prototype.__proto__ || Object.getPrototypeOf(ChooseCurrency.prototype), "setProps", this).call(this, props, oldProps);
-            this.init();
-        }
-    }, {
-        key: "init",
-        value: function init() {
             var currencyShowList = [];
             this.props.list.forEach(function (item) {
                 // tslint:disable-next-line:max-line-length
@@ -49,7 +44,8 @@ var ChooseCurrency = function (_widget_1$Widget) {
             });
             this.state = {
                 currencyShowList: currencyShowList,
-                selected: this.props.selected
+                selected: this.props.selected,
+                cfgData: tools_1.getLanguage(this)
             };
         }
     }, {

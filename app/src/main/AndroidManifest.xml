@@ -99,6 +99,10 @@
             android:name=".app.SelectContactsActivity"
             android:label="@string/app_select_contacts_label"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".app.NewWebViewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullScreenWithoutAny" />
     </application>
 
 </manifest>

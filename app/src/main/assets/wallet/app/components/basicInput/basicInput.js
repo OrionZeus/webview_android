@@ -1,6 +1,10 @@
 _$define("app/components/basicInput/basicInput", function (require, exports, module){
 "use strict";
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -8,18 +12,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * 基础输入框组件
- * {prepend:"红包个数",placeholder:"0",itype:"number",append:"个",style:"",isShowPin:false}
- * prepend:前置标题
- * placeholder:输入框提示语
- * append:后置单位
- * itype:输入数据类型，text，number，password
- * style:额外的CSS样式
- * isShowPin:拼字样是否需要显示，默认false
- * input:输入框填充数据
- */
 var widget_1 = require("../../../pi/widget/widget");
+var tools_1 = require("../../utils/tools");
 
 var BasicInput = function (_widget_1$Widget) {
     _inherits(BasicInput, _widget_1$Widget);
@@ -29,6 +23,16 @@ var BasicInput = function (_widget_1$Widget) {
 
         return _possibleConstructorReturn(this, (BasicInput.__proto__ || Object.getPrototypeOf(BasicInput)).call(this));
     }
+
+    _createClass(BasicInput, [{
+        key: "setProps",
+        value: function setProps(props, oldProps) {
+            _get(BasicInput.prototype.__proto__ || Object.getPrototypeOf(BasicInput.prototype), "setProps", this).call(this, props, oldProps);
+            this.state = {
+                cfgData: tools_1.getLanguage(this)
+            };
+        }
+    }]);
 
     return BasicInput;
 }(widget_1.Widget);

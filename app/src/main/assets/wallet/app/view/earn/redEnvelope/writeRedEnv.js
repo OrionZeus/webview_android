@@ -44,6 +44,7 @@ var widget_1 = require("../../../../pi/widget/widget");
 var pull_1 = require("../../../net/pull");
 var interface_1 = require("../../../store/interface");
 var store_1 = require("../../../store/store");
+var tools_1 = require("../../../utils/tools");
 var walletTools_1 = require("../../../utils/walletTools");
 exports.forelet = new forelet_1.Forelet();
 exports.WIDGET_NAME = module.id.replace(/\//g, '-');
@@ -61,11 +62,6 @@ var WriteRedEnv = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             var realUser = store_1.getBorn('realUserMap').get(store_1.find('conUser'));
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
             this.state = {
                 list: [],
                 selected: 0,
@@ -75,7 +71,7 @@ var WriteRedEnv = function (_widget_1$Widget) {
                 oneAmount: 0,
                 message: '',
                 realUser: realUser,
-                cfgData: cfg
+                cfgData: tools_1.getLanguage(this)
             };
             var list = [{ img: '../../res/image/currency/KT.png', name: 'KT', num: 500 }, { img: '../../res/image/currency/BTC.png', name: 'BTC', num: 0.01 }, { img: '../../res/image/currency/ETH.png', name: 'ETH', num: 0.5 }];
             var data = store_1.getBorn('cloudBalance');
@@ -244,7 +240,7 @@ var WriteRedEnv = function (_widget_1$Widget) {
                                 mess1 = this.state.cfgData.phrase[0] + this.state.totalAmount + curCoin.name + this.state.cfgData.phrase[1];
                                 // tslint:disable-next-line:max-line-length
 
-                                mess2 = this.state.cfgData.phrase[2] + (this.state.showPin ? this.state.cfgData.redEnvType[0] : this.state.cfgData.redEnvType[1]);
+                                mess2 = this.state.cfgData.phrase[2] + (this.state.showPin ? this.state.cfgData.redEnvType[1] : this.state.cfgData.redEnvType[0]);
 
                                 root_1.popNew('app-components-modalBoxInput-modalBoxInput', {
                                     title: curCoin.name + this.state.cfgData.phrase[3],

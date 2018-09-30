@@ -60,7 +60,14 @@ var PlayHome = function (_widget_1$Widget) {
         value: function setProps(props, oldProps) {
             _get(PlayHome.prototype.__proto__ || Object.getPrototypeOf(PlayHome.prototype), "setProps", this).call(this, props, oldProps);
             this.init();
+            if (this.props.isActive && this.state.hasWallet) {
+                this.initEvent();
+            }
         }
+        /**
+         * 初始化数据
+         */
+
     }, {
         key: "init",
         value: function init() {
@@ -76,12 +83,9 @@ var PlayHome = function (_widget_1$Widget) {
                 firstClick: true,
                 isAbleBtn: false,
                 miningNum: " <div class=\"miningNum\" style=\"animation:{{it1.doMining?'move 0.5s':''}}\">\n                <span>+{{it1.thisNum}}</span>\n            </div>",
-                cfgData: this.config.value.simpleChinese
+                cfgData: tools_1.getLanguage(this)
             };
             this.initDate();
-            if (this.props.isActive) {
-                this.initEvent();
-            }
         }
         /**
          * 判断当前用户是否已经创建钱包
@@ -207,68 +211,38 @@ var PlayHome = function (_widget_1$Widget) {
             }));
         }
         /**
-         * 刷新云端余额
-         */
-
-    }, {
-        key: "refreshCloudBalance",
-        value: function refreshCloudBalance() {
-            var cloudBalance = store_1.getBorn('cloudBalance');
-            if (cloudBalance) {
-                this.state.ktBalance = tools_1.formatBalance(cloudBalance.get(interface_1.CurrencyType.KT));
-                this.state.ethBalance = tools_1.formatBalance(cloudBalance.get(interface_1.CurrencyType.ETH));
-            }
-            this.paint();
-        }
-        /**
          * 获取更新数据
          */
 
     }, {
         key: "initDate",
         value: function initDate() {
-            return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
-                var wallet, mining, rank, lan;
-                return regeneratorRuntime.wrap(function _callee2$(_context2) {
-                    while (1) {
-                        switch (_context2.prev = _context2.next) {
-                            case 0:
-                                this.refreshCloudBalance();
-                                wallet = store_1.find('curWallet');
-
-                                if (wallet) {
-                                    this.state.hasWallet = true;
-                                }
-                                mining = store_1.find('miningTotal');
-
-                                if (mining) {
-                                    if (mining.thisNum > 0) {
-                                        this.state.isAbleBtn = true;
-                                    }
-                                    this.state.mines = mining.thisNum;
-                                    this.state.mineLast = mining.totalNum - mining.holdNum;
-                                } else {
-                                    this.state.isAbleBtn = false;
-                                }
-                                rank = store_1.find('mineRank');
-
-                                if (rank) {
-                                    this.state.rankNum = rank.myRank;
-                                }
-                                lan = store_1.find('languageSet');
-
-                                if (lan) {
-                                    this.state.cfgData = this.config.value[lan.languageList[lan.selected]];
-                                }
-                                this.paint();
-
-                            case 10:
-                            case "end":
-                                return _context2.stop();
-                        }
-                    }
-                }, _callee2, this);
-            }));
+            var wallet = store_1.find('curWallet');
+            if (!wallet) {
+                this.paint();
+                return;
+            }
+            this.state.hasWallet = true;
+            var cloudBalance = store_1.getBorn('cloudBalance');
+            if (cloudBalance) {
+                this.state.ktBalance = tools_1.formatBalance(cloudBalance.get(interface_1.CurrencyType.KT));
+                this.state.ethBalance = tools_1.formatBalance(cloudBalance.get(interface_1.CurrencyType.ETH));
+            }
+            var mining = store_1.find('miningTotal');
+            if (mining) {
+                if (mining.thisNum > 0) {
+                    this.state.isAbleBtn = true;
+                }
+                this.state.mines = mining.thisNum;
+                this.state.mineLast = mining.totalNum - mining.holdNum;
+            } else {
+                this.state.isAbleBtn = false;
+            }
+            var rank = store_1.find('miningRank');
+            if (rank) {
+                this.state.rankNum = rank.myRank;
+            }
+            this.paint();
         }
         /**
          * 初始化事件
@@ -280,7 +254,7 @@ var PlayHome = function (_widget_1$Widget) {
             // 这里发起通信
             pull_1.getCloudBalance();
             pull_1.getMining();
-            pull_1.getMineRank(100);
+            pull_1.getMiningRank(100);
         }
     }]);
 
@@ -293,7 +267,7 @@ exports.PlayHome = PlayHome;
 store_1.register('cloudBalance', function () {
     var w = exports.forelet.getWidget(exports.WIDGET_NAME);
     if (w) {
-        w.refreshCloudBalance();
+        w.initDate();
     }
 });
 store_1.register('miningTotal', function () {
@@ -302,10 +276,16 @@ store_1.register('miningTotal', function () {
         w.initDate();
     }
 });
-store_1.register('mineRank', function () {
+store_1.register('miningRank', function () {
     var w = exports.forelet.getWidget(exports.WIDGET_NAME);
     if (w) {
         w.initDate();
+    }
+});
+store_1.register('curWallet', function () {
+    var w = exports.forelet.getWidget(exports.WIDGET_NAME);
+    if (w) {
+        w.init(); // 注销钱包后初始化
     }
 });
 })

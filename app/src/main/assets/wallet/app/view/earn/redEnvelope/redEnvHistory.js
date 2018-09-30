@@ -45,6 +45,7 @@ var widget_1 = require("../../../../pi/widget/widget");
 var pull_1 = require("../../../net/pull");
 var store_1 = require("../../../store/store");
 var constants_1 = require("../../../utils/constants");
+var tools_1 = require("../../../utils/tools");
 exports.forelet = new forelet_1.Forelet();
 exports.WIDGET_NAME = module.id.replace(/\//g, '-');
 
@@ -66,18 +67,14 @@ var RedEnvHistory = function (_widget_1$Widget) {
                 return _get(RedEnvHistory.prototype.__proto__ || Object.getPrototypeOf(RedEnvHistory.prototype), name, _this2);
             };
             return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-                var cfg, lan;
+                var cfg;
                 return regeneratorRuntime.wrap(function _callee$(_context) {
                     while (1) {
                         switch (_context.prev = _context.next) {
                             case 0:
                                 _super("create").call(this);
-                                cfg = this.config.value.simpleChinese;
-                                lan = store_1.find('languageSet');
+                                cfg = tools_1.getLanguage(this);
 
-                                if (lan) {
-                                    cfg = this.config.value[lan.languageList[lan.selected]];
-                                }
                                 this.state = {
                                     recordList: [
                                         // { rid:'1111',rtype:0,ctypeShow:'KT',timeShow:'04-30 14:32:00',amount:1 },
@@ -95,7 +92,7 @@ var RedEnvHistory = function (_widget_1$Widget) {
                                 };
                                 this.initData();
 
-                            case 6:
+                            case 4:
                             case "end":
                                 return _context.stop();
                         }
@@ -229,7 +226,7 @@ var RedEnvHistory = function (_widget_1$Widget) {
 
                                 i = _context4.t1.value;
                                 _context4.next = 5;
-                                return pull_1.queryDetailLog(this.state.recordList[i].rid);
+                                return pull_1.queryDetailLog(store_1.find('conUid'), this.state.recordList[i].rid);
 
                             case 5:
                                 data = _context4.sent;

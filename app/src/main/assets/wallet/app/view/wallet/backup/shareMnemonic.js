@@ -15,9 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * share mnemonic
  */
-var widget_1 = require("../../../../pi/widget/widget");
-var root_1 = require("../../../../pi/ui/root");
 var shareToPlatforms_1 = require("../../../../pi/browser/shareToPlatforms");
+var root_1 = require("../../../../pi/ui/root");
+var widget_1 = require("../../../../pi/widget/widget");
+var localWallet_1 = require("../../../logic/localWallet");
+var tools_1 = require("../../../utils/tools");
 
 var ShareMnemonic = function (_widget_1$Widget) {
     _inherits(ShareMnemonic, _widget_1$Widget);
@@ -43,22 +45,26 @@ var ShareMnemonic = function (_widget_1$Widget) {
         key: "init",
         value: function init() {
             var len = this.props.fragments.length;
+            var encryptFragments = tools_1.mnemonicFragmentEncrypt(this.props.fragments);
+            console.log(encryptFragments);
             var successList = [];
             for (var i = 0; i < len; i++) {
                 successList[i] = false;
             }
             this.state = {
-                successList: successList
+                encryptFragments: encryptFragments,
+                successList: successList,
+                cfgData: tools_1.getLanguage(this)
             };
         }
-        //分享
+        // 分享
 
     }, {
         key: "shareItemClick",
         value: function shareItemClick(e, index) {
             var _this2 = this;
 
-            var fragment = this.props.fragments[index];
+            var fragment = this.state.encryptFragments[index];
             root_1.popNew('app-components-share-share', { text: fragment, shareType: shareToPlatforms_1.ShareToPlatforms.TYPE_IMG }, function (success) {
                 _this2.state.successList[index] = true;
                 _this2.paint();
@@ -75,6 +81,8 @@ var ShareMnemonic = function (_widget_1$Widget) {
                 }
             }
             if (allShared) {
+                localWallet_1.deleteMnemonic();
+                tools_1.popNewMessage(this.state.cfgData.tips);
                 this.ok && this.ok();
             }
         }

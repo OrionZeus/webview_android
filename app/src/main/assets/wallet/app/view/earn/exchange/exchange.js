@@ -48,6 +48,7 @@ var pull_1 = require("../../../net/pull");
 var interface_1 = require("../../../store/interface");
 var store_1 = require("../../../store/store");
 var toolMessages_1 = require("../../../utils/toolMessages");
+var tools_1 = require("../../../utils/tools");
 var unitTools_1 = require("../../../utils/unitTools");
 exports.forelet = new forelet_1.Forelet();
 exports.WIDGET_NAME = module.id.replace(/\//g, '-');
@@ -65,19 +66,10 @@ var Exchange = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(Exchange.prototype.__proto__ || Object.getPrototypeOf(Exchange.prototype), "create", this).call(this);
-            this.init();
-        }
-    }, {
-        key: "init",
-        value: function init() {
             this.state = {
                 cid: '',
-                cfgData: this.config.value.simpleChinese
+                cfgData: tools_1.getLanguage(this)
             };
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                this.state.cfgData = this.config.value[lan.languageList[lan.selected]];
-            }
         }
     }, {
         key: "backPrePage",

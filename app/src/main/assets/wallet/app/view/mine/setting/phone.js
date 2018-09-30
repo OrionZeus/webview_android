@@ -43,7 +43,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var root_1 = require("../../../../pi/ui/root");
 var widget_1 = require("../../../../pi/widget/widget");
 var pull_1 = require("../../../net/pull");
-var store_1 = require("../../../store/store");
+var tools_1 = require("../../../utils/tools");
 // =================================================导出
 
 var BindPhone = function (_widget_1$Widget) {
@@ -59,16 +59,11 @@ var BindPhone = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(BindPhone.prototype.__proto__ || Object.getPrototypeOf(BindPhone.prototype), "create", this).call(this);
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
             this.state = {
                 phone: '',
                 code: [],
                 isSuccess: true,
-                cfgData: cfg
+                cfgData: tools_1.getLanguage(this)
             };
         }
     }, {

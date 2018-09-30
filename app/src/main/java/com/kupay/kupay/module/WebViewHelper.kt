@@ -1,7 +1,9 @@
 package com.kupay.kupay.module
 
+import android.app.ActivityOptions
 import android.content.Intent
-import com.kupay.kupay.R
+import android.os.Build
+import com.kupay.kupay.app.NewWebViewActivity
 import com.kupay.kupay.base.BaseJSModule
 
 /**
@@ -9,11 +11,11 @@ import com.kupay.kupay.base.BaseJSModule
  */
 class WebViewHelper : BaseJSModule() {
 
-    fun openNewWebView(callbackId: Int, loadUrl: String) {
-//        val intent = Intent(ctx, DetailDesWebView::class.java)
-//        intent.putExtra(LOAD_URL_KEY, loadUrl)
-//        ctx.startActivity(intent)
-//        ctx.overridePendingTransition(R.anim.anim_app_d2u, R.anim.anim_app_stay)
+    fun openNewWebView(callbackId: Int, loadUrl: String, title: String) {
+        val intent = Intent(ctx, NewWebViewActivity::class.java)
+        intent.putExtra(LOAD_URL_KEY, loadUrl)
+        intent.putExtra(TITLE, title)
+        ctx.startActivity(intent)
     }
 
     /**
@@ -21,5 +23,6 @@ class WebViewHelper : BaseJSModule() {
      */
     companion object {
         const val LOAD_URL_KEY = "load_url"
+        const val TITLE = "title"
     }
 }

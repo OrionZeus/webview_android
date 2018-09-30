@@ -77,11 +77,6 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
         try {
             awv.webChromeClient = MyWebChromeClient()
             awv.webViewClient = MyWebViewClient()
-//            val url = ctx.resources.getString(R.string.init_url)
-//           //需要加上referer，否则有些服务器会拒绝加载页面
-//            val extraHeaders = HashMap<String, String>()
-//            extraHeaders["Referer"] = url
-//            loadUrl(url, extraHeaders)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -219,11 +214,6 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
         }
 
         override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
-            /*Intent intent = new Intent(ctx, SecondWebView.class);
-            intent.putExtra(SecondWebView.LOAD_URL_KEY, ());
-            Logger.error("要加载的URL", );
-            ctx.startActivity(intent);
-            ((Activity) ctx).overridePendingTransition(R.anim.anim_app_d2u, R.anim.anim_app_stay);*/
             val childView = AndroidWebView(ctx)
             sViewRoot[0].addView(childView)
             initClient(childView)

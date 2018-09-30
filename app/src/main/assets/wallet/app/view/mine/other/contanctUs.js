@@ -17,7 +17,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 // ===============================================导入
 var widget_1 = require("../../../../pi/widget/widget");
-var store_1 = require("../../../store/store");
+var native_1 = require("../../../logic/native");
+var tools_1 = require("../../../utils/tools");
 // ==================================================导出
 
 var ContanctUs = function (_widget_1$Widget) {
@@ -33,16 +34,7 @@ var ContanctUs = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(ContanctUs.prototype.__proto__ || Object.getPrototypeOf(ContanctUs.prototype), "create", this).call(this);
-            this.init();
-        }
-    }, {
-        key: "init",
-        value: function init() {
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
+            var cfg = tools_1.getLanguage(this);
             this.state = {
                 data: [{ value: cfg.itemTitle[0], desc: 'www.Kupay.io' }, { value: cfg.itemTitle[1], desc: cfg.itemTitle[2] }, { value: cfg.itemTitle[3], desc: 'KuPay' }],
                 cfgData: cfg
@@ -59,15 +51,18 @@ var ContanctUs = function (_widget_1$Widget) {
             switch (ind) {
                 // 点击KuPay官网
                 case 0:
-                    window.open('http://www.KuPay.io');
+                    // window.open('http://www.KuPay.io'); 
+                    native_1.openNewActivity('http://www.KuPay.io');
                     break;
                 // KuPay小助手
                 case 1:
-                    window.open('weixin://dl/officialaccounts');
+                    // window.open('weixin://dl/officialaccounts');
+                    native_1.openNewActivity('weixin://dl/officialaccounts');
                     break;
                 // KuPay公众号
                 case 2:
-                    window.open('weixin://dl/officialaccounts');
+                    // window.open('weixin://dl/officialaccounts');
+                    native_1.openNewActivity('weixin://dl/officialaccounts');
                     break;
                 default:
                     console.log(this.state.cfgData.tips);

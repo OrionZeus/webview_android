@@ -29,13 +29,18 @@ abstract class BaseWebView : BaseActivity() {
         JSEnv.setEnv(JSEnv.CONTEXT, this)
         JSEnv.setEnv(JSEnv.ACTIVITY, this)
         if (isX5) {
-            JSEnv.setEnv(JSEnv.WEBVIEW, mX5)
+            if (null != mX5) JSEnv.setEnv(JSEnv.WEBVIEW, mX5)
         } else {
-            JSEnv.setEnv(JSEnv.WEBVIEW, mAndroidWebView)
+            if (null != mAndroidWebView) JSEnv.setEnv(JSEnv.WEBVIEW, mAndroidWebView)
         }
     }
 
-    protected fun loadUrl(url:String) {
+    override fun onResume() {
+        addJEV()
+        super.onResume()
+    }
+
+    protected fun loadUrl(url: String) {
         val extraHeaders = HashMap<String, String>()
         extraHeaders["Referer"] = url
         if (isX5) mX5?.loadUrl(url, extraHeaders)

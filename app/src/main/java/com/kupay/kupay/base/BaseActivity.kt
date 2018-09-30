@@ -4,15 +4,22 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
+import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
 import android.widget.Toast
 import com.kupay.kupay.common.js.JSEnv
+import com.kupay.kupay.util.AndroidWorkaround
 import com.kupay.kupay.util.Logger
 import com.kupay.kupay.util.ToastManager
 import com.kupay.kupay.widget.AndroidWebView
 import com.kupay.kupay.widget.X5Chrome
+
+
 
 /**
  * Created by "iqos_jay@outlook.com" on 2018/6/25.
@@ -61,11 +68,21 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (NO_LAYOUT != layoutResources) {
-            setContentView(layoutResources)
+            this.setContentView(layoutResources)
+            this.setFitSystemWindows()
             this.initViews()
         }
         registerAppLifeListener()
         this.initData()
+    }
+
+    private fun setFitSystemWindows() {
+       /* val mContentView =  window?.findViewById(Window.ID_ANDROID_CONTENT)as ViewGroup
+        val mChildView = mContentView.getChildAt(0)
+        if (mChildView != null) mChildView.fitsSystemWindows = true*/
+        if (AndroidWorkaround.checkDeviceHasNavigationBar(this)) {
+            AndroidWorkaround.assistActivity(findViewById(android.R.id.content));
+        }
     }
 
     /**

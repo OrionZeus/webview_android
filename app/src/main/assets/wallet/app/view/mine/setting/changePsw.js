@@ -45,6 +45,7 @@ var widget_1 = require("../../../../pi/widget/widget");
 var globalWallet_1 = require("../../../core/globalWallet");
 var store_1 = require("../../../store/store");
 var account_1 = require("../../../utils/account");
+var tools_1 = require("../../../utils/tools");
 // ================================================导出
 
 var ChangePSW = function (_widget_1$Widget) {
@@ -60,16 +61,13 @@ var ChangePSW = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(ChangePSW.prototype.__proto__ || Object.getPrototypeOf(ChangePSW.prototype), "create", this).call(this);
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
             this.state = {
                 oldPassword: '',
                 newPassword: '',
                 rePassword: '',
-                cfgData: cfg
+                cfgData: tools_1.getLanguage(this),
+                pswEqualed: false,
+                pswAvailable: false
             };
         }
     }, {
@@ -80,17 +78,22 @@ var ChangePSW = function (_widget_1$Widget) {
     }, {
         key: "oldPswChange",
         value: function oldPswChange(e) {
-            this.state.newPassword = e.value;
+            this.state.oldPassword = e.value;
         }
     }, {
         key: "newPswChange",
         value: function newPswChange(e) {
-            this.state.newPassword = e.value;
+            this.state.pswAvailable = e.success;
+            this.state.newPassword = e.password;
+            this.state.pswEqualed = account_1.pswEqualed(this.state.newPassword, this.state.rePassword) && e.success;
+            this.paint();
         }
     }, {
         key: "rePswChange",
         value: function rePswChange(e) {
             this.state.rePassword = e.value;
+            this.state.pswEqualed = account_1.pswEqualed(this.state.newPassword, this.state.rePassword) && this.state.pswAvailable;
+            this.paint();
         }
         /**
          * 点击确认按钮
@@ -100,53 +103,53 @@ var ChangePSW = function (_widget_1$Widget) {
         key: "btnClicked",
         value: function btnClicked() {
             return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-                var newPassword, rePassword, walletList, wallet, loading, gwlt;
+                var oldPassword, newPassword, rePassword, wallet, loading, gwlt;
                 return regeneratorRuntime.wrap(function _callee$(_context) {
                     while (1) {
                         switch (_context.prev = _context.next) {
                             case 0:
+                                oldPassword = this.state.oldPassword;
                                 newPassword = this.state.newPassword;
                                 rePassword = this.state.rePassword;
-                                walletList = store_1.find('walletList');
                                 wallet = store_1.find('curWallet');
 
-                                if (!(!newPassword || !rePassword)) {
-                                    _context.next = 6;
+                                if (!(!oldPassword || !newPassword || !rePassword)) {
+                                    _context.next = 7;
                                     break;
                                 }
 
+                                root_1.popNew('app-components-message-message', { content: this.state.cfgData.tips[0] });
                                 return _context.abrupt("return");
 
-                            case 6:
-                                if (account_1.pswEqualed(newPassword, rePassword)) {
-                                    _context.next = 9;
-                                    break;
-                                }
-
-                                // tslint:disable-next-line:max-line-length
-                                root_1.popNew('app-components-message-messagebox', { itype: 'alert', title: this.state.cfgData.tips[0], content: this.state.cfgData.tips[1] });
-                                return _context.abrupt("return");
-
-                            case 9:
-                                if (account_1.walletPswAvailable(newPassword)) {
-                                    _context.next = 12;
+                            case 7:
+                                if (this.state.pswAvailable) {
+                                    _context.next = 10;
                                     break;
                                 }
 
                                 // tslint:disable-next-line:max-line-length
-                                root_1.popNew('app-components-message-messagebox', { itype: 'alert', title: this.state.cfgData.tips[0], content: this.state.cfgData.tips[2] });
+                                root_1.popNew('app-components-message-message', { content: this.state.cfgData.tips[1] });
                                 return _context.abrupt("return");
 
-                            case 12:
+                            case 10:
+                                if (this.state.pswEqualed) {
+                                    _context.next = 13;
+                                    break;
+                                }
+
+                                // tslint:disable-next-line:max-line-length
+                                root_1.popNew('app-components-message-messagebox', { content: this.state.cfgData.tips[2] });
+                                return _context.abrupt("return");
+
+                            case 13:
                                 // 验证全部通过，开始设置新密码
-                                loading = root_1.popNew('app-components_level_1-loading-loading', { text: this.state.cfgData.loading });
+                                loading = root_1.popNew('app-components1-loading-loading', { text: this.state.cfgData.loading });
                                 gwlt = globalWallet_1.GlobalWallet.fromJSON(wallet.gwlt);
-                                _context.next = 16;
-                                return gwlt.passwordChange(this.state.oldPassword, newPassword);
+                                _context.next = 17;
+                                return gwlt.passwordChange(oldPassword, newPassword);
 
-                            case 16:
+                            case 17:
                                 wallet.gwlt = gwlt.toJSON();
-                                store_1.updateStore('walletList', walletList);
                                 loading.callback(loading.widget);
                                 this.backPrePage();
 

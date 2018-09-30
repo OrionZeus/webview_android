@@ -44,11 +44,11 @@
 						}
 
 						var v = _ref;
-						var i = _$i++;var isActive = i === it1.activeNum;_$temp = _node5;{
-							var _$parent6 = _$temp;var _node6 = { "attrs": {}, "tagName": "div", "sid": 4 };_node6.children = [];_node6.attrSize = 2;_node6.attrHash = 1235456931;{
+						var i = _$i++;var isActive = i == it1.activeNum;_$temp = _node5;{
+							var _$parent6 = _$temp;var _node6 = { "attrs": {}, "tagName": "div", "sid": 4 };_node6.children = [];_node6.attrSize = 2;_node6.attrHash = 962646855;{
 								var attrvalue = "";attrvalue += "nav-item ";attrvalue += isActive ? 'is-active' : '';attrvalue += "";_node6.attrs["w-class"] = attrvalue;
 							}_node6.attrHash = _hash.nextHash(_node6.attrHash, _calTextHash(_node6.attrs["w-class"]));{
-								var _attrvalue = "";_attrvalue += "tabsChangeClick(e,";_attrvalue += i;_attrvalue += ")";_node6.attrs["on-tap"] = _attrvalue;
+								var _attrvalue = "";_attrvalue += "tabsChangeClick(";_attrvalue += i;_attrvalue += ")";_node6.attrs["on-tap"] = _attrvalue;
 							}_node6.attrHash = _hash.nextHash(_node6.attrHash, _calTextHash(_node6.attrs["on-tap"]));_$temp = _node6;{
 								var _$parent7 = _$temp;_addText(v.tab, _$parent7);
 							}_chFunc(_node6);_$parent6.children.push(_node6);

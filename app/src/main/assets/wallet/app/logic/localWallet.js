@@ -78,7 +78,7 @@ exports.createWallet = function (itype, option) {
 
                     case 11:
                         if (!(itype === interface_1.CreateWalletType.Image)) {
-                            _context.next = 22;
+                            _context.next = 23;
                             break;
                         }
 
@@ -88,24 +88,26 @@ exports.createWallet = function (itype, option) {
 
                     case 15:
                         _hash = _context.sent;
+                        _context.next = 18;
+                        return exports.createWalletByImage(_hash, option);
 
-                        exports.createWalletByImage(_hash, option);
+                    case 18:
                         _close.callback(_close.widget);
                         // 刷新本地钱包
                         dataCenter_1.dataCenter.refreshAllTx();
                         return _context.abrupt("return", _hash);
 
-                    case 22:
+                    case 23:
                         if (!(itype === interface_1.CreateWalletType.StrandarImport)) {
-                            _context.next = 33;
+                            _context.next = 34;
                             break;
                         }
 
                         _close2 = root_1.popNew('app-components1-loading-loading', { text: '导入中...' });
-                        _context.next = 26;
+                        _context.next = 27;
                         return tools_1.calcHashValuePromise(option.psw, store_1.find('salt'));
 
-                    case 26:
+                    case 27:
                         _hash2 = _context.sent;
 
                         exports.importWalletByMnemonic(_hash2, option);
@@ -114,36 +116,38 @@ exports.createWallet = function (itype, option) {
                         dataCenter_1.dataCenter.refreshAllTx();
                         return _context.abrupt("return", _hash2);
 
-                    case 33:
+                    case 34:
                         if (!(itype === interface_1.CreateWalletType.ImageImport)) {
-                            _context.next = 44;
+                            _context.next = 46;
                             break;
                         }
 
                         _close3 = root_1.popNew('app-components1-loading-loading', { text: '导入中...' });
-                        _context.next = 37;
+                        _context.next = 38;
                         return tools_1.calcHashValuePromise(option.psw, store_1.find('salt'));
 
-                    case 37:
+                    case 38:
                         _hash3 = _context.sent;
+                        _context.next = 41;
+                        return exports.createWalletByImage(_hash3, option);
 
-                        exports.createWalletByImage(_hash3, option);
+                    case 41:
                         _close3.callback(_close3.widget);
                         // 刷新本地钱包
                         dataCenter_1.dataCenter.refreshAllTx();
                         return _context.abrupt("return", _hash3);
 
-                    case 44:
+                    case 46:
                         if (!(itype === interface_1.CreateWalletType.FragmentImport)) {
-                            _context.next = 53;
+                            _context.next = 55;
                             break;
                         }
 
                         _close4 = root_1.popNew('app-components1-loading-loading', { text: '导入中...' });
-                        _context.next = 48;
+                        _context.next = 50;
                         return tools_1.calcHashValuePromise(option.psw, store_1.find('salt'));
 
-                    case 48:
+                    case 50:
                         _hash4 = _context.sent;
 
                         exports.importWalletByFragment(_hash4, option);
@@ -152,7 +156,7 @@ exports.createWallet = function (itype, option) {
                         dataCenter_1.dataCenter.refreshAllTx();
                         return _context.abrupt("return", _hash4);
 
-                    case 53:
+                    case 55:
                     case "end":
                         return _context.stop();
                 }
@@ -178,13 +182,13 @@ exports.createWalletRandom = function (hash, option) {
     };
     (_wallet$currencyRecor = wallet.currencyRecords).push.apply(_wallet$currencyRecor, _toConsumableArray(gwlt.currencyRecords));
     var walletList = store_1.find('walletList');
-    var addrs = store_1.find('addrs');
-    addrs.push.apply(addrs, _toConsumableArray(gwlt.addrs));
-    store_1.updateStore('addrs', addrs);
     walletList.push(wallet);
     store_1.updateStore('walletList', walletList);
     store_1.updateStore('curWallet', wallet);
     store_1.updateStore('salt', salt);
+    var addrs = store_1.find('addrs') || [];
+    addrs.push.apply(addrs, _toConsumableArray(gwlt.addrs));
+    store_1.updateStore('addrs', addrs);
     store_1.updateStore('userInfo', { nickName: option.nickName, avatar: option.avatar, fromServer: false });
     pull_1.openAndGetRandom();
 };
@@ -201,18 +205,19 @@ exports.createWalletByImage = function (hash, option) {
             while (1) {
                 switch (_context2.prev = _context2.next) {
                     case 0:
-                        _context2.next = 2;
+                        console.log('createWalletByImage-------', hash, option);
+                        _context2.next = 3;
                         return getImageAhash(option.imageBase64);
 
-                    case 2:
+                    case 3:
                         ahash = _context2.sent;
-                        _context2.next = 5;
+                        _context2.next = 6;
                         return imgToHash(ahash, option.imagePsw);
 
-                    case 5:
+                    case 6:
                         vault = _context2.sent;
                         walletList = store_1.find('walletList');
-                        addrs = store_1.find('addrs');
+                        addrs = store_1.find('addrs') || [];
                         salt = store_1.find('salt');
                         gwlt = globalWallet_1.GlobalWallet.generate(hash, option.nickName, vault);
                         // 创建钱包基础数据
@@ -226,16 +231,16 @@ exports.createWalletByImage = function (hash, option) {
                         };
 
                         (_wallet$currencyRecor2 = wallet.currencyRecords).push.apply(_wallet$currencyRecor2, _toConsumableArray(gwlt.currencyRecords));
-                        addrs.push.apply(addrs, _toConsumableArray(gwlt.addrs));
-                        store_1.updateStore('addrs', addrs);
                         walletList.push(wallet);
                         store_1.updateStore('walletList', walletList);
                         store_1.updateStore('curWallet', wallet);
                         store_1.updateStore('salt', salt);
+                        addrs.push.apply(addrs, _toConsumableArray(gwlt.addrs));
+                        store_1.updateStore('addrs', addrs);
                         store_1.updateStore('userInfo', { nickName: option.nickName, avatar: option.avatar, fromServer: false });
                         pull_1.openAndGetRandom();
 
-                    case 20:
+                    case 21:
                     case "end":
                         return _context2.stop();
                 }
@@ -263,8 +268,8 @@ var getImageAhash = function getImageAhash(imageBase64) {
 };
 /**
  *
- * @param ahash ahash
  * @param imagePsw 图片密码
+ * @param ahash ahash
  */
 var imgToHash = function imgToHash(ahash, imagePsw) {
     return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
@@ -275,7 +280,7 @@ var imgToHash = function imgToHash(ahash, imagePsw) {
                     case 0:
                         sha3Hash = genmnemonic_1.sha3(ahash + imagePsw, false);
                         _context3.next = 3;
-                        return tools_1.calcHashValuePromise(sha3Hash, store_1.find('salt'));
+                        return tools_1.calcHashValuePromise(sha3Hash);
 
                     case 3:
                         hash = _context3.sent;
@@ -300,59 +305,43 @@ var imgToHash = function imgToHash(ahash, imagePsw) {
  * 通过助记词导入钱包
  */
 exports.importWalletByMnemonic = function (hash, option) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
-        var _wallet$currencyRecor3;
+    var _wallet$currencyRecor3;
 
-        var walletList, salt, addrs, gwlt, wallet;
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
-            while (1) {
-                switch (_context4.prev = _context4.next) {
-                    case 0:
-                        walletList = store_1.find('walletList');
-                        salt = store_1.find('salt');
-                        addrs = store_1.find('addrs') || [];
-                        gwlt = null;
-
-                        console.time('import');
-                        gwlt = globalWallet_1.GlobalWallet.fromMnemonic(hash, option.mnemonic);
-                        console.timeEnd('import');
-                        gwlt.nickName = option.nickName;
-                        wallet = {
-                            walletId: gwlt.glwtId,
-                            avatar: '',
-                            gwlt: gwlt.toJSON(),
-                            showCurrencys: constants_1.defalutShowCurrencys,
-                            currencyRecords: []
-                        };
-
-                        (_wallet$currencyRecor3 = wallet.currencyRecords).push.apply(_wallet$currencyRecor3, _toConsumableArray(gwlt.currencyRecords));
-                        addrs.push.apply(addrs, _toConsumableArray(gwlt.addrs));
-                        store_1.updateStore('addrs', addrs);
-                        walletList.push(wallet);
-                        store_1.updateStore('walletList', walletList);
-                        store_1.updateStore('curWallet', wallet);
-                        store_1.updateStore('salt', salt);
-                        store_1.updateStore('userInfo', { nickName: option.nickName, avatar: option.avatar, fromServer: false });
-                        pull_1.openAndGetRandom();
-                        return _context4.abrupt("return", true);
-
-                    case 19:
-                    case "end":
-                        return _context4.stop();
-                }
-            }
-        }, _callee4, this);
-    }));
+    var walletList = store_1.find('walletList');
+    var salt = store_1.find('salt');
+    var addrs = store_1.find('addrs') || [];
+    var gwlt = null;
+    console.time('import');
+    gwlt = globalWallet_1.GlobalWallet.fromMnemonic(hash, option.mnemonic);
+    console.timeEnd('import');
+    gwlt.nickName = option.nickName;
+    var wallet = {
+        walletId: gwlt.glwtId,
+        avatar: '',
+        gwlt: gwlt.toJSON(),
+        showCurrencys: constants_1.defalutShowCurrencys,
+        currencyRecords: []
+    };
+    (_wallet$currencyRecor3 = wallet.currencyRecords).push.apply(_wallet$currencyRecor3, _toConsumableArray(gwlt.currencyRecords));
+    walletList.push(wallet);
+    store_1.updateStore('walletList', walletList);
+    store_1.updateStore('curWallet', wallet);
+    store_1.updateStore('salt', salt);
+    addrs.push.apply(addrs, _toConsumableArray(gwlt.addrs));
+    store_1.updateStore('addrs', addrs);
+    store_1.updateStore('userInfo', { nickName: option.nickName, avatar: option.avatar, fromServer: false });
+    pull_1.openAndGetRandom();
+    return true;
 };
 /**
  * 冗余助记词导入
  */
 exports.importWalletByFragment = function (hash, option) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
         var shares, comb, mnemonic;
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
             while (1) {
-                switch (_context5.prev = _context5.next) {
+                switch (_context4.prev = _context4.next) {
                     case 0:
                         shares = [option.fragment1, option.fragment2].map(function (v) {
                             return tools_1.u8ArrayToHexstr(new Uint8Array(base64_1.base64ToArrayBuffer(v)));
@@ -365,34 +354,34 @@ exports.importWalletByFragment = function (hash, option) {
 
                     case 5:
                     case "end":
-                        return _context5.stop();
+                        return _context4.stop();
                 }
             }
-        }, _callee5, this);
+        }, _callee4, this);
     }));
 };
 /**
  * 添加新地址
  */
 exports.createNewAddr = function (passwd, currencyName) {
-    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
+    return __awaiter(undefined, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
         var close, wallet, mnemonic, currencyRecord, address;
-        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
             while (1) {
-                switch (_context6.prev = _context6.next) {
+                switch (_context5.prev = _context5.next) {
                     case 0:
                         close = tools_1.popNewLoading('添加中...');
                         wallet = store_1.find('curWallet');
-                        _context6.next = 4;
+                        _context5.next = 4;
                         return walletTools_1.getMnemonic(wallet, passwd);
 
                     case 4:
-                        mnemonic = _context6.sent;
+                        mnemonic = _context5.sent;
 
                         close.callback(close.widget);
 
                         if (!mnemonic) {
-                            _context6.next = 15;
+                            _context5.next = 15;
                             break;
                         }
 
@@ -402,16 +391,16 @@ exports.createNewAddr = function (passwd, currencyName) {
                         address = globalWallet_1.GlobalWallet.getWltAddrByMnemonic(mnemonic, currencyName, currencyRecord.addrs.length);
 
                         if (address) {
-                            _context6.next = 11;
+                            _context5.next = 11;
                             break;
                         }
 
-                        return _context6.abrupt("return");
+                        return _context5.abrupt("return");
 
                     case 11:
                         walletTools_1.addNewAddr(currencyName, address, '');
                         tools_1.popNewMessage('添加成功');
-                        _context6.next = 16;
+                        _context5.next = 16;
                         break;
 
                     case 15:
@@ -419,10 +408,10 @@ exports.createNewAddr = function (passwd, currencyName) {
 
                     case 16:
                     case "end":
-                        return _context6.stop();
+                        return _context5.stop();
                 }
             }
-        }, _callee6, this);
+        }, _callee5, this);
     }));
 };
 // 删除助记词

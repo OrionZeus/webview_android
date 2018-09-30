@@ -16,8 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * privacy policy
  */
 var widget_1 = require("../../../../pi/widget/widget");
-var store_1 = require("../../../store/store");
-var config_1 = require("../../base/config");
+var tools_1 = require("../../../utils/tools");
 
 var PrivacyPolicy = function (_widget_1$Widget) {
     _inherits(PrivacyPolicy, _widget_1$Widget);
@@ -32,14 +31,9 @@ var PrivacyPolicy = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(PrivacyPolicy.prototype.__proto__ || Object.getPrototypeOf(PrivacyPolicy.prototype), "create", this).call(this);
-            var cfg = this.config.value.simpleChinese;
-            var lan = store_1.find('languageSet');
-            if (lan) {
-                cfg = this.config.value[lan.languageList[lan.selected]];
-            }
             this.state = {
-                privacyPolicy: config_1.Config.privacyPolicy,
-                cfgData: cfg
+                privacyPolicy: tools_1.getStaticLanguage().privacyPolicy,
+                cfgData: tools_1.getLanguage(this)
             };
         }
     }, {

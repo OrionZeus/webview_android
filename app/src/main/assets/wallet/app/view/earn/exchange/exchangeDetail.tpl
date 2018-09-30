@@ -38,7 +38,7 @@
 					var _$parent9 = _$temp;var _node9 = { "attrs": {}, "tagName": "img", "sid": 6 };_node9.children = [];_node9.childHash = 0;_node9.attrSize = 2;_node9.attrHash = 4021738546;_node9.attrs["src"] = "../../../res/image/default_avater_big.png";_node9.attrs["w-class"] = "userHead";_$parent9.children.push(_node9);
 				}_$temp = _node8;{
 					var _$parent10 = _$temp;var _node10 = { "attrs": {}, "tagName": "div", "sid": 7 };_node10.children = [];_node10.attrSize = 1;_node10.attrHash = 2409994842;_node10.attrs["style"] = "margin: 30px 0 10px;font-size: 30px;color: #222222;";_$temp = _node10;{
-						var _$parent11 = _$temp;_addText(it1.cfgData.defaultUserName, _$parent11);
+						var _$parent11 = _$temp;_addText(it1.userName, _$parent11);
 					}if (it1.showPin) {
 						_$temp = _node10;{
 							var _$parent12 = _$temp;var _node11 = { "attrs": {}, "tagName": "span", "sid": 8 };_node11.children = [];_node11.attrSize = 1;_node11.attrHash = 2405874756;_node11.attrs["w-class"] = "other";_$temp = _node11;{
@@ -67,14 +67,14 @@
 						var _$parent21 = _$temp;var _node16 = { "attrs": {}, "tagName": "div", "sid": 13 };_node16.children = [];_node16.attrSize = 1;_node16.attrHash = 819962544;_node16.attrs["w-class"] = "tips";_$temp = _node16;{
 							var _$parent22 = _$temp;_addText(it1.cfgData.tips[1], _$parent22);
 						}_$temp = _node16;{
-							var _$parent23 = _$temp;_addText(it.curNum + "/" + it.totalNum, _$parent23);
+							var _$parent23 = _$temp;_addText(it1.curNum + "/" + it1.totalNum, _$parent23);
 						}_$temp = _node16;{
 							var _$parent24 = _$temp;var _node17 = _installText("，", 3114458989);;
 							_$parent24.children.push(_node17);
 						}_$temp = _node16;{
 							var _$parent25 = _$temp;_addText(it1.cfgData.tips[2], _$parent25);
 						}_$temp = _node16;{
-							var _$parent26 = _$temp;_addText(it.amount + it.ctypeShow, _$parent26);
+							var _$parent26 = _$temp;_addText(it1.totalAmount + it.ctypeShow, _$parent26);
 						}_chFunc(_node16);_$parent21.children.push(_node16);
 					}{
 						var _$i = 0;
@@ -95,7 +95,7 @@
 								var _$parent27 = _$temp;var _node18 = { "attrs": {}, "tagName": "app-components-fourParaImgItem-fourParaImgItem", "sid": 14 };_node18.hasChild = false;_node18.child = null;_node18.attrHash = 0;_$temp = _node18;{
 									var _$parent28 = _$temp;var _node19 = {}; //jpair pre
 
-									_node19["name"] = it1.cfgData.defaultUserName;
+									_node19["name"] = val.userName;
 									//jpair suf
 									//jpair pre
 
@@ -114,6 +114,10 @@
 
 										_node19["img"] = _jvalue;
 									}
+									//jpair pre
+
+									_node19["describe"] = it1.greatUser == ind ? it1.cfgData.greatUser : "";
+									//jpair suf
 									_addJson(_node19, _$parent28);
 								}_chFunc(_node18);_$parent27.children.push(_node18);
 							}

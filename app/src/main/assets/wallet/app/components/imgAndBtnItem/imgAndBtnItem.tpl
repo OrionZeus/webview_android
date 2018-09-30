@@ -18,21 +18,20 @@
 		}_$temp = _node;{
 			var _$parent8 = _$temp;var _node6 = { "attrs": {}, "tagName": "div", "sid": 5 };_node6.children = [];_node6.attrSize = 1;_node6.attrHash = 3935259669;_node6.attrs["w-class"] = "itemBtn";if (it.isComplete) {
 				_$temp = _node6;{
-					var _$parent9 = _$temp;var _node7 = { "attrs": {}, "tagName": "div", "sid": 6 };_node7.children = [];_node7.childHash = 2684892944;_node7.attrSize = 1;_node7.attrHash = 626124697;_node7.attrs["w-class"] = "mybtn";_$temp = _node7;{
+					var _$parent9 = _$temp;var _node7 = { "attrs": {}, "tagName": "div", "sid": 6 };_node7.children = [];_node7.attrSize = 1;_node7.attrHash = 626124697;_node7.attrs["w-class"] = "mybtn";_$temp = _node7;{
 						var _$parent10 = _$temp;var _node8 = { "attrs": {}, "tagName": "img", "sid": 7 };_node8.children = [];_node8.childHash = 0;_node8.attrSize = 2;_node8.attrHash = 3263700126;_node8.attrs["src"] = "../../res/image/32_white.png";_node8.attrs["style"] = "width: 40px;height: 40px;margin-right: 10px;vertical-align: middle;";_$parent10.children.push(_node8);
 					}_$temp = _node7;{
-						var _$parent11 = _$temp;var _node9 = { "attrs": {}, "tagName": "span", "sid": 8 };_node9.children = [];_node9.childHash = 222228824;_node9.attrHash = 0;_$temp = _node9;{
-							var _$parent12 = _$temp;var _node10 = _installText("完成", 3396534408);;
-							_$parent12.children.push(_node10);
-						}_$parent11.children.push(_node9);
-					}_$parent9.children.push(_node7);
+						var _$parent11 = _$temp;var _node9 = { "attrs": {}, "tagName": "span", "sid": 8 };_node9.children = [];_node9.attrHash = 0;_$temp = _node9;{
+							var _$parent12 = _$temp;_addText(it1.cfgData.complete, _$parent12);
+						}_chFunc(_node9);_$parent11.children.push(_node9);
+					}_chFunc(_node7);_$parent9.children.push(_node7);
 				}
 			} else {
 				_$temp = _node6;{
-					var _$parent13 = _$temp;var _node11 = { "attrs": {}, "tagName": "app-components1-btn-btn", "sid": 9 };_node11.hasChild = false;_node11.child = null;_node11.attrHash = 0;_$temp = _node11;{
-						var _$parent14 = _$temp;var _node12 = {}; //jpair pre
+					var _$parent13 = _$temp;var _node10 = { "attrs": {}, "tagName": "app-components1-btn-btn", "sid": 9 };_node10.hasChild = false;_node10.child = null;_node10.attrHash = 0;_$temp = _node10;{
+						var _$parent14 = _$temp;var _node11 = {}; //jpair pre
 
-						_node12["name"] = it.btnName;
+						_node11["name"] = it.btnName;
 						//jpair suf
 						//jpair pre
 
@@ -41,7 +40,7 @@
 							jvalue = "small";
 							//jpair suf
 
-							_node12["types"] = jvalue;
+							_node11["types"] = jvalue;
 						}
 						//jpair pre
 
@@ -50,14 +49,14 @@
 							_jvalue = "orange";
 							//jpair suf
 
-							_node12["color"] = _jvalue;
+							_node11["color"] = _jvalue;
 						}
 						//jpair pre
 
-						_node12["style"] = it.style;
+						_node11["style"] = it.style;
 						//jpair suf
-						_addJson(_node12, _$parent14);
-					}_chFunc(_node11);_$parent13.children.push(_node11);
+						_addJson(_node11, _$parent14);
+					}_chFunc(_node10);_$parent13.children.push(_node10);
 				}
 			}_chFunc(_node6);_$parent8.children.push(_node6);
 		}_chFunc(_node);return _node;

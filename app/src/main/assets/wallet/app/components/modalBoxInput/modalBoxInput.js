@@ -24,6 +24,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * 外部监听 ev-sure，ev-forgetPsw 事件,event.value获取输入框中数据
  */
 var widget_1 = require("../../../pi/widget/widget");
+var tools_1 = require("../../utils/tools");
 
 var ModalBoxInput = function (_widget_1$Widget) {
     _inherits(ModalBoxInput, _widget_1$Widget);
@@ -38,8 +39,10 @@ var ModalBoxInput = function (_widget_1$Widget) {
         key: "create",
         value: function create() {
             _get(ModalBoxInput.prototype.__proto__ || Object.getPrototypeOf(ModalBoxInput.prototype), "create", this).call(this);
-            this.state = { currentValue: '' };
-            this.config = { value: { group: 'top' } };
+            this.state = {
+                currentValue: '',
+                cfgData: tools_1.getLanguage(this)
+            };
         }
         /**
          * 点击取消按钮
