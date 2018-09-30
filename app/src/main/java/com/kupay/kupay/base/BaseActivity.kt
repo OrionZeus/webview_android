@@ -20,14 +20,12 @@ import com.kupay.kupay.widget.AndroidWebView
 import com.kupay.kupay.widget.X5Chrome
 
 
-
 /**
  * Created by "iqos_jay@outlook.com" on 2018/6/25.
  * BaseActivity
  */
 abstract class BaseActivity : AppCompatActivity(), BaseView {
     var isHome: Boolean = false
-
     /**
      * Get the layout resource from XML.
      *
@@ -72,14 +70,17 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
             this.setFitSystemWindows()
             this.initViews()
         }
-        registerAppLifeListener()
+        if (!registered) {
+            registerAppLifeListener()
+            registered = true
+        }
         this.initData()
     }
 
     private fun setFitSystemWindows() {
-       /* val mContentView =  window?.findViewById(Window.ID_ANDROID_CONTENT)as ViewGroup
-        val mChildView = mContentView.getChildAt(0)
-        if (mChildView != null) mChildView.fitsSystemWindows = true*/
+        /* val mContentView =  window?.findViewById(Window.ID_ANDROID_CONTENT)as ViewGroup
+         val mChildView = mContentView.getChildAt(0)
+         if (mChildView != null) mChildView.fitsSystemWindows = true*/
         if (AndroidWorkaround.checkDeviceHasNavigationBar(this)) {
             AndroidWorkaround.assistActivity(findViewById(android.R.id.content));
         }
@@ -180,7 +181,16 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
         }
     }
 
+    override fun onDestroy() {
+        if (registered) {
+            unregisterReceiver(mBackgroundReceiver)
+            registered = false
+        }
+        super.onDestroy()
+    }
+
     companion object {
+        private var registered = false
         const val JS_CALLBACK = "handle_app_lifecycle_listener('%s')"
         private const val ON_APP_RESUMED = "onAppResumed"
         private const val ON_APP_PAUSED = "onAppPaused"

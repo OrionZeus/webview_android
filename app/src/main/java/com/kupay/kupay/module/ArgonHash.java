@@ -1,8 +1,8 @@
 package com.kupay.kupay.module;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.text.TextUtils;
+
 import com.kupay.kupay.base.BaseJSModule;
 import com.kupay.kupay.common.js.JSCallback;
 
@@ -20,15 +20,15 @@ import de.wuthoehle.argon2jni.SecurityParameters;
 public class ArgonHash extends BaseJSModule {
     private int t, m, p, type, hashLen;
     private String pwd, salt;
-    private final ProgressDialog dialog;
+//    private final ProgressDialog dialog;
 
-    public ArgonHash() {
+   /* public ArgonHash() {
         dialog = new ProgressDialog(ctx);
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setCancelable(false);
         dialog.setTitle("请稍等...");
         dialog.setMessage("正在计算Hash值");
-    }
+    }*/
 
     /**
      * 计算Argon2 Hash
@@ -66,14 +66,14 @@ public class ArgonHash extends BaseJSModule {
             weak = new WeakReference<>(hash);
         }
 
-        @Override
+        /*@Override
         protected void onPreExecute() {
             ArgonHash hash = weak.get();
             if (null == hash) return;
             if (!hash.dialog.isShowing()) {
                 hash.dialog.show();
             }
-        }
+        }*/
 
         @Override
         protected String doInBackground(Void... voids) {
@@ -95,9 +95,9 @@ public class ArgonHash extends BaseJSModule {
         protected void onPostExecute(String s) {
             ArgonHash hash = weak.get();
             if (null == hash) return;
-            if (hash.dialog.isShowing()) {
+            /*if (hash.dialog.isShowing()) {
                 hash.dialog.dismiss();
-            }
+            }*/
             if (TextUtils.isEmpty(s))
                 JSCallback.callJS(hash.callbackId, JSCallback.FAIL, "");
             else

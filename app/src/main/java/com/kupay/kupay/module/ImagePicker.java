@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
@@ -14,6 +15,7 @@ import com.kupay.kupay.app.MainActivity;
 import com.kupay.kupay.base.BaseJSModule;
 import com.kupay.kupay.common.js.JSCallback;
 import com.kupay.kupay.util.FileUtil;
+import com.kupay.kupay.util.Logger;
 import com.kupay.kupay.util.ToastManager;
 
 import java.io.File;
@@ -66,6 +68,7 @@ public class ImagePicker extends BaseJSModule {
             ImageSelector.builder()
                     .useCamera(useCamera)//设置是否使用拍照
                     .setSingle(single)//设置是否单选
+                    .showGif(false)//是否要显示GIF图片(默认是要显示的)
                     .setMaxSelectCount(max)//图片的最大选择数量，小于等于0时，不限数量。
                     .start(ctx, MainActivity.APP_RESULT_CODE);//打开相册
         } catch (IndexOutOfBoundsException e) {
@@ -79,6 +82,7 @@ public class ImagePicker extends BaseJSModule {
      */
     private static class DecodeImageTask extends AsyncTask<String, Void, String> {
         private WeakReference<ImagePicker> weak;
+        private long start, end;
 
         private DecodeImageTask(ImagePicker picker) {
             this.weak = new WeakReference<>(picker);
@@ -86,6 +90,7 @@ public class ImagePicker extends BaseJSModule {
 
         @Override
         protected String doInBackground(String... strings) {
+            Logger.error("开始转Base64", "时间\t" + (start = System.currentTimeMillis()));
             ImagePicker imagePicker = weak.get();
             if (null == imagePicker) return null;
             String path = strings[0];
@@ -109,6 +114,8 @@ public class ImagePicker extends BaseJSModule {
                 JSCallback.callJS(picker.callbackId, JSCallback.FAIL, "选择图片失败");
             } else {
                 JSCallback.callJS(picker.callbackId, JSCallback.SUCCESS, String.valueOf(picker.width), String.valueOf(picker.height), base64);
+                Logger.error("结束转Base64", "时间\t" + (end = System.currentTimeMillis()));
+                Logger.error("转Base64 耗时", "时间\t" + (end - start) + "毫秒");
             }
         }
     }
