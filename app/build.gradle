@@ -8,8 +8,8 @@ MobSDK {
     ShareSDK {
         devInfo {
             Wechat {
-                appId "wx82a7e354925202e6"
-                appSecret "ef952d46017a9167db9832b57fa15435"
+                appId "wx3d86fc2e76c0af41"
+                appSecret "36fee1ab731a7bda68ae0b24b7d6bdb5"
                 userName "gh_afb25ac019c9"
                 path "pages/index/index.html?id=1"
                 withShareTicket true
@@ -17,8 +17,8 @@ MobSDK {
                 bypassApproval false
             }
             WechatMoments {
-                appId "wx82a7e354925202e6"
-                appSecret "ef952d46017a9167db9832b57fa15435"
+                appId "wx3d86fc2e76c0af41"
+                appSecret "36fee1ab731a7bda68ae0b24b7d6bdb5"
                 userName "gh_afb25ac019c9"
                 path "pages/index/index.html?id=1"
                 withShareTicket true
@@ -48,7 +48,7 @@ MobSDK {
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.kupay.kupay"
+        applicationId "com.kuplay.kuplay"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1

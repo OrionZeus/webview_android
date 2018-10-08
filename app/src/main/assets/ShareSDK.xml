@@ -16,8 +16,8 @@
 <Tumblr Enable="false" />
 <Email Enable="false" />
 <ShortMessage Enable="false" />
-<Wechat AppId="wx82a7e354925202e6" AppSecret="ef952d46017a9167db9832b57fa15435" userName="gh_afb25ac019c9" path="pages/index/index.html?id=1" WithShareTicket="true" MiniprogramType="2" BypassApproval="false" />
-<WechatMoments AppId="wx82a7e354925202e6" AppSecret="ef952d46017a9167db9832b57fa15435" userName="gh_afb25ac019c9" path="pages/index/index.html?id=1" WithShareTicket="true" MiniprogramType="2" BypassApproval="false" />
+<Wechat AppId="wx3d86fc2e76c0af41" AppSecret="36fee1ab731a7bda68ae0b24b7d6bdb5" userName="gh_afb25ac019c9" path="pages/index/index.html?id=1" WithShareTicket="true" MiniprogramType="2" BypassApproval="false" />
+<WechatMoments AppId="wx3d86fc2e76c0af41" AppSecret="36fee1ab731a7bda68ae0b24b7d6bdb5" userName="gh_afb25ac019c9" path="pages/index/index.html?id=1" WithShareTicket="true" MiniprogramType="2" BypassApproval="false" />
 <QQ AppId="1107057918" AppKey="ZA8TZCDkupz38eoN" ShareByAppClient="true" BypassApproval="false" />
 <Instapaper Enable="false" />
 <Pocket Enable="false" />

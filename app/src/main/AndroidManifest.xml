@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.kupay.kupay">
+    package="com.kuplay.kuplay">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
@@ -34,7 +34,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
-        android:name=".app.App"
+        android:name="com.kuplay.kuplay.app.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -46,7 +46,7 @@
         <!-- Android 7.0 文件共享配置，必须配置 -->
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.kupay.kupay.fileprovider"
+            android:authorities="com.kuplay.kuplay.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -55,7 +55,7 @@
         </provider>
 
         <activity
-            android:name=".app.SplashActivity"
+            android:name="com.kuplay.kuplay.app.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -65,7 +65,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".app.MainActivity"
+            android:name="com.kuplay.kuplay.app.MainActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenWithoutAny" />
@@ -96,11 +96,11 @@
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <!-- 选择联系人 -->
         <activity
-            android:name=".app.SelectContactsActivity"
+            android:name="com.kuplay.kuplay.app.SelectContactsActivity"
             android:label="@string/app_select_contacts_label"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".app.NewWebViewActivity"
+            android:name="com.kuplay.kuplay.app.NewWebViewActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenWithoutAny" />
     </application>
