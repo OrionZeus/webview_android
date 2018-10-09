@@ -34,7 +34,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
-        android:name="com.kuplay.kuplay.app.App"
+        android:name=".app.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -55,7 +55,7 @@
         </provider>
 
         <activity
-            android:name="com.kuplay.kuplay.app.SplashActivity"
+            android:name=".app.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -65,7 +65,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.kuplay.kuplay.app.MainActivity"
+            android:name=".app.MainActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenWithoutAny" />
@@ -96,13 +96,18 @@
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <!-- 选择联系人 -->
         <activity
-            android:name="com.kuplay.kuplay.app.SelectContactsActivity"
+            android:name=".app.SelectContactsActivity"
             android:label="@string/app_select_contacts_label"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.kuplay.kuplay.app.NewWebViewActivity"
+            android:name=".app.NewWebViewActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenWithoutAny" />
+
+        <service
+            android:name=".service.UpdateAppService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
