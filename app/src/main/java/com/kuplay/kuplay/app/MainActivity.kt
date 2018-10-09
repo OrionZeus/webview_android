@@ -1,6 +1,7 @@
 package com.kuplay.kuplay.app
 
 import android.content.Intent
+import android.view.View
 import android.view.WindowManager
 import android.widget.RelativeLayout
 import com.kuplay.kuplay.R
@@ -9,6 +10,7 @@ import com.kuplay.kuplay.base.BaseWebView
 import com.kuplay.kuplay.common.js.JSBridge
 import com.kuplay.kuplay.common.js.JSEnv
 import com.kuplay.kuplay.common.js.JSIntercept
+import com.kuplay.kuplay.module.update.AppUpdater
 import com.kuplay.kuplay.widget.AndroidWebView
 import com.kuplay.kuplay.widget.X5Chrome
 
@@ -57,6 +59,11 @@ class MainActivity : BaseWebView() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         JSEnv.getJsImpl()?.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun testDownload(v: View) {
+        val url = "http://ftp-new-apk.pconline.com.cn/47aefdb3f0569d6e1f9a01256256952d/pub/download/201809/pconline1538296827496.apk"
+        AppUpdater().updateApp(100, url)
     }
 
     companion object {

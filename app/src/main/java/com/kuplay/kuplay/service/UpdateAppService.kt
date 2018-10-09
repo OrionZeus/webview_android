@@ -61,7 +61,6 @@ class UpdateAppService : Service() {
                     var len: Int
                     fos = FileOutputStream(tempFile)
                     inputStream = body.byteStream()
-                    var currentLen = 0L
                     while (true) {
                         len = inputStream.read(buf)
                         if (-1 == len) break
@@ -102,10 +101,12 @@ class UpdateAppService : Service() {
                 DOWNLOAD_UPDATE -> service.mDownloadProgressListener?.invoke(service.maxLen.toInt(), service.currentLen)
                 DOWNLOAD_FAILED -> {
                     service.running = false
+                    service.currentLen = 0
                 }
                 DOWNLOAD_FINISH -> {
                     service.mDownloadFinishListener?.invoke(service.filePath)
                     service.running = false
+                    service.currentLen = 0
                 }
                 else -> super.handleMessage(msg)
             }
