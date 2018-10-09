@@ -1,5 +1,6 @@
 package com.kuplay.kuplay.common.js;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
@@ -19,7 +20,7 @@ public class JSIntercept {
     }
 
     @JavascriptInterface
-    public void saveFile(String path, String base64Str) {
+    public void saveFile(String path, String base64Str, int saveID) {
         try {
             Context context = (Context) JSEnv.getEnv(JSEnv.CONTEXT);
             String fullPath = "/data/data/" + context.getPackageName() + "/" + path;
@@ -35,6 +36,11 @@ public class JSIntercept {
             byte[] data = Base64.decode(base64Str, Base64.NO_WRAP);
             stream.write(data);
             stream.close();
+
+            String func = String.format("window.handle_update_save(%d)", saveID);
+            Activity activity = (Activity) JSEnv.getEnv(JSEnv.ACTIVITY);
+            activity.runOnUiThread(new CallJSRunnable(func.toString()));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
