@@ -61,11 +61,6 @@ class MainActivity : BaseWebView() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun testDownload(v: View) {
-        val url = "http://ftp-new-apk.pconline.com.cn/47aefdb3f0569d6e1f9a01256256952d/pub/download/201809/pconline1538296827496.apk"
-        AppUpdater().updateApp(100, url)
-    }
-
     companion object {
         const val APP_RESULT_CODE = 912
         //        const val URL = "http://47.75.254.166:8080/wallet/app/boot/index.html"
