@@ -2,6 +2,7 @@ package com.kuplay.kuplay.module;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -150,10 +151,24 @@ public class ImagePicker extends BaseJSModule {
                 if (null != images && 0 != images.size()) {
                     if (1 == images.size()) {
                         String path = images.get(0);
-                        new DecodeImageTask(this).execute(path);
+                        calAHash(path);
+//                        new DecodeImageTask(this).execute(path);
                     }
                 }
                 break;
+        }
+    }
+
+    private void calAHash(String path) {
+        int imageWidth = FileUtil.getImageWidth(path);
+        int imageHeight = FileUtil.getImageHeight(path);
+        Bitmap bitmap = FileUtil.file2Bitmap(path);
+        if (null != bitmap) {
+            byte[] bytes = FileUtil.bitmap2RGB(bitmap);
+            if (null != bytes) {
+                String result = AHash.ahash(bytes, imageWidth, imageHeight, 3);
+                Logger.error("AHash", result);
+            }
         }
     }
 

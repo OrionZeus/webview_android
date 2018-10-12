@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  * Created by "iqos_jay@outlook.com" on 2018/6/22.
@@ -82,6 +83,12 @@ public class FileUtil {
         drawable.draw(canvas);
 
         return bitmap;
+    }
+
+    public static Bitmap file2Bitmap(String path) {
+        File file = new File(path);
+        if (!file.exists()) return null;
+        return BitmapFactory.decodeFile(path);
     }
 
     /**
@@ -196,5 +203,73 @@ public class FileUtil {
         return newColor > 255 ? 255 : newColor;
     }
 
+    /**
+     * Bitmap转RGB
+     *
+     * @param bitmap Bitmap
+     */
+    public static byte[] bitmap2RGB(Bitmap bitmap) {
+        int bytes = bitmap.getByteCount();  //返回可用于储存此位图像素的最小字节数
+        ByteBuffer buffer = ByteBuffer.allocate(bytes); //  使用allocate()静态方法创建字节缓冲区
+        bitmap.copyPixelsToBuffer(buffer); // 将位图的像素复制到指定的缓冲区
+        byte[] rgba = buffer.array();
+        byte[] pixels = new byte[(rgba.length / 4) * 3];
+        int count = rgba.length / 4;
+        //Bitmap像素点的色彩通道排列顺序是RGBA
+        for (int i = 0; i < count; i++) {
+            pixels[i * 3] = rgba[i * 4];        //R
+            pixels[i * 3 + 1] = rgba[i * 4 + 1];    //G
+            pixels[i * 3 + 2] = rgba[i * 4 + 2];       //B
+        }
+        return pixels;
+    }
+
+    public static byte[] getBitmapARGB(String path) {
+        Bitmap bitmap = file2Bitmap(path);
+        if (null == bitmap) return new byte[0];
+        int imageWidth = getImageWidth(path);
+        int imageHeight = getImageHeight(path);
+        byte[] result = new byte[imageWidth * imageHeight * 4];
+        int[][] temp = new int[imageWidth][imageHeight];
+        int index = 0;
+        for (int i = 0; i < temp.length; i++) {
+            for (int j = 0; j < temp[i].length; j++) {
+                int color = bitmap.getPixel(i, j);
+                byte r = (byte) Color.red(color);
+                result[index] = r;
+                ++index;
+                byte g = (byte) Color.green(color);
+                result[index] = g;
+                ++index;
+                byte b = (byte) Color.blue(color);
+                result[index] = b;
+                ++index;
+                byte a = (byte) Color.alpha(color);
+                result[index] = a;
+                ++index;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 获得图片的像素方法
+     *
+     * @param bitmap 图片的位图
+     */
+
+    public static void getPicturePixel(Bitmap bitmap) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        // 保存所有的像素的数组，图片宽×高
+        int[] pixels = new int[width * height];
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        for (int clr : pixels) {
+            int red = (clr & 0x00ff0000) >> 16; // 取高两位
+            int green = (clr & 0x0000ff00) >> 8; // 取中两位
+            int blue = clr & 0x000000ff; // 取低两位
+            Logger.debug("tag", "r=" + red + ",g=" + green + ",b=" + blue);
+        }
+    }
 
 }

@@ -9,4 +9,12 @@
         android:id="@+id/app_main_rl_root_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <!--<Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="测试AHash"
+        android:onClick="testAHash"
+        android:textAllCaps="false" />-->
 </RelativeLayout>

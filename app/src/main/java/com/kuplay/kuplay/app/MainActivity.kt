@@ -10,7 +10,9 @@ import com.kuplay.kuplay.base.BaseWebView
 import com.kuplay.kuplay.common.js.JSBridge
 import com.kuplay.kuplay.common.js.JSEnv
 import com.kuplay.kuplay.common.js.JSIntercept
+import com.kuplay.kuplay.module.ImagePicker
 import com.kuplay.kuplay.module.update.AppUpdater
+import com.kuplay.kuplay.util.Logger
 import com.kuplay.kuplay.widget.AndroidWebView
 import com.kuplay.kuplay.widget.X5Chrome
 
@@ -43,7 +45,7 @@ class MainActivity : BaseWebView() {
             mX5?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
             X5Chrome.sViewRoot.add(mRlRootView)
         } else {
-            mAndroidWebView?.addJavascriptInterface( JSBridge(), JSBridge::class.java.simpleName)
+            mAndroidWebView?.addJavascriptInterface(JSBridge(), JSBridge::class.java.simpleName)
             mAndroidWebView?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
             AndroidWebView.sViewRoot.add(mRlRootView)
         }
@@ -59,6 +61,10 @@ class MainActivity : BaseWebView() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         JSEnv.getJsImpl()?.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun testAHash(v: View) {
+        ImagePicker().chooseImage(1, 1, 1, 1)
     }
 
     companion object {

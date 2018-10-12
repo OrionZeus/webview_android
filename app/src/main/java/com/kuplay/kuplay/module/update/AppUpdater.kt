@@ -67,9 +67,7 @@ class AppUpdater : BaseJSModule() {
                     ToastManager.toast(ctx, "请允许${ctx.resources.getString(R.string.app_name)}安装未知来源的应用！")
                 }
 
-                override fun permissionGranted(permission: Array<out String>) {
-                    installApk(filePath)
-                }
+                override fun permissionGranted(permission: Array<out String>): Unit = installApk(filePath)
             }, Manifest.permission.REQUEST_INSTALL_PACKAGES)
         } else {
             this.installApk(filePath)
