@@ -8,8 +8,8 @@
     <string name="tip_web_view_connect_time_out">与服务器的连接超时</string>
     <string name="msg_request_failed">请求服务器失败!</string>
     <!--配置-->
-    <!--<string name="init_url">http://47.75.254.166:8080/wallet/app/boot/index.html</string>&lt;!&ndash;要加载的首个网页&ndash;&gt;-->
-    <string name="init_url">http://192.168.9.24:8088/dst/boot/index.html</string><!--陈杰 PI测试通信-->
+    <string name="init_url">http://47.75.254.166:8080/wallet/app/boot/index.html</string><!--要加载的首个网页-->
+    <!--<string name="init_url">http://192.168.9.24:8088/dst/boot/index.html</string>&lt;!&ndash;陈杰 PI测试通信&ndash;&gt;-->
     <string name="connect_url_time_out_value">20000</string><!--连接超时的时间-->
     <string name="web_view_intercept">1</string><!--拦截WebView的http请求-->
     <string name="compile_web_view_version_code">50</string><!--浏览器的版本号临界值、低于这个值将会使用X5Chrome-->

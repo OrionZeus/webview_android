@@ -1,6 +1,7 @@
 package com.kuplay.kuplay.app
 
 import android.content.Intent
+import android.support.v4.widget.SwipeRefreshLayout
 import android.view.View
 import android.view.WindowManager
 import android.widget.RelativeLayout
@@ -10,8 +11,11 @@ import com.kuplay.kuplay.base.BaseWebView
 import com.kuplay.kuplay.common.js.JSBridge
 import com.kuplay.kuplay.common.js.JSEnv
 import com.kuplay.kuplay.common.js.JSIntercept
+import com.kuplay.kuplay.module.ContactsReader
 import com.kuplay.kuplay.module.ImagePicker
+import com.kuplay.kuplay.module.ShareToPlatforms
 import com.kuplay.kuplay.module.update.AppUpdater
+import com.kuplay.kuplay.util.AndroidBug5497Workaround
 import com.kuplay.kuplay.util.Logger
 import com.kuplay.kuplay.widget.AndroidWebView
 import com.kuplay.kuplay.widget.X5Chrome
@@ -32,6 +36,7 @@ class MainActivity : BaseWebView() {
         mRlRootView = findViewById(R.id.app_main_rl_root_view)
         mRlRootView.removeAllViews()
         mRlRootView.addView(if (isX5) mX5 else mAndroidWebView)
+        AndroidBug5497Workaround.assistActivity(this)
     }
 
     /**
@@ -64,7 +69,7 @@ class MainActivity : BaseWebView() {
     }
 
     fun testAHash(v: View) {
-        ImagePicker().chooseImage(1, 1, 1, 1)
+        ContactsReader().readInfo(1)
     }
 
     companion object {

@@ -7,14 +7,18 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 
+import com.github.promeg.pinyinhelper.Pinyin;
 import com.google.gson.Gson;
 import com.kuplay.kuplay.app.MainActivity;
 import com.kuplay.kuplay.base.BasePresenter;
 import com.kuplay.kuplay.bean.ContactsInfo;
 import com.kuplay.kuplay.iview.SelectContactsView;
 import com.kuplay.kuplay.util.ContainerUtil;
+import com.kuplay.kuplay.util.Logger;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,43 +60,46 @@ public class SelectContactsPresenter extends BasePresenter<SelectContactsView> {
                 ContactsContract.Contacts._ID,
                 ContactsContract.Contacts.DISPLAY_NAME
         };
+        String[] phoneProjection = new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER};
         mContactsInfoList.clear();
         //根据Uri查询相应的ContentProvider，cursor为获取到的数据集
         Cursor cursor = ctx.getContentResolver().query(uri, projection, null, null, null);
-        Cursor phonesCursor = null;
         if (null == cursor) return;
         if (cursor.moveToFirst()) {
             do {
                 ContactsInfo info = new ContactsInfo();
                 Long id = cursor.getLong(0);
-                //获取姓名
                 String name = cursor.getString(1);
-                //指定获取NUMBER这一列数据
-                String[] phoneProjection = new String[]{
-                        ContactsContract.CommonDataKinds.Phone.NUMBER
-                };
                 info.setName(name);
                 //根据联系人的ID获取此人的电话号码
-                phonesCursor = ctx.getContentResolver().query(
+                Cursor phonesCursor = ctx.getContentResolver().query(
                         ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                         phoneProjection,
                         ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + id,
                         null,
                         null);
-
                 //因为每个联系人可能有多个电话号码，所以需要遍历
+                StringBuilder sb = new StringBuilder();
                 if (phonesCursor != null && phonesCursor.moveToFirst()) {
                     do {
                         String num = phonesCursor.getString(0);
-                        info.setPhoneNumber(num);
+                        sb.append(num).append(",");
                     } while (phonesCursor.moveToNext());
                 }
+                if (sb.toString().endsWith(",")) {
+                    sb.delete(sb.length() - 1, sb.length());
+                }
+                info.setPhoneNumber(sb.toString());
+                if (TextUtils.isEmpty(info.getPhoneNumber())) continue;
+                if (!TextUtils.isEmpty(info.getName())) {
+                    info.setLetter(Pinyin.toPinyin(name.charAt(0)));
+                }
                 mContactsInfoList.add(info);
+                if (null != phonesCursor) phonesCursor.close();
             } while (cursor.moveToNext());
         }
         cursor.close();
-        if (null != phonesCursor)
-            phonesCursor.close();
+        Collections.sort(mContactsInfoList);
         iv.onShowAllContacts(mContactsInfoList);
     }
 

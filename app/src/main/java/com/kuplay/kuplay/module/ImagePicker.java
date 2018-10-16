@@ -151,8 +151,8 @@ public class ImagePicker extends BaseJSModule {
                 if (null != images && 0 != images.size()) {
                     if (1 == images.size()) {
                         String path = images.get(0);
-                        calAHash(path);
-//                        new DecodeImageTask(this).execute(path);
+//                        calAHash(path);
+                        new DecodeImageTask(this).execute(path);
                     }
                 }
                 break;

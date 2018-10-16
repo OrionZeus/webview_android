@@ -158,6 +158,8 @@ public class FileUtil {
     public static boolean saveBitmapFile(Bitmap bitmap, String savePath) {
         File file = new File(savePath);
         try {
+            if (file.exists()) file.delete();
+            file.createNewFile();
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
             bos.flush();

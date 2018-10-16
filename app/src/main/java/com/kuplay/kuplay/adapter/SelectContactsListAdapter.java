@@ -3,6 +3,7 @@ package com.kuplay.kuplay.adapter;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,10 +44,12 @@ public class SelectContactsListAdapter extends RecyclerView.Adapter<SelectContac
     public void onBindViewHolder(@NonNull ContactsViewHolder holder, int position) {
         final ContactsInfo contactsInfo = mContactsInfoList.get(position);
         if (null == contactsInfo) return;
+        String letter = contactsInfo.getLetter();//拼音
         String name = contactsInfo.getName();//名字
         String phoneNumber = contactsInfo.getPhoneNumber();//手机号码
         holder.mTvName.setText(name);
         holder.mTvNumber.setText(phoneNumber);
+        holder.mTvAvatar.setText(TextUtils.isEmpty(name) ? "" : String.valueOf(name.charAt(0)));
         holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -54,6 +57,24 @@ public class SelectContactsListAdapter extends RecyclerView.Adapter<SelectContac
             }
         });
         holder.mCheckBox.setChecked(contactsInfo.isSelected());
+        if (0 == position && !TextUtils.isEmpty(letter)) {
+            holder.mTvLetter.setVisibility(View.VISIBLE);
+            holder.mTvLetter.setText(String.valueOf(letter.charAt(0)));
+        }
+
+        if (position > 0) {
+            if (!TextUtils.isEmpty(letter)) {
+                String lastLetter = mContactsInfoList.get(position - 1).getLetter();
+                char c = letter.charAt(0);
+                char lastChar = lastLetter.charAt(0);
+                if (c == lastChar) {
+                    holder.mTvLetter.setVisibility(View.GONE);
+                } else {
+                    holder.mTvLetter.setVisibility(View.VISIBLE);
+                    holder.mTvLetter.setText(String.valueOf(c));
+                }
+            }
+        }
     }
 
     @Override
@@ -62,11 +83,13 @@ public class SelectContactsListAdapter extends RecyclerView.Adapter<SelectContac
     }
 
     static class ContactsViewHolder extends RecyclerView.ViewHolder {
-        TextView mTvName, mTvNumber;
+        TextView mTvLetter, mTvAvatar, mTvName, mTvNumber;
         CheckBox mCheckBox;
 
         ContactsViewHolder(View itemView) {
             super(itemView);
+            mTvLetter = itemView.findViewById(R.id.item_select_contacts_tv_letter);
+            mTvAvatar = itemView.findViewById(R.id.item_select_contacts_tv_name_avatar);
             mTvName = itemView.findViewById(R.id.item_select_contacts_tv_name);
             mTvNumber = itemView.findViewById(R.id.item_select_contacts_tv_number);
             mCheckBox = itemView.findViewById(R.id.item_select_contacts_cb);

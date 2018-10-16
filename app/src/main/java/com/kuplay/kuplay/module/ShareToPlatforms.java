@@ -5,17 +5,26 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Picture;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.view.View;
 
 import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
 import com.iqos.qrscanner.utils.QRCodeUtils;
 import com.kuplay.kuplay.R;
+import com.kuplay.kuplay.app.MainActivity;
 import com.kuplay.kuplay.base.BaseJSModule;
+import com.kuplay.kuplay.base.BaseWebView;
 import com.kuplay.kuplay.common.js.JSCallback;
+import com.kuplay.kuplay.common.js.JSEnv;
 import com.kuplay.kuplay.util.FileUtil;
 import com.kuplay.kuplay.util.Logger;
+import com.kuplay.kuplay.widget.AndroidWebView;
+import com.kuplay.kuplay.widget.X5Chrome;
 
 import java.io.File;
 import java.util.HashMap;
@@ -257,6 +266,83 @@ public class ShareToPlatforms extends BaseJSModule {
         oks.show(ctx);
     }
 
+    public void getScreenShot(final int callbackId) {
+        PermissionsUtil.requestPermission(ctx, new PermissionListener() {
+            @Override
+            public void permissionGranted(@NonNull String[] permission) {
+                try {
+                    Object mWebView = JSEnv.getEnv(JSEnv.WEBVIEW);
+                    if (mWebView instanceof AndroidWebView) {
+                        Picture snapShot = ((AndroidWebView) mWebView).capturePicture();
+                        Bitmap bmp = Bitmap.createBitmap(snapShot.getWidth(), snapShot.getHeight(), Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(bmp);
+                        snapShot.draw(canvas);
+                        FileUtil.saveBitmapFile(bmp, getFileDirPath());
+                        JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+                    } else {
+                        X5Chrome x5Chrome = ((X5Chrome) mWebView);
+                        int contentWidth = x5Chrome.getContentWidth();
+                        int contentHeight = x5Chrome.getContentHeight();
+                        Bitmap bitmap = Bitmap.createBitmap(contentWidth, contentHeight, Bitmap.Config.RGB_565);
+                        Canvas canvas = new Canvas(bitmap);
+                        x5Chrome.getX5WebViewExtension().snapshotWholePage(canvas, false, false);
+                        FileUtil.saveBitmapFile(bitmap, getFileDirPath());
+                        JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+                }
+            }
+
+            @Override
+            public void permissionDenied(@NonNull String[] permission) {
+
+            }
+        }, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+
+    public void shareScreen(final int callbackId,final int platform) {
+        OnekeyShare oks = new OnekeyShare();
+        //关闭sso授权
+        oks.disableSSOWhenAuthorize();
+        // 分享时Notification的图标和文字  2.5.9以后的版本不调用此方法
+        //oks.setNotification(R.drawable.ic_launcher, getString(R.string.app_name));
+        oks.setTitle("分享截屏");// title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间使用
+        oks.setTitleUrl("https://www.kuplay.io");// titleUrl是标题的网络链接，仅在人人网和QQ空间使用
+        oks.setImagePath(getAppIconFile());//确保SDcard下面存在此张图片
+        oks.setText(""); // text是分享文本，所有平台都需要这个字段
+        oks.setUrl("https://www.kuplay.io");// url仅在微信（包括好友和朋友圈）中使用
+        oks.setComment("");// comment是我对这条分享的评论，仅在人人网和QQ空间使用
+        oks.setSite("KuPlay");// site是分享此内容的网站名称，仅在QQ空间使用
+        oks.setSiteUrl("https://www.kuplay.io");// siteUrl是分享此内容的网站地址，仅在QQ空间使用
+        if (null != getPlatformName(platform))
+            oks.setPlatform(getPlatformName(platform));
+        oks.setCallback(new PlatformActionListener() {
+            @Override
+            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
+                Logger.error(TAG, "分享完成");
+                FileUtil.removeFile(getAppIconFile());
+                JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+            }
+
+            @Override
+            public void onError(Platform platform, int i, Throwable throwable) {
+                Logger.error(TAG, "分享出错");
+                FileUtil.removeFile(getAppIconFile());
+                JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+            }
+
+            @Override
+            public void onCancel(Platform platform, int i) {
+                Logger.error(TAG, "分享取消");
+                JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+                FileUtil.removeFile(getAppIconFile());
+            }
+        });
+        oks.show(ctx);// 启动分享GUI
+    }
+
     /**
      * 开始执行分享操作
      *
@@ -315,7 +401,7 @@ public class ShareToPlatforms extends BaseJSModule {
      * @return 本地图片的路径
      */
     private String getFileDirPath() {
-        return Environment.getExternalStorageDirectory() + File.separator + "qr_download_link.png";
+        return Environment.getExternalStorageDirectory() + File.separator + "share_img.png";
     }
 
     /**
