@@ -17,8 +17,10 @@ import com.kuplay.kuplay.module.ShareToPlatforms
 import com.kuplay.kuplay.module.update.AppUpdater
 import com.kuplay.kuplay.util.AndroidBug5497Workaround
 import com.kuplay.kuplay.util.Logger
+import com.kuplay.kuplay.util.ViewUtil
 import com.kuplay.kuplay.widget.AndroidWebView
 import com.kuplay.kuplay.widget.X5Chrome
+import kotlinx.android.synthetic.main.layout_fake_status_bar_view.*
 
 class MainActivity : BaseWebView() {
     private lateinit var mRlRootView: RelativeLayout
@@ -33,10 +35,11 @@ class MainActivity : BaseWebView() {
      * As the method name said,this method is used to initialize views on this activity.
      */
     override fun initViews() {
+        status_bar.layoutParams.height = ViewUtil.getStatusBarHeight(this).toInt()
         mRlRootView = findViewById(R.id.app_main_rl_root_view)
         mRlRootView.removeAllViews()
         mRlRootView.addView(if (isX5) mX5 else mAndroidWebView)
-        AndroidBug5497Workaround.assistActivity(this)
+//        AndroidBug5497Workaround.assistActivity(this)
     }
 
     /**
@@ -69,7 +72,7 @@ class MainActivity : BaseWebView() {
     }
 
     fun testAHash(v: View) {
-        ContactsReader().readInfo(1)
+        ImagePicker().chooseImage(1, 1, 1, 1)
     }
 
     companion object {

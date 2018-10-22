@@ -12,6 +12,7 @@ import com.kuplay.kuplay.common.js.JSIntercept
 import com.kuplay.kuplay.util.ViewUtil
 import com.kuplay.kuplay.widget.AndroidWebView
 import com.kuplay.kuplay.widget.X5Chrome
+import kotlinx.android.synthetic.main.layout_fake_status_bar_view.*
 
 class NewWebViewActivity : BaseWebView() {
     private lateinit var mRlRootView: RelativeLayout
@@ -35,6 +36,7 @@ class NewWebViewActivity : BaseWebView() {
         mVStatusBar = findViewById(R.id.app_new_web_view_v_status)
         mRlRootView.removeAllViews()
         mRlRootView.addView(if (isX5) mX5 else mAndroidWebView)
+        status_bar.layoutParams.height = ViewUtil.getStatusBarHeight(this).toInt()
     }
 
     /**

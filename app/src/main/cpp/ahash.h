@@ -12,7 +12,7 @@ extern "C" {
 /**
  * 注意：外部程序使用完返回值后，记得调用free释放内存
  */
-char *ahashImpl(char *data, int w, int h, int channels);
+char *ahashImpl(int *data, int w, int h, int channels);
 
 #ifdef __cplusplus
 }

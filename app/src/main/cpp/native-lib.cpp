@@ -8,7 +8,7 @@ extern "C" JNIEXPORT jstring
 JNICALL Java_com_kuplay_kuplay_module_AHash_ahash(
         JNIEnv *env,
         jobject,
-        jbyteArray jpixels,
+        jintArray jpixels,
         jint width,
         jint height,
         jint channels) {
@@ -17,10 +17,10 @@ JNICALL Java_com_kuplay_kuplay_module_AHash_ahash(
         return env->NewStringUTF("");
 
     jsize len = env->GetArrayLength(jpixels);
-    jbyte *pixels = (jbyte *)malloc(len * sizeof(jbyte));
-    env->GetByteArrayRegion(jpixels, 0, len, pixels);
+    jint *pixels = (jint *)malloc(len * sizeof(jint));
+    env->GetIntArrayRegion(jpixels, 0, len, pixels);
 
-    char *result = ahashImpl((char *)pixels, width, height, channels);
+    char *result = ahashImpl((int *)pixels, width, height, channels);
 
     jstring s;
     if (result != NULL)

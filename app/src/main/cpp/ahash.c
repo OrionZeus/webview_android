@@ -13,26 +13,17 @@
  * @param pixels 图片像素，RGB或者RGBA
  * @param w 宽度(int)
  * @param h 高度(int)
- * @param channels 像素的通道数(int)
  */
-static char* gray(char *pixels, int w, int h, int channels) {
-    if (channels == 1) {
-        char *result = malloc(w * h);
-        if (result != NULL) {
-            memset(result, pixels, w * h);
-        }
-        return result;
-    }
-
+static char* gray(int *pixels, int w, int h) {
     int curr = 0;
     char *result = malloc(w * h);
     if (result != NULL) {
         for (int j = 0; j < h; ++j) {
             for (int i = 0; i < w; ++i) {
-                int id = (w * j + i) * channels;
-                char r = pixels[id];
-                char g = pixels[id + 1];
-                char b = pixels[id + 2];
+                int p = pixels[w * j + i];
+                char r = (p >> 16) & 0xff;
+                char g = (p >> 8) & 0xff;
+                char b = p & 0xff;
                 result[curr++] = r * 0.299 + g * 0.587 + b * 0.114;
             }
         }
@@ -170,17 +161,17 @@ static char* toHexString(char *pixels, int size) {
 /**
  * 注意：外部程序使用完返回值后，记得调用free释放内存
  */
-char* ahashImpl(char *pixels, int w, int h, int channels) {
+char* ahashImpl(int *pixels, int w, int h, int channels) {
 
     if (w < 16 || h < 16) {
         return NULL;
     }
 
-    if (channels != 1 && channels != 3 && channels != 4) {
+    if (channels != 4) {
         return NULL;
     }
 
-    char *g  = gray(pixels, w, h, channels);
+    char *g  = gray(pixels, w, h);
     if (g == NULL) {
         return NULL;
     }

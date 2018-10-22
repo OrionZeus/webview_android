@@ -5,5 +5,5 @@ public class AHash {
         System.loadLibrary("native-lib");
     }
 
-    public static native String ahash(byte[] pixels, int width, int height, int chanels);
+    public static native String ahash(int[] pixels, int width, int height, int chanels);
 }

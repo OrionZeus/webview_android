@@ -1,8 +1,8 @@
 package com.kuplay.kuplay.module;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -82,7 +82,6 @@ public class ImagePicker extends BaseJSModule {
      */
     private static class DecodeImageTask extends AsyncTask<String, Void, String> {
         private WeakReference<ImagePicker> weak;
-        private long start, end;
 
         private DecodeImageTask(ImagePicker picker) {
             this.weak = new WeakReference<>(picker);
@@ -90,7 +89,6 @@ public class ImagePicker extends BaseJSModule {
 
         @Override
         protected String doInBackground(String... strings) {
-            Logger.error("开始转Base64", "时间\t" + (start = System.currentTimeMillis()));
             ImagePicker imagePicker = weak.get();
             if (null == imagePicker) return null;
             String path = strings[0];
@@ -109,13 +107,72 @@ public class ImagePicker extends BaseJSModule {
         @Override
         protected void onPostExecute(String base64) {
             ImagePicker picker = weak.get();
-            if (null == picker) return;
             if (TextUtils.isEmpty(base64)) {
                 JSCallback.callJS(picker.callbackId, JSCallback.FAIL, "选择图片失败");
             } else {
                 JSCallback.callJS(picker.callbackId, JSCallback.SUCCESS, String.valueOf(picker.width), String.valueOf(picker.height), base64);
-                Logger.error("结束转Base64", "时间\t" + (end = System.currentTimeMillis()));
-                Logger.error("转Base64 耗时", "时间\t" + (end - start) + "毫秒");
+            }
+        }
+    }
+
+    /**
+     * 计算Ahash
+     * This method will be called by js.
+     *
+     * @param path 文件的路径
+     */
+    public void calcAHash(int callbackId, String path) {
+        this.callbackId = callbackId;
+        new CalcAHashTask(this).execute(path);
+    }
+
+    /**
+     * 计算Base64
+     * This method will be called by js.
+     *
+     * @param path 文件路径
+     */
+    public void calcBase64(int callbackId, String path) {
+        this.callbackId = callbackId;
+        new DecodeImageTask(this).execute(path);
+    }
+
+    private static class CalcAHashTask extends AsyncTask<String, Void, String> {
+        private WeakReference<ImagePicker> weak;
+
+        private CalcAHashTask(ImagePicker picker) {
+            this.weak = new WeakReference<>(picker);
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            ImagePicker imagePicker = weak.get();
+            if (null == imagePicker) return null;
+            String path = strings[0];
+            if (TextUtils.isEmpty(path)) {
+                JSCallback.callJS(imagePicker.callbackId, JSCallback.FAIL, "The path can not be null.");
+                return null;
+            }
+            try {
+                int[] bitmapARGB = FileUtil.getBitmapPixelColors(path);
+                int imageWidth = FileUtil.getImageWidth(path);
+                int imageHeight = FileUtil.getImageHeight(path);
+                return AHash.ahash(bitmapARGB, imageWidth, imageHeight, 4);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            ImagePicker imagePicker = weak.get();
+            if (null == imagePicker) return;
+            if (TextUtils.isEmpty(s)) {
+                JSCallback.callJS(imagePicker.callbackId, JSCallback.FAIL, "");
+            } else {
+                Logger.error("TAG", "计算结果\t" + s);
+                JSCallback.callJS(imagePicker.callbackId, JSCallback.SUCCESS, s);
             }
         }
     }
@@ -151,25 +208,39 @@ public class ImagePicker extends BaseJSModule {
                 if (null != images && 0 != images.size()) {
                     if (1 == images.size()) {
                         String path = images.get(0);
-//                        calAHash(path);
+                        Logger.error("TAG", "图片宽度\t" + FileUtil.getImageWidth(path));
+                        Logger.error("TAG", "图片高度\t" + FileUtil.getImageHeight(path));
+//                        new CalcAHashTask(this).execute(path);
+//                        this.copyFileToDataDir(path);
                         new DecodeImageTask(this).execute(path);
+                    } else {
+                        JSCallback.callJS(callbackId, JSCallback.FAIL, "The Path Is Null.");
                     }
                 }
                 break;
         }
     }
 
-    private void calAHash(String path) {
-        int imageWidth = FileUtil.getImageWidth(path);
-        int imageHeight = FileUtil.getImageHeight(path);
-        Bitmap bitmap = FileUtil.file2Bitmap(path);
-        if (null != bitmap) {
-            byte[] bytes = FileUtil.bitmap2RGB(bitmap);
-            if (null != bytes) {
-                String result = AHash.ahash(bytes, imageWidth, imageHeight, 3);
-                Logger.error("AHash", result);
+    /**
+     * 把文件复制到Data目录下
+     *
+     * @param path 源文件的路径
+     */
+    @SuppressLint("SdCardPath")
+    private void copyFileToDataDir(final String path) {
+        final String copy = "/data0/data/" + ctx.getPackageName() + File.separator + FileUtil.getFileNameByPath(path);
+        ctx.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                boolean success = FileUtil.copyFile(path, copy);
+                if (success) {
+                    Logger.error("拷贝过后的新文件路径：", copy);
+                    JSCallback.callJS(callbackId, JSCallback.SUCCESS, copy);
+                } else {
+                    JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+                }
             }
-        }
+        });
     }
 
     /**
@@ -189,4 +260,6 @@ public class ImagePicker extends BaseJSModule {
     private void setUseCamera(boolean useCamera) {
         this.useCamera = useCamera;
     }
+
+
 }

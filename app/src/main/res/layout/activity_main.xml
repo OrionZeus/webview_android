@@ -10,12 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <include layout="@layout/layout_fake_status_bar_view" />
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:onClick="testAHash"
-        android:text="测试AHash"
+        android:text="创建文件"
         android:textAllCaps="false"
         android:visibility="gone" />
 </RelativeLayout>

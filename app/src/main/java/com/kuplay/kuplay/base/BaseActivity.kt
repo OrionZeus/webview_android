@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.widget.Toast
 import com.kuplay.kuplay.common.js.JSEnv
+import com.kuplay.kuplay.util.AndroidBug5497Workaround
 import com.kuplay.kuplay.util.AndroidWorkaround
 import com.kuplay.kuplay.util.Logger
 import com.kuplay.kuplay.util.ToastManager
@@ -78,7 +79,9 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
          val mChildView = mContentView.getChildAt(0)
          if (mChildView != null) mChildView.fitsSystemWindows = true*/
         if (AndroidWorkaround.checkDeviceHasNavigationBar(this)) {
-            AndroidWorkaround.assistActivity(findViewById(android.R.id.content));
+            AndroidWorkaround.assistActivity(findViewById(android.R.id.content))
+        } else {
+            AndroidBug5497Workaround.assistActivity(this)
         }
     }
 

@@ -6,19 +6,15 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Picture;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.view.View;
 
 import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
 import com.iqos.qrscanner.utils.QRCodeUtils;
 import com.kuplay.kuplay.R;
-import com.kuplay.kuplay.app.MainActivity;
 import com.kuplay.kuplay.base.BaseJSModule;
-import com.kuplay.kuplay.base.BaseWebView;
 import com.kuplay.kuplay.common.js.JSCallback;
 import com.kuplay.kuplay.common.js.JSEnv;
 import com.kuplay.kuplay.util.FileUtil;
@@ -46,6 +42,7 @@ public class ShareToPlatforms extends BaseJSModule {
     private static final String TAG = "ShareToPlatforms";
     private static final int TYPE_IMAGE = 1;//分享的种类->图片
     private static final int TYPE_TEXT = 2;//分享的种类->文本
+    private static final int TYPE_SCREEN = 4;//分享的种类->截图
     private static final int PLATFORM_ALL = -1;//分享到的平台->所有平台(此时可以直接调用本地的分享UI)
     private static final int PLATFORM_WE_CHAT = 1;//分享到的平台->微信
     private static final int PLATFORM_MOMENTS = 2;//分享到的平台->朋友圈
@@ -74,6 +71,10 @@ public class ShareToPlatforms extends BaseJSModule {
             case TYPE_TEXT:
                 this.shareTextContent(content);
                 break;
+            //分享类型：截图
+            case TYPE_SCREEN:
+                this.shareImageContent(getPlatformName(platform));
+                break;
         }
 
     }
@@ -93,48 +94,51 @@ public class ShareToPlatforms extends BaseJSModule {
         PermissionsUtil.requestPermission(ctx, new PermissionListener() {
             @Override
             public void permissionGranted(@NonNull String[] permission) {
-                Bitmap bitmap = BitmapFactory.decodeResource(ctx.getResources(), R.mipmap.ic_launcher);
+                Bitmap bitmap = BitmapFactory.decodeResource(ctx.getResources(), R.mipmap.ic_launcher,new BitmapFactory.Options());
                 Bitmap bmp = FileUtil.changeColor(bitmap);
-                boolean success = FileUtil.saveBitmapFile(bmp, getAppIconFile());
-                if (!success) return;
-                OnekeyShare oks = new OnekeyShare();
-                //关闭sso授权
-                oks.disableSSOWhenAuthorize();
-                // 分享时Notification的图标和文字  2.5.9以后的版本不调用此方法
-                //oks.setNotification(R.drawable.ic_launcher, getString(R.string.app_name));
-                oks.setTitle(title);// title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间使用
-                oks.setTitleUrl(url);// titleUrl是标题的网络链接，仅在人人网和QQ空间使用
-                oks.setImagePath(getAppIconFile());//确保SDcard下面存在此张图片
-                oks.setText(content); // text是分享文本，所有平台都需要这个字段
-                oks.setUrl(url);// url仅在微信（包括好友和朋友圈）中使用
-                oks.setComment(comment);// comment是我对这条分享的评论，仅在人人网和QQ空间使用
-                oks.setSite(webName);// site是分享此内容的网站名称，仅在QQ空间使用
-                oks.setSiteUrl(url);// siteUrl是分享此内容的网站地址，仅在QQ空间使用
-                if (null != getPlatformName(platform))
-                    oks.setPlatform(getPlatformName(platform));
-                oks.setCallback(new PlatformActionListener() {
+                FileUtil.saveBitmapFile(bmp, getAppIconFile(), new FileUtil.FileCallback() {
                     @Override
-                    public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                        Logger.error(TAG, "分享完成");
-                        FileUtil.removeFile(getAppIconFile());
-                        JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
-                    }
+                    public void onCreateFileSuccess(File file) {
+                        OnekeyShare oks = new OnekeyShare();
+                        //关闭sso授权
+                        oks.disableSSOWhenAuthorize();
+                        // 分享时Notification的图标和文字  2.5.9以后的版本不调用此方法
+                        //oks.setNotification(R.drawable.ic_launcher, getString(R.string.app_name));
+                        oks.setTitle(title);// title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间使用
+                        oks.setTitleUrl(url);// titleUrl是标题的网络链接，仅在人人网和QQ空间使用
+                        oks.setImagePath(getAppIconFile());//确保SDcard下面存在此张图片
+                        oks.setText(content); // text是分享文本，所有平台都需要这个字段
+                        oks.setUrl(url);// url仅在微信（包括好友和朋友圈）中使用
+                        oks.setComment(comment);// comment是我对这条分享的评论，仅在人人网和QQ空间使用
+                        oks.setSite(webName);// site是分享此内容的网站名称，仅在QQ空间使用
+                        oks.setSiteUrl(url);// siteUrl是分享此内容的网站地址，仅在QQ空间使用
+                        if (null != getPlatformName(platform))
+                            oks.setPlatform(getPlatformName(platform));
+                        oks.setCallback(new PlatformActionListener() {
+                            @Override
+                            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
+                                Logger.error(TAG, "分享完成");
+                                FileUtil.removeFile(getAppIconFile());
+                                JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+                            }
 
-                    @Override
-                    public void onError(Platform platform, int i, Throwable throwable) {
-                        Logger.error(TAG, "分享出错");
-                        FileUtil.removeFile(getAppIconFile());
-                        JSCallback.callJS(callbackId, JSCallback.FAIL, "");
-                    }
+                            @Override
+                            public void onError(Platform platform, int i, Throwable throwable) {
+                                Logger.error(TAG, "分享出错");
+                                FileUtil.removeFile(getAppIconFile());
+                                JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+                            }
 
-                    @Override
-                    public void onCancel(Platform platform, int i) {
-                        Logger.error(TAG, "分享取消");
-                        JSCallback.callJS(callbackId, JSCallback.FAIL, "");
-                        FileUtil.removeFile(getAppIconFile());
+                            @Override
+                            public void onCancel(Platform platform, int i) {
+                                Logger.error(TAG, "分享取消");
+                                JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+                                FileUtil.removeFile(getAppIconFile());
+                            }
+                        });
+                        oks.show(ctx);// 启动分享GUI
                     }
                 });
-                oks.show(ctx);// 启动分享GUI
             }
 
             @Override
@@ -176,7 +180,6 @@ public class ShareToPlatforms extends BaseJSModule {
                 this.startShareQRCode(content, null);
                 break;
         }
-
     }
 
     /**
@@ -273,24 +276,43 @@ public class ShareToPlatforms extends BaseJSModule {
                 try {
                     Object mWebView = JSEnv.getEnv(JSEnv.WEBVIEW);
                     if (mWebView instanceof AndroidWebView) {
-                        Picture snapShot = ((AndroidWebView) mWebView).capturePicture();
-                        Bitmap bmp = Bitmap.createBitmap(snapShot.getWidth(), snapShot.getHeight(), Bitmap.Config.ARGB_8888);
-                        Canvas canvas = new Canvas(bmp);
-                        snapShot.draw(canvas);
-                        FileUtil.saveBitmapFile(bmp, getFileDirPath());
-                        JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+                        final AndroidWebView androidWebView = (AndroidWebView) mWebView;
+                        androidWebView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Picture snapShot = androidWebView.capturePicture();
+                                Bitmap bmp = Bitmap.createBitmap(snapShot.getWidth(), snapShot.getHeight(), Bitmap.Config.ARGB_8888);
+                                Canvas canvas = new Canvas(bmp);
+                                snapShot.draw(canvas);
+                                FileUtil.saveBitmapFile(bmp, getFileDirPath(), new FileUtil.FileCallback() {
+                                    @Override
+                                    public void onCreateFileSuccess(File file) {
+                                        JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+                                    }
+                                });
+                            }
+                        });
                     } else {
-                        X5Chrome x5Chrome = ((X5Chrome) mWebView);
-                        int contentWidth = x5Chrome.getContentWidth();
-                        int contentHeight = x5Chrome.getContentHeight();
-                        Bitmap bitmap = Bitmap.createBitmap(contentWidth, contentHeight, Bitmap.Config.RGB_565);
-                        Canvas canvas = new Canvas(bitmap);
-                        x5Chrome.getX5WebViewExtension().snapshotWholePage(canvas, false, false);
-                        FileUtil.saveBitmapFile(bitmap, getFileDirPath());
-                        JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+                        final X5Chrome x5Chrome = ((X5Chrome) mWebView);
+                        x5Chrome.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                int contentWidth = x5Chrome.getContentWidth();
+                                int contentHeight = x5Chrome.getContentHeight();
+                                Bitmap bitmap = Bitmap.createBitmap(contentWidth, contentHeight, Bitmap.Config.RGB_565);
+                                Canvas canvas = new Canvas(bitmap);
+                                x5Chrome.getX5WebViewExtension().snapshotWholePage(canvas, false, false);
+                                FileUtil.saveBitmapFile(bitmap, getFileDirPath(), new FileUtil.FileCallback() {
+                                    @Override
+                                    public void onCreateFileSuccess(File file) {
+                                        JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+                                    }
+                                });
+                            }
+                        });
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Logger.error("创建文件失败", e.getMessage());
                     JSCallback.callJS(callbackId, JSCallback.FAIL, "");
                 }
             }
@@ -302,45 +324,9 @@ public class ShareToPlatforms extends BaseJSModule {
         }, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
-    public void shareScreen(final int callbackId,final int platform) {
-        OnekeyShare oks = new OnekeyShare();
-        //关闭sso授权
-        oks.disableSSOWhenAuthorize();
-        // 分享时Notification的图标和文字  2.5.9以后的版本不调用此方法
-        //oks.setNotification(R.drawable.ic_launcher, getString(R.string.app_name));
-        oks.setTitle("分享截屏");// title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间使用
-        oks.setTitleUrl("https://www.kuplay.io");// titleUrl是标题的网络链接，仅在人人网和QQ空间使用
-        oks.setImagePath(getAppIconFile());//确保SDcard下面存在此张图片
-        oks.setText(""); // text是分享文本，所有平台都需要这个字段
-        oks.setUrl("https://www.kuplay.io");// url仅在微信（包括好友和朋友圈）中使用
-        oks.setComment("");// comment是我对这条分享的评论，仅在人人网和QQ空间使用
-        oks.setSite("KuPlay");// site是分享此内容的网站名称，仅在QQ空间使用
-        oks.setSiteUrl("https://www.kuplay.io");// siteUrl是分享此内容的网站地址，仅在QQ空间使用
-        if (null != getPlatformName(platform))
-            oks.setPlatform(getPlatformName(platform));
-        oks.setCallback(new PlatformActionListener() {
-            @Override
-            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                Logger.error(TAG, "分享完成");
-                FileUtil.removeFile(getAppIconFile());
-                JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
-            }
-
-            @Override
-            public void onError(Platform platform, int i, Throwable throwable) {
-                Logger.error(TAG, "分享出错");
-                FileUtil.removeFile(getAppIconFile());
-                JSCallback.callJS(callbackId, JSCallback.FAIL, "");
-            }
-
-            @Override
-            public void onCancel(Platform platform, int i) {
-                Logger.error(TAG, "分享取消");
-                JSCallback.callJS(callbackId, JSCallback.FAIL, "");
-                FileUtil.removeFile(getAppIconFile());
-            }
-        });
-        oks.show(ctx);// 启动分享GUI
+    public void shareScreen(final int callbackId, final int platform) {
+        this.callbackId = callbackId;
+        this.shareImageContent(getPlatformName(platform));
     }
 
     /**
@@ -355,44 +341,51 @@ public class ShareToPlatforms extends BaseJSModule {
             public void permissionGranted(@NonNull String[] permission) {
                 Bitmap bitmap = QRCodeUtils.createCode(ctx, content);
                 if (null == bitmap) return;
-                boolean success = FileUtil.saveBitmapFile(bitmap, getFileDirPath());
-                if (!success) return;
-                OnekeyShare oks = new OnekeyShare();
-                oks.disableSSOWhenAuthorize();
-                oks.setImagePath(getFileDirPath());
-                if (null != platform)
-                    oks.setPlatform(platform);
-                oks.setCallback(new PlatformActionListener() {
+                FileUtil.saveBitmapFile(bitmap, getFileDirPath(), new FileUtil.FileCallback() {
                     @Override
-                    public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                        Logger.error(TAG, "分享完成");
-                        FileUtil.removeFile(getFileDirPath());
-                        JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
-                    }
-
-                    @Override
-                    public void onError(Platform platform, int i, Throwable throwable) {
-                        Logger.error(TAG, "分享出错");
-                        FileUtil.removeFile(getFileDirPath());
-                        JSCallback.callJS(callbackId, JSCallback.FAIL, "");
-                    }
-
-                    @Override
-                    public void onCancel(Platform platform, int i) {
-                        Logger.error(TAG, "分享取消");
-                        FileUtil.removeFile(getFileDirPath());
-                        JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+                    public void onCreateFileSuccess(File file) {
+                        shareImageContent(platform);
                     }
                 });
-                oks.show(ctx);
             }
 
             @Override
             public void permissionDenied(@NonNull String[] permission) {
 
             }
-        }, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE);
 
+    }
+
+    private void shareImageContent(String platform) {
+        OnekeyShare oks = new OnekeyShare();
+        oks.disableSSOWhenAuthorize();
+        oks.setImagePath(getFileDirPath());
+        if (null != platform)
+            oks.setPlatform(platform);
+        oks.setCallback(new PlatformActionListener() {
+            @Override
+            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
+                Logger.error(TAG, "分享完成");
+                FileUtil.removeFile(getFileDirPath());
+                JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+            }
+
+            @Override
+            public void onError(Platform platform, int i, Throwable throwable) {
+                Logger.error(TAG, "分享出错");
+                FileUtil.removeFile(getFileDirPath());
+                JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+            }
+
+            @Override
+            public void onCancel(Platform platform, int i) {
+                Logger.error(TAG, "分享取消");
+                FileUtil.removeFile(getFileDirPath());
+                JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+            }
+        });
+        oks.show(ctx);
     }
 
     /**

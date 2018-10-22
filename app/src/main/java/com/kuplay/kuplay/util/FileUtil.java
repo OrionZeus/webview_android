@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Base64;
 
 import java.io.BufferedOutputStream;
@@ -17,12 +19,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 /**
  * Created by "iqos_jay@outlook.com" on 2018/6/22.
  * File Tools
  */
 public class FileUtil {
+    private static final Handler HANDLER = new Handler(Looper.getMainLooper());
     private static final String TAG = "FileUtil";
 
     /**
@@ -132,7 +136,7 @@ public class FileUtil {
     public static int getImageWidth(String path) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         //最关键在此，把options.inJustDecodeBounds = true;
-        //这里再decodeFile()，返回的bitmap为空，但此时调用options.outHeight时，已经包含了图片的高了
+//        这里再decodeFile()，返回的bitmap为空，但此时调用options.outHeight时，已经包含了图片的高了
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(path, options); // 此时返回的bitmap为null
         //options.outHeight为原始图片的高
@@ -155,27 +159,36 @@ public class FileUtil {
      * @param bitmap   The qrCode's bitmap.
      * @param savePath The path where you would like to save into.
      */
-    public static boolean saveBitmapFile(Bitmap bitmap, String savePath) {
-        File file = new File(savePath);
-        try {
-            if (file.exists()) file.delete();
-            file.createNewFile();
-            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-            bos.flush();
-            bos.close();
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public static void saveBitmapFile(final Bitmap bitmap, final String savePath, final FileCallback callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final File file = new File(savePath);
+                try {
+                    if (file.exists()) if (!file.delete()) return;
+                    if (!file.createNewFile()) return;
+                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                    bos.flush();
+                    bos.close();
+                    if (null != callback)
+                        HANDLER.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                callback.onCreateFileSuccess(file);
+                            }
+                        });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
     }
 
     //bitmap中的透明色用白色替换
     public static Bitmap changeColor(Bitmap bitmap) {
-        if (bitmap == null) {
-            return null;
-        }
+        if (bitmap == null) return null;
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
         int[] colorArray = new int[w * h];
@@ -226,32 +239,14 @@ public class FileUtil {
         return pixels;
     }
 
-    public static byte[] getBitmapARGB(String path) {
+    public static int[] getBitmapPixelColors(String path) {
         Bitmap bitmap = file2Bitmap(path);
-        if (null == bitmap) return new byte[0];
+        if (null == bitmap) return new int[0];
         int imageWidth = getImageWidth(path);
         int imageHeight = getImageHeight(path);
-        byte[] result = new byte[imageWidth * imageHeight * 4];
-        int[][] temp = new int[imageWidth][imageHeight];
-        int index = 0;
-        for (int i = 0; i < temp.length; i++) {
-            for (int j = 0; j < temp[i].length; j++) {
-                int color = bitmap.getPixel(i, j);
-                byte r = (byte) Color.red(color);
-                result[index] = r;
-                ++index;
-                byte g = (byte) Color.green(color);
-                result[index] = g;
-                ++index;
-                byte b = (byte) Color.blue(color);
-                result[index] = b;
-                ++index;
-                byte a = (byte) Color.alpha(color);
-                result[index] = a;
-                ++index;
-            }
-        }
-        return result;
+        int[] colors = new int[imageWidth * imageHeight];
+        bitmap.getPixels(colors, 0, imageWidth, 0, 0, imageWidth, imageHeight);
+        return colors;
     }
 
     /**
@@ -272,6 +267,60 @@ public class FileUtil {
             int blue = clr & 0x000000ff; // 取低两位
             Logger.debug("tag", "r=" + red + ",g=" + green + ",b=" + blue);
         }
+    }
+
+    /**
+     * 拷贝文件
+     *
+     * @param path 源文件的路径
+     * @param copy 要拷贝到的文件路径
+     * @return true表示拷贝成功
+     */
+    public static boolean copyFile(String path, String copy) {
+        FileChannel input = null;
+        FileChannel output = null;
+        File source = new File(path);
+        if (!source.exists()) return false;
+        File copyFile = new File(copy);
+        if (copyFile.exists()) if (!copyFile.delete()) return false;
+        try {
+            input = new FileInputStream(path).getChannel();
+            output = new FileOutputStream(copy).getChannel();
+            output.transferFrom(input, 0, input.size());
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (input != null) {
+                    input.close();
+                }
+                if (output != null) {
+                    output.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 根据文件的路径获取文件的名字
+     *
+     * @param path 文件的路径
+     * @return 文件的名字
+     */
+    public static String getFileNameByPath(String path) {
+        if (path.contains(File.separator)) {
+            return path.substring(path.lastIndexOf(File.separator), path.length());
+        }
+        return path;
+    }
+
+
+    public interface FileCallback {
+        void onCreateFileSuccess(File file);
     }
 
 }
