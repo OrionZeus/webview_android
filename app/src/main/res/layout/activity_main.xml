@@ -16,8 +16,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:onClick="testAHash"
-        android:text="创建文件"
+        android:onClick="setLanguage"
+        android:text="设置言语"
         android:textAllCaps="false"
         android:visibility="gone" />
 </RelativeLayout>

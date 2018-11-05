@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 
 import com.github.dfqin.grantor.PermissionsUtil;
+import com.kuplay.kuplay.R;
 import com.kuplay.kuplay.common.JSExecutable;
 import com.kuplay.kuplay.common.js.JSEnv;
 import com.kuplay.kuplay.common.js.JSInterface;
@@ -40,7 +41,8 @@ public abstract class BaseJSModule implements JSExecutable, JSInterface {
      */
     public BaseJSModule() {
         ctx = (Activity) JSEnv.getEnv(JSEnv.ACTIVITY);
-        mTipInfo = new PermissionsUtil.TipInfo("提示", getTipContentWithoutPermission(), "取消", "设置");
+        if (null==ctx)return;
+        mTipInfo = new PermissionsUtil.TipInfo(ctx.getResources().getString(R.string.dialog_title_prompt), getTipContentWithoutPermission(), ctx.getResources().getString(R.string.dialog_title_cancel), ctx.getResources().getString(R.string.dialog_title_ok));
         JSEnv.setJsImpl(this);
     }
 
@@ -50,7 +52,7 @@ public abstract class BaseJSModule implements JSExecutable, JSInterface {
      * @return the message content you want to prompt user.
      */
     protected String getTipContentWithoutPermission() {
-        return "当前应用缺少必要权限。\n \n 请点击 \"设置\"-\"权限\"-打开所需权限。";
+        return ctx.getResources().getString(R.string.tip_misseed_permission_default_prompt);
     }
 
     /**

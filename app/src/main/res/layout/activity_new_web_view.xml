@@ -10,15 +10,11 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <View
-            android:id="@+id/app_new_web_view_v_status"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dimen_20_dp"
-            android:background="@android:color/black" />
+        <include layout="@layout/layout_fake_status_bar_view" />
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="@dimen/dimen_42_dp"
             android:background="@android:color/white">
 
             <ImageView
@@ -52,8 +48,5 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>
-
-    <include layout="@layout/layout_fake_status_bar_view" />
-
 
 </RelativeLayout>

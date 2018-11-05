@@ -1,7 +1,6 @@
 package com.kuplay.kuplay.app
 
 import android.content.Intent
-import android.support.v4.widget.SwipeRefreshLayout
 import android.view.View
 import android.view.WindowManager
 import android.widget.RelativeLayout
@@ -11,12 +10,8 @@ import com.kuplay.kuplay.base.BaseWebView
 import com.kuplay.kuplay.common.js.JSBridge
 import com.kuplay.kuplay.common.js.JSEnv
 import com.kuplay.kuplay.common.js.JSIntercept
-import com.kuplay.kuplay.module.ContactsReader
-import com.kuplay.kuplay.module.ImagePicker
-import com.kuplay.kuplay.module.ShareToPlatforms
-import com.kuplay.kuplay.module.update.AppUpdater
-import com.kuplay.kuplay.util.AndroidBug5497Workaround
-import com.kuplay.kuplay.util.Logger
+import com.kuplay.kuplay.module.LocalLanguageMgr
+import com.kuplay.kuplay.util.PrefMgr
 import com.kuplay.kuplay.util.ViewUtil
 import com.kuplay.kuplay.widget.AndroidWebView
 import com.kuplay.kuplay.widget.X5Chrome
@@ -35,10 +30,10 @@ class MainActivity : BaseWebView() {
      * As the method name said,this method is used to initialize views on this activity.
      */
     override fun initViews() {
-        status_bar.layoutParams.height = ViewUtil.getStatusBarHeight(this).toInt()
         mRlRootView = findViewById(R.id.app_main_rl_root_view)
         mRlRootView.removeAllViews()
         mRlRootView.addView(if (isX5) mX5 else mAndroidWebView)
+        status_bar.layoutParams.height = ViewUtil.getStatusBarHeight(this).toInt()
 //        AndroidBug5497Workaround.assistActivity(this)
     }
 
@@ -58,6 +53,7 @@ class MainActivity : BaseWebView() {
             AndroidWebView.sViewRoot.add(mRlRootView)
         }
         super.addJEV()
+        LocalLanguageMgr().setMobileLanguage(0, PrefMgr.getInstance(this).appLan)
         super.loadUrl(resources.getString(URL_RES_ID))//必须放在addJavascriptInterface()下面
     }
 
@@ -71,8 +67,7 @@ class MainActivity : BaseWebView() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun testAHash(v: View) {
-        ImagePicker().chooseImage(1, 1, 1, 1)
+    fun setLanguage(v: View) {
     }
 
     companion object {

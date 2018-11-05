@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
+import com.kuplay.kuplay.R;
 import com.kuplay.kuplay.app.MainActivity;
 import com.kuplay.kuplay.app.SelectContactsActivity;
 import com.kuplay.kuplay.base.BaseJSModule;
@@ -63,7 +64,7 @@ public class ContactsReader extends BaseJSModule {
      */
     @Override
     protected String getTipContentWithoutPermission() {
-        return "从本地联系人中读取联系人需要使用到联系人权限，请先在设置中打开再使用此功能";
+        return ctx.getResources().getString(R.string.tip_please_allow_app_read_contacts);
     }
 
     /**

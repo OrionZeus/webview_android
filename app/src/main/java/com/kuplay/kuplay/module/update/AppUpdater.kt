@@ -48,7 +48,6 @@ class AppUpdater : BaseJSModule() {
 
     private fun updateDownloadProgress(total: Int, progress: Int) {
         Logger.error("TAG", "总进度$total 当前下载进度$progress")
-
     }
 
     /**
@@ -64,7 +63,7 @@ class AppUpdater : BaseJSModule() {
                     val packageURI = Uri.parse("package:" + ctx.packageName);
                     val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
                     ctx.startActivity(intent)
-                    ToastManager.toast(ctx, "请允许${ctx.resources.getString(R.string.app_name)}安装未知来源的应用！")
+                    ToastManager.toast(ctx, ctx.resources.getString(R.string.tip_please_allow_app_install_unknown_res_apk))
                 }
 
                 override fun permissionGranted(permission: Array<out String>): Unit = installApk(filePath)

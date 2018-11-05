@@ -1,8 +1,10 @@
 package com.kuplay.kuplay.module;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 
+import com.kuplay.kuplay.R;
 import com.kuplay.kuplay.base.BaseJSModule;
 
 /**
@@ -19,10 +21,10 @@ public class ExitApp extends BaseJSModule {
      */
     public void confirmExit(int callbackId) {
         AlertDialog dialog = new AlertDialog.Builder(ctx)
-                .setTitle("提示")
-                .setMessage("确定退出App？")
+                .setTitle(ctx.getResources().getString(R.string.dialog_title_prompt))
+                .setMessage(ctx.getResources().getString(R.string.dialog_msg_confirm_exit_app))
                 .setCancelable(true)
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                .setPositiveButton(ctx.getResources().getString(R.string.dialog_title_ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         ctx.finish();
@@ -31,5 +33,18 @@ public class ExitApp extends BaseJSModule {
                 .create();
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
+    }
+
+    /**
+     * Back to home screen instead of the exit application,
+     * if you call this function,the application will always run in the background.
+     *
+     * @param callbackId This method is would be called by TS,this value from ts.
+     */
+    public void backToHome(int callbackId) {
+        Intent home = new Intent(Intent.ACTION_MAIN);
+        home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        home.addCategory(Intent.CATEGORY_HOME);
+        ctx.startActivity(home);
     }
 }

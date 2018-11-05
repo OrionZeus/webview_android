@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
 import com.iqos.qrscanner.app.QRScannerActivity;
+import com.kuplay.kuplay.R;
 import com.kuplay.kuplay.base.BaseJSModule;
 import com.kuplay.kuplay.common.js.JSCallback;
 
@@ -52,7 +53,7 @@ public class QRCode extends BaseJSModule {
      */
     @Override
     protected String getTipContentWithoutPermission() {
-        return "扫描二维码必须使用到相机功能，请前往“设置”中打开相机权限";
+        return ctx.getResources().getString(R.string.tip_please_allow_app_scan_qr_code);
     }
 
     /**

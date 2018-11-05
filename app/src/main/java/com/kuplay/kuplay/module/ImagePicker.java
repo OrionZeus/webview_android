@@ -11,6 +11,7 @@ import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
 import com.iqos.imageselector.utils.ImageSelector;
 import com.iqos.imageselector.utils.ImageSelectorUtils;
+import com.kuplay.kuplay.R;
 import com.kuplay.kuplay.app.MainActivity;
 import com.kuplay.kuplay.base.BaseJSModule;
 import com.kuplay.kuplay.common.js.JSCallback;
@@ -34,6 +35,7 @@ public class ImagePicker extends BaseJSModule {
 
 
     /**
+     * .
      * * Select photo from local gallery.
      *
      * @param callbackId transmission from js,
@@ -63,17 +65,13 @@ public class ImagePicker extends BaseJSModule {
      * Open the gallery to choose a piece of photo.
      */
     private void openGallery(boolean useCamera, boolean single, int max) {
-        try {
-            //限数量的多选(比如最多9张)
-            ImageSelector.builder()
-                    .useCamera(useCamera)//设置是否使用拍照
-                    .setSingle(single)//设置是否单选
-                    .showGif(false)//是否要显示GIF图片(默认是要显示的)
-                    .setMaxSelectCount(max)//图片的最大选择数量，小于等于0时，不限数量。
-                    .start(ctx, MainActivity.APP_RESULT_CODE);//打开相册
-        } catch (IndexOutOfBoundsException e) {
-            ToastManager.toast(ctx, "手机里面没有照片！");
-        }
+        //限数量的多选(比如最多9张)
+        ImageSelector.builder()
+                .useCamera(useCamera)//设置是否使用拍照
+                .setSingle(single)//设置是否单选
+                .showGif(false)//是否要显示GIF图片(默认是要显示的)
+                .setMaxSelectCount(max)//图片的最大选择数量，小于等于0时，不限数量。
+                .start(ctx, MainActivity.APP_RESULT_CODE);//打开相册
     }
 
     /**
@@ -116,7 +114,7 @@ public class ImagePicker extends BaseJSModule {
     }
 
     /**
-     * 计算Ahash
+     * 计算AHash
      * This method will be called by js.
      *
      * @param path 文件的路径
@@ -185,7 +183,7 @@ public class ImagePicker extends BaseJSModule {
      */
     @Override
     protected String getTipContentWithoutPermission() {
-        return isUseCamera() ? "使用相机需要相机权限、读写手机存储权限" : "打开相册需要读取手机存储权限";
+        return isUseCamera() ? ctx.getResources().getString(R.string.tip_please_allow_app_read_gallery_with_camera) : ctx.getResources().getString(R.string.tip_please_allow_app_read_gallery_without_camera);
     }
 
     /**
@@ -206,12 +204,12 @@ public class ImagePicker extends BaseJSModule {
                 //获取选择器返回的数据
                 ArrayList<String> images = data.getStringArrayListExtra(ImageSelectorUtils.SELECT_RESULT);
                 if (null != images && 0 != images.size()) {
+                    String path = images.get(0);
                     if (1 == images.size()) {
-                        String path = images.get(0);
-                        Logger.error("TAG", "图片宽度\t" + FileUtil.getImageWidth(path));
-                        Logger.error("TAG", "图片高度\t" + FileUtil.getImageHeight(path));
-//                        new CalcAHashTask(this).execute(path);
-//                        this.copyFileToDataDir(path);
+//                        Logger.error("TAG", "图片宽度\t" + FileUtil.getImageWidth(path));
+//                        Logger.error("TAG", "图片高度\t" + FileUtil.getImageHeight(path));
+                        new CalcAHashTask(this).execute(path);
+                        this.copyFileToDataDir(path);
                         new DecodeImageTask(this).execute(path);
                     } else {
                         JSCallback.callJS(callbackId, JSCallback.FAIL, "The Path Is Null.");
@@ -260,6 +258,5 @@ public class ImagePicker extends BaseJSModule {
     private void setUseCamera(boolean useCamera) {
         this.useCamera = useCamera;
     }
-
 
 }
