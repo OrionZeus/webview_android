@@ -17,7 +17,6 @@ import com.kuplay.kuplay.base.BaseJSModule;
 import com.kuplay.kuplay.common.js.JSCallback;
 import com.kuplay.kuplay.util.FileUtil;
 import com.kuplay.kuplay.util.Logger;
-import com.kuplay.kuplay.util.ToastManager;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -206,13 +205,13 @@ public class ImagePicker extends BaseJSModule {
                 if (null != images && 0 != images.size()) {
                     String path = images.get(0);
                     if (1 == images.size()) {
-//                        Logger.error("TAG", "图片宽度\t" + FileUtil.getImageWidth(path));
-//                        Logger.error("TAG", "图片高度\t" + FileUtil.getImageHeight(path));
-                        new CalcAHashTask(this).execute(path);
-                        this.copyFileToDataDir(path);
+                        Logger.error("TAG", "图片宽度\t" + FileUtil.getImageWidth(path));
+                        Logger.error("TAG", "图片高度\t" + FileUtil.getImageHeight(path));
+//                        new CalcAHashTask(this).execute(path);
+//                        this.copyFileToDataDir(path);
                         new DecodeImageTask(this).execute(path);
                     } else {
-                        JSCallback.callJS(callbackId, JSCallback.FAIL, "The Path Is Null.");
+                        JSCallback.callJS(callbackId, JSCallback.FAIL, "The path is null.");
                     }
                 }
                 break;
@@ -226,7 +225,7 @@ public class ImagePicker extends BaseJSModule {
      */
     @SuppressLint("SdCardPath")
     private void copyFileToDataDir(final String path) {
-        final String copy = "/data0/data/" + ctx.getPackageName() + File.separator + FileUtil.getFileNameByPath(path);
+        final String copy = "/data/data/" + ctx.getPackageName() + FileUtil.getFileNameByPath(path);
         ctx.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -235,7 +234,7 @@ public class ImagePicker extends BaseJSModule {
                     Logger.error("拷贝过后的新文件路径：", copy);
                     JSCallback.callJS(callbackId, JSCallback.SUCCESS, copy);
                 } else {
-                    JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+                    JSCallback.callJS(callbackId, JSCallback.FAIL, "Copy file failed.");
                 }
             }
         });

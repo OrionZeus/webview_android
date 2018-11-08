@@ -15,6 +15,7 @@ import android.widget.RelativeLayout
 import com.kuplay.kuplay.R
 import com.kuplay.kuplay.callback.WebViewLoadProgressCallback
 import com.kuplay.kuplay.intercepter.Interceptor
+import com.kuplay.kuplay.module.ImagePicker
 import java.lang.ref.WeakReference
 import java.util.*
 
@@ -235,6 +236,13 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+
+
+        override fun onShowFileChooser(webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?): Boolean {
+            ImagePicker().chooseImage(0, 1, 1, 1)
+
+            return true
         }
 
     }

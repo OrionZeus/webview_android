@@ -59,6 +59,10 @@ xhr.open('GET', url, true);
 xhr.send();
 })();
 
+window["onWebViewPostMessage"] = function(fromWebView, message) {
+    alert(message);
+}
+
     </script>
 </head>
 <body onselectstart="return false"

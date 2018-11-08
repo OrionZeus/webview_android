@@ -7,8 +7,8 @@ import com.kuplay.kuplay.base.BaseJSModule
 /**
  * Created by "iqos_jay@outlook.com" on 2018/9/13.
  */
+@Deprecated("deprecated")
 class WebViewHelper : BaseJSModule() {
-
     fun openNewWebView(callbackId: Int, loadUrl: String, title: String) {
         val intent = Intent(ctx, NewWebViewActivity::class.java)
         intent.putExtra(LOAD_URL_KEY, loadUrl)

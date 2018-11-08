@@ -42,8 +42,7 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
                 //亮屏
                 Intent.ACTION_SCREEN_ON -> gotoBackground()
                 //锁屏
-                Intent.ACTION_SCREEN_OFF -> {
-                }
+                Intent.ACTION_SCREEN_OFF -> { }
                 //解锁屏幕
                 Intent.ACTION_USER_PRESENT -> gotoForeground()
                 Intent.ACTION_CLOSE_SYSTEM_DIALOGS -> {

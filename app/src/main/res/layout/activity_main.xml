@@ -12,12 +12,4 @@
 
     <include layout="@layout/layout_fake_status_bar_view" />
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:onClick="setLanguage"
-        android:text="设置言语"
-        android:textAllCaps="false"
-        android:visibility="gone" />
 </RelativeLayout>

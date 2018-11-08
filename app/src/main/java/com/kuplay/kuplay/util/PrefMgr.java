@@ -3,6 +3,10 @@ package com.kuplay.kuplay.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.kuplay.kuplay.module.LocalLanguageMgr;
+
+import java.util.Locale;
+
 /**
  * Created by iqosjay@gmail.com on 2018/11/5
  */

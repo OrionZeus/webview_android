@@ -100,16 +100,18 @@
         <activity
             android:name=".app.SelectContactsActivity"
             android:label="@string/app_select_contacts_label"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
             android:name=".app.NewWebViewActivity"
+            android:launchMode="standard"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenWithoutAny" />
 
         <service
             android:name=".service.UpdateAppService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
     </application>
 
 </manifest>

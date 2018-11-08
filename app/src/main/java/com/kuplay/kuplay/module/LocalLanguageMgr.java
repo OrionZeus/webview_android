@@ -21,6 +21,40 @@ public class LocalLanguageMgr extends BaseJSModule {
     private static final int LANGUAGE_JAPANESE = 5;//日语
 
     /**
+     * Get the Language which the system is it now.
+     * When the function get the system language successful,is will be callback
+     * the ts with a parameter as following
+     * {@link #LANGUAGE_CHINESE_SIMPLIFY}
+     * {@link #LANGUAGE_CHINESE_TRADITIONAL}
+     * {@link #LANGUAGE_ENGLISH}
+     * {@link #LANGUAGE_JAPANESE}
+     *
+     * @param callbackId Ts callback id
+     */
+    public void getSystemLanguage(int callbackId) {
+        //默认是简体中文
+        int result = LocalLanguageMgr.LANGUAGE_CHINESE_SIMPLIFY;
+        String country = Locale.getDefault().toString();
+        switch (country) {
+            case "zh_TW":
+                result = LocalLanguageMgr.LANGUAGE_CHINESE_TRADITIONAL;
+                break;
+            case "ja":
+                result = LocalLanguageMgr.LANGUAGE_JAPANESE;
+                break;
+            case "en_US":
+            case "en_UK":
+            case "en":
+                result = LocalLanguageMgr.LANGUAGE_ENGLISH;
+                break;
+            case "zh_CN":
+                result = LocalLanguageMgr.LANGUAGE_CHINESE_SIMPLIFY;
+                break;
+        }
+        JSCallback.callJS(callbackId, JSCallback.SUCCESS, String.valueOf(result));
+    }
+
+    /**
      * Get the Language which the application is using.
      * When the function get the language successful,is will be callback
      * the ts with a parameter as following
@@ -32,10 +66,8 @@ public class LocalLanguageMgr extends BaseJSModule {
      *
      * @param callbackId Ts callback id
      */
-    public void getMobileLanguage(int callbackId) {
+    public void getAppLanguage(int callbackId) {
         int result = PrefMgr.getInstance(ctx).getAppLan();
-        result = result > 5 ? 5 : result;
-        result = result < 1 ? 1 : result;
         JSCallback.callJS(callbackId, JSCallback.SUCCESS, String.valueOf(result));
     }
 
@@ -51,7 +83,7 @@ public class LocalLanguageMgr extends BaseJSModule {
      *                   {@link #LANGUAGE_ENGLISH}
      *                   {@link #LANGUAGE_JAPANESE}
      */
-    public void setMobileLanguage(int callbackId, int language) {
+    public void setAppLanguage(int callbackId, int language) {
         Resources resources = ctx.getResources();
         DisplayMetrics dm = resources.getDisplayMetrics();
         Configuration config = resources.getConfiguration();
