@@ -1,5 +1,7 @@
 package com.kuplay.kuplay.common.js;
 
+import com.kuplay.kuplay.base.BaseJSModule;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -96,7 +98,7 @@ public final class JSEnv {
     /**
      * 生成对象的实例，返回id
      */
-    public static int newInstance(String className) throws Exception {
+    public static int newInstance(String className, Object webView) throws Exception {
         ClassInfo info = clsMap.get(className);
         if (info == null) {
             throw new Exception("JSEnv.call class " + className + " don't find");
@@ -106,6 +108,9 @@ public final class JSEnv {
             @SuppressWarnings("unchecked")
             Constructor c = info.getClazz().getDeclaredConstructor();
             Object o = c.newInstance();
+            if (o instanceof BaseJSModule) {
+                ((BaseJSModule) o).setWebView(webView);
+            }
             id = addObject(o);
         } catch (Exception e) {
             e.printStackTrace();

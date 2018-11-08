@@ -4,9 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.support.v7.app.AlertDialog
-import android.view.View
-import android.widget.*
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.TextView
 import com.kuplay.kuplay.R
 import com.kuplay.kuplay.base.BaseWebView
 import com.kuplay.kuplay.common.js.JSBridge
@@ -50,12 +50,12 @@ class NewWebViewActivity : BaseWebView() {
         if (null == tag) throw Exception("The tag can't be null!")
         mIvBack.setOnClickListener { onBackPressed() }
         if (isX5) {
-            mX5?.addJavascriptInterface(JSBridge(), JSBridge::class.java.simpleName)
+            mX5?.addJavascriptInterface(JSBridge(mX5), JSBridge::class.java.simpleName)
             mX5?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
             X5Chrome.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView(tag, mX5)
         } else {
-            mAndroidWebView?.addJavascriptInterface(JSBridge(), JSBridge::class.java.simpleName)
+            mAndroidWebView?.addJavascriptInterface(JSBridge(mAndroidWebView), JSBridge::class.java.simpleName)
             mAndroidWebView?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
             AndroidWebView.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView(tag, mAndroidWebView)
@@ -69,7 +69,7 @@ class NewWebViewActivity : BaseWebView() {
     private fun registerCloseReceiver() {
         val intentFilter = IntentFilter()
         intentFilter.addAction("close_web_view")
-        intentFilter.addAction("send_message")
+        intentFilter.addAction("send_message$tag")
         registerReceiver(mCloseReceiver, intentFilter)
     }
 
@@ -82,7 +82,7 @@ class NewWebViewActivity : BaseWebView() {
                         this@NewWebViewActivity.onBackPressed()
                     }
                 }
-                "send_message" -> {
+                "send_message$tag" -> {
                     val message = intent.getStringExtra("message")
                     val sender = intent.getStringExtra("from_web_view")
                     val callFun = String.format("javascript:window.onWebViewPostMessage('%s','%s')", sender, message)
@@ -95,6 +95,7 @@ class NewWebViewActivity : BaseWebView() {
             }
         }
     }
+
     override fun onDestroy() {
         WebViewManager.removeWebView(tag)
         unregisterReceiver(mCloseReceiver)

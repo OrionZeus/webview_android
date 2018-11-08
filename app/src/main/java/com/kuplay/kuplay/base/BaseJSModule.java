@@ -41,9 +41,19 @@ public abstract class BaseJSModule implements JSExecutable, JSInterface {
      */
     public BaseJSModule() {
         ctx = (Activity) JSEnv.getEnv(JSEnv.ACTIVITY);
-        if (null==ctx)return;
+        if (null == ctx) return;
         mTipInfo = new PermissionsUtil.TipInfo(ctx.getResources().getString(R.string.dialog_title_prompt), getTipContentWithoutPermission(), ctx.getResources().getString(R.string.dialog_title_cancel), ctx.getResources().getString(R.string.dialog_title_ok));
         JSEnv.setJsImpl(this);
+    }
+
+    private Object mWebView;
+
+    protected Object getWebView() {
+        return mWebView;
+    }
+
+    public void setWebView(Object webView) {
+        mWebView = webView;
     }
 
     /**

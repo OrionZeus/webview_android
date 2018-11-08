@@ -19,6 +19,7 @@ public class JSBridge {
     private static final String TAG = JSBridge.class.getName();
     private static final String METHOD_INIT = "init";//method name->init
     private static final String METHOD_CLOSE = "close";//method name->close
+    private final Object mWebView;
 
     /**
      * Constructor used to initialize classes that would be called by JS.
@@ -27,7 +28,8 @@ public class JSBridge {
      * The file is needn't modify anymore,while you want add new features,
      * just make the class implement {@link JSExecutable}.
      */
-    public JSBridge() {
+    public JSBridge(Object webView) {
+        this.mWebView = webView;
         List<Class> classes = CodeUtil.getAllClassByInterface(JSExecutable.class);
         if (ContainerUtil.isNullOrEmpty(classes)) return;
         for (Class clazz : classes) {
@@ -53,7 +55,7 @@ public class JSBridge {
             }
             switch (methodName) {
                 case METHOD_INIT:
-                    int id = JSEnv.newInstance(className);
+                    int id = JSEnv.newInstance(className, mWebView);
                     JSCallback.callJS(listenerID, JSCallback.SUCCESS, id);
                     break;
                 case METHOD_CLOSE:

@@ -7,9 +7,9 @@ import com.kuplay.kuplay.app.NewWebViewActivity;
 import com.kuplay.kuplay.base.BaseJSModule;
 import com.kuplay.kuplay.common.js.JSCallback;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by iqosjay@gmail.com on 2018/11/7
@@ -19,11 +19,6 @@ public class WebViewManager extends BaseJSModule {
      * All WebViews that have been opened.
      */
     private static final HashMap<String, Object> WEB_VIEW_FORM = new HashMap<>();
-    /**
-     * The name of the WebView in all active states,
-     * the last element is the name of the currently displayed WebView
-     */
-    private static final List<String> WEB_VIEW_NAME_LIST = new ArrayList<>();
 
     /**
      * Open a new WebView to display a web page.
@@ -81,7 +76,6 @@ public class WebViewManager extends BaseJSModule {
      */
     public static void addWebView(String key, Object object) {
         WEB_VIEW_FORM.put(key, object);
-        WEB_VIEW_NAME_LIST.add(key);
     }
 
     /**
@@ -91,7 +85,6 @@ public class WebViewManager extends BaseJSModule {
      */
     public static void removeWebView(String key) {
         WEB_VIEW_FORM.remove(key);
-        WEB_VIEW_NAME_LIST.remove(key);
     }
 
     /**
@@ -105,10 +98,27 @@ public class WebViewManager extends BaseJSModule {
             JSCallback.throwJS(WebViewManager.class.getSimpleName(), "postWebViewMessage", "The WebView's name is not exists.");
             return;
         }
-        Intent intent = new Intent("send_message");
+        String fromWebView = getNameByWebViewObj();
+        Intent intent = new Intent("send_message" + webViewName);
         intent.putExtra("message", message);
-        intent.putExtra("from_web_view", WEB_VIEW_NAME_LIST.get(WEB_VIEW_NAME_LIST.size() - 1));
+        intent.putExtra("from_web_view", fromWebView);
         ctx.sendBroadcast(intent);
+    }
+
+    /**
+     * Get the webView's name by webView.
+     *
+     * @return The name of webView.
+     */
+    private String getNameByWebViewObj() {
+        Object obj = getWebView();
+        Set<Map.Entry<String, Object>> entries = WEB_VIEW_FORM.entrySet();
+        for (Map.Entry<String, Object> entry : entries) {
+            if (obj.equals(entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     /**
