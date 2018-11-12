@@ -20,7 +20,6 @@ import com.kupay.kupay.widget.X5Chrome
 
 class App : BaseWebViewActivity(), AppView {
     private lateinit var mRlContent: RelativeLayout
-
     private lateinit var mLlAnim: LinearLayout
     private lateinit var mAnimView: LottieAnimationView
     private var mPdDldPro: ProgressDialog? = null

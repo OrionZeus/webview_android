@@ -14,6 +14,7 @@ import java.io.File;
  * Created by "iqos_jay@outlook.com" on 2018/7/4.
  * RecordVoice is used to record the user's voice.
  */
+@Deprecated()
 public class RecordVoice extends BaseJSModule {
     private static final String TAG = "RecordVoice";
     private MediaRecorder mediaRecorder = new MediaRecorder();

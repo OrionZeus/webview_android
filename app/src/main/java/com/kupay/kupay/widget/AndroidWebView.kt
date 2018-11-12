@@ -14,11 +14,7 @@ import android.webkit.*
 import android.widget.EditText
 import android.widget.RelativeLayout
 import com.kupay.kupay.R
-import com.kupay.kupay.app.App
 import com.kupay.kupay.callback.WebViewLoadProgressCallback
-import com.kupay.kupay.common.js.JSBridge
-import com.kupay.kupay.common.js.JSEnv
-import com.kupay.kupay.common.js.JSIntercept
 import com.kupay.kupay.intercepter.Interceptor
 import com.kupay.kupay.util.Logger
 import java.lang.ref.WeakReference
@@ -47,8 +43,8 @@ class AndroidWebView constructor(private val ctx: Context) : WebView(ctx) {
     private fun init() {
         Logger.wtf("Using WebView", "原生")
 //        this.post {
-            initClient(this@AndroidWebView)
-            initSettings(this@AndroidWebView)
+        initClient(this@AndroidWebView)
+        initSettings(this@AndroidWebView)
 //        }
     }
 
