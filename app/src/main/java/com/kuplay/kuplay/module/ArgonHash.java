@@ -99,9 +99,9 @@ public class ArgonHash extends BaseJSModule {
                 hash.dialog.dismiss();
             }*/
             if (TextUtils.isEmpty(s))
-                JSCallback.callJS(hash.callbackId, JSCallback.FAIL, "");
+                JSCallback.callJS(null,hash.callbackId, JSCallback.FAIL, "");
             else
-                JSCallback.callJS(hash.callbackId, JSCallback.SUCCESS, s);
+                JSCallback.callJS(null,hash.callbackId, JSCallback.SUCCESS, s);
         }
     }
 

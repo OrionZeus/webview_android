@@ -68,14 +68,14 @@ public class QRCode extends BaseJSModule {
         switch (resultCode) {
             case QRScannerActivity.SCAN_RESULT_CODE:
                 if (null == data) {
-                    JSCallback.callJS(callbackId, JSCallback.FAIL, "空");
+                    JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "空");
                     break;
                 }
                 String result = data.getStringExtra(QRScannerActivity.SCAN_RESULT);
                 if (TextUtils.isEmpty(result)) {
-                    JSCallback.callJS(callbackId, JSCallback.FAIL, "空");
+                    JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "空");
                 } else {
-                    JSCallback.callJS(callbackId, JSCallback.SUCCESS, result);
+                    JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, result);
                 }
                 break;
         }

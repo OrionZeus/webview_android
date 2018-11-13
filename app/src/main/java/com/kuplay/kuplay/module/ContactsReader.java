@@ -79,14 +79,14 @@ public class ContactsReader extends BaseJSModule {
         switch (resultCode) {
             case MainActivity.APP_RESULT_CODE:
                 if (null == data) {
-                    JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+                    JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "");
                     break;
                 }
                 String result = data.getStringExtra(SelectContactsPresenter.SELECTED_CONTACTS);
                 if (TextUtils.isEmpty(result)) {
-                    JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+                    JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "");
                 } else {
-                    JSCallback.callJS(callbackId, JSCallback.SUCCESS, result);
+                    JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, result);
                 }
                 break;
         }

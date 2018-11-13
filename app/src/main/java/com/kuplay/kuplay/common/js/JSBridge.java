@@ -1,5 +1,7 @@
 package com.kuplay.kuplay.common.js;
 
+import android.app.Activity;
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import com.kuplay.kuplay.common.JSExecutable;
@@ -20,6 +22,7 @@ public class JSBridge {
     private static final String METHOD_INIT = "init";//method name->init
     private static final String METHOD_CLOSE = "close";//method name->close
     private final Object mWebView;
+    private final Activity mActivity;
 
     /**
      * Constructor used to initialize classes that would be called by JS.
@@ -28,7 +31,8 @@ public class JSBridge {
      * The file is needn't modify anymore,while you want add new features,
      * just make the class implement {@link JSExecutable}.
      */
-    public JSBridge(Object webView) {
+    public JSBridge(Object webView, Activity activity) {
+        this.mActivity = activity;
         this.mWebView = webView;
         List<Class> classes = CodeUtil.getAllClassByInterface(JSExecutable.class);
         if (ContainerUtil.isNullOrEmpty(classes)) return;
@@ -53,22 +57,22 @@ public class JSBridge {
             for (int i = 0; i < js.length(); i++) {
                 params[i + 1] = js.get(i);
             }
+            Log.d("JSBridge", "postMessage (" + className + ", " + methodName + ", " + nativeID + ", " + listenerID + ", " + jsonArray + ")");
             switch (methodName) {
                 case METHOD_INIT:
-                    int id = JSEnv.newInstance(className, mWebView);
-                    JSCallback.callJS(listenerID, JSCallback.SUCCESS, id);
+                    int id = JSEnv.newInstance(className, mWebView, mActivity);
+                    JSCallback.callJS(mActivity, listenerID, JSCallback.SUCCESS, id);
                     break;
                 case METHOD_CLOSE:
                     JSEnv.removeObject(nativeID);
-                    JSCallback.callJS(listenerID, JSCallback.SUCCESS);
+                    JSCallback.callJS(mActivity, listenerID, JSCallback.SUCCESS);
                     break;
                 default:
-                    Object obj = JSEnv.call(className, methodName, nativeID, params);
-                    Logger.info(TAG, obj.toString());
+                    JSEnv.call(className, methodName, nativeID, params);
                     break;
             }
         } catch (Exception e) {
-            JSCallback.throwJS(className, methodName, e.getMessage());
+            JSCallback.throwJS(mActivity, className, methodName, e.getMessage());
         }
     }
 }

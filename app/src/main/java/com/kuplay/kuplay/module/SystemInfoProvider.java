@@ -11,6 +11,6 @@ import com.kuplay.kuplay.util.SystemUtil;
 public class SystemInfoProvider extends BaseJSModule {
     public void getSystemInfo(int callbackId) {
         MobileSystemInfo systemInfo = SystemUtil.getSystemInfo(ctx);
-        JSCallback.callJS(callbackId, JSCallback.SUCCESS, systemInfo.toString());
+        JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, systemInfo.toString());
     }
 }

@@ -32,15 +32,17 @@ public class WebViewManager extends BaseJSModule {
      */
     public void openWebView(int callbackId, String webViewName, String url, String title) {
         if (TextUtils.isEmpty(webViewName)) {
-            JSCallback.throwJS(WebViewManager.class.getSimpleName(), "openWebView", "The WebView's name can't be null.");
+            JSCallback.throwJS(getActivity(),
+                    WebViewManager.class.getSimpleName(), "openWebView", "The WebView's name can't be null.");
             return;
         }
         if (TextUtils.isEmpty(url)) {
-            JSCallback.throwJS(WebViewManager.class.getSimpleName(), "openWebView", "The url can't be null.");
+            JSCallback.throwJS(getActivity(),
+                    WebViewManager.class.getSimpleName(), "openWebView", "The url can't be null.");
             return;
         }
         if (isWebViewNameExists(webViewName)) {
-            JSCallback.throwJS(WebViewManager.class.getSimpleName(), "openWebView", "このWebViewな名前は存在したことがある，新しいな名前を使ってください！");
+            JSCallback.throwJS(getActivity(), WebViewManager.class.getSimpleName(), "openWebView", "WebView name is exist.");
         } else {
             Intent intent = new Intent(ctx, NewWebViewActivity.class);
             intent.putExtra("title", title);
@@ -58,10 +60,12 @@ public class WebViewManager extends BaseJSModule {
      */
     public void closeWebView(int callbackId, String webViewName) {
         if ("default".equals(webViewName)) {
-            JSCallback.throwJS(WebViewManager.class.getSimpleName(), "closeWebView", "The default WebView couldn't remove,please select a new one.");
+            JSCallback.throwJS(getActivity(),
+                    WebViewManager.class.getSimpleName(), "closeWebView", "The default WebView couldn't remove,please select a new one.");
         } else {
             if (!isWebViewNameExists(webViewName)) {
-                JSCallback.throwJS(WebViewManager.class.getSimpleName(), "closeWebView", "The WebView's name is not exists.");
+                JSCallback.throwJS(getActivity(),
+                        WebViewManager.class.getSimpleName(), "closeWebView", "The WebView's name is not exists.");
             } else {
                 sendCloseWebViewMessage(webViewName);
             }
@@ -95,7 +99,8 @@ public class WebViewManager extends BaseJSModule {
      */
     public void postWebViewMessage(int callbackId, String webViewName, String message) {
         if (!isWebViewNameExists(webViewName)) {
-            JSCallback.throwJS(WebViewManager.class.getSimpleName(), "postWebViewMessage", "The WebView's name is not exists.");
+            JSCallback.throwJS(getActivity(),
+                    WebViewManager.class.getSimpleName(), "postWebViewMessage", "The WebView's name is not exists.");
             return;
         }
         String fromWebView = getNameByWebViewObj();

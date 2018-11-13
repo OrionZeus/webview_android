@@ -2,6 +2,7 @@ package com.kuplay.kuplay.common.js;
 
 import android.app.Activity;
 import android.support.annotation.IntDef;
+import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -18,7 +19,11 @@ public class JSCallback {
     /**
      * params只接受整数，浮点数，字符串
      */
-    public static void callJS(int listenerId, @StatusCode int statusCode, Object... params) {
+    public static void callJS(Activity activity, int listenerId, @StatusCode int statusCode, Object... params) {
+        if (activity == null) {
+            activity = (Activity)JSEnv.getEnv(JSEnv.ACTIVITY);
+        }
+
         StringBuilder func = new StringBuilder("window['handle_Native_Message'](" + listenerId + ", " + statusCode);
         if (null != params)
             for (Object o : params) {
@@ -44,18 +49,19 @@ public class JSCallback {
                     String s = (String) o;
                     func.append(String.format(", '%s'", s));
                 } else {
-                    throwJS("Android", "CallJS", "Internal Error, CallJS params error!");
+                    throwJS(activity,"Android", "CallJS", "Internal Error, CallJS params error!");
                     return;
                 }
             }
         func.append(")");
-        Activity activity = (Activity) JSEnv.getEnv(JSEnv.ACTIVITY);
+
+        Log.d("JSBridge", "callJS: " + func.toString());
         activity.runOnUiThread(new CallJSRunnable(func.toString()));
     }
 
-    public static void throwJS(String className, String methodName, String message) {
+    public static void throwJS(Activity activity, String className, String methodName, String message) {
         String func = String.format("handle_Native_ThrowError('%s', '%s', '%s'", className, methodName, message);
-        Activity activity = (Activity) JSEnv.getEnv(JSEnv.ACTIVITY);
+        Log.d("JSBridge", "throwJS: " + func);
         activity.runOnUiThread(new CallJSRunnable(func));
     }
 

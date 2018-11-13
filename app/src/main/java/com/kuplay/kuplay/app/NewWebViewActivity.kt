@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Bitmap
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -15,6 +16,7 @@ import com.kuplay.kuplay.module.WebViewManager
 import com.kuplay.kuplay.util.ViewUtil
 import com.kuplay.kuplay.widget.AndroidWebView
 import com.kuplay.kuplay.widget.X5Chrome
+import com.tencent.smtt.sdk.WebView
 import kotlinx.android.synthetic.main.layout_fake_status_bar_view.*
 
 class NewWebViewActivity : BaseWebView() {
@@ -50,21 +52,22 @@ class NewWebViewActivity : BaseWebView() {
         if (null == tag) throw Exception("The tag can't be null!")
         mIvBack.setOnClickListener { onBackPressed() }
         if (isX5) {
-            mX5?.addJavascriptInterface(JSBridge(mX5), JSBridge::class.java.simpleName)
+            mX5?.addJavascriptInterface(JSBridge(mX5, this), JSBridge::class.java.simpleName)
             mX5?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
             X5Chrome.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView(tag, mX5)
+            mX5?.setOnlyInterceptWeb3(true)
         } else {
-            mAndroidWebView?.addJavascriptInterface(JSBridge(mAndroidWebView), JSBridge::class.java.simpleName)
+            mAndroidWebView?.addJavascriptInterface(JSBridge(mAndroidWebView, this), JSBridge::class.java.simpleName)
             mAndroidWebView?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
             AndroidWebView.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView(tag, mAndroidWebView)
+            mAndroidWebView?.setOnlyInterceptWeb3(true)
         }
         super.addJEV()
         super.loadUrl(intent?.getStringExtra("load_url") ?: "https://cn.bing.com")
         registerCloseReceiver()
     }
-
 
     private fun registerCloseReceiver() {
         val intentFilter = IntentFilter()

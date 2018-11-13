@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Message
 import android.util.AttributeSet
+import android.util.Log
 import android.widget.EditText
 import android.widget.RelativeLayout
 import com.kuplay.kuplay.R
@@ -35,6 +36,7 @@ import java.util.*
  */
 class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet: AttributeSet? = null) : WebView(ctx, attributeSet) {
     private var connectTimeOut: Int = 0
+    private var onlyInterceptWeb3: Boolean = false
     private var loadCallback: WebViewLoadProgressCallback? = null
     private val mTimerOutHandler = TimerOutHandler(this)
     private var mTimer: Timer? = null
@@ -189,6 +191,7 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
             val interceptor = Interceptor(ctx)
             val uri = request.url
             interceptor.setWebView(view)
+            interceptor.setOnlyInterceptWeb3((view as X5Chrome).onlyInterceptWeb3)
             val handler = interceptor.GetInterceptHandle(uri)
                     ?: return super.shouldInterceptRequest(view, request)
 
@@ -205,6 +208,7 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
     }
 
     private inner class MyWebChromeClient : WebChromeClient() {
+
         override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
             AlertDialog.Builder(ctx)
                     .setTitle("提示")
@@ -276,6 +280,10 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
      */
     fun setLoadCallback(loadCallback: WebViewLoadProgressCallback) {
         this.loadCallback = loadCallback
+    }
+
+    fun setOnlyInterceptWeb3(only: Boolean) {
+        this.onlyInterceptWeb3 = only
     }
 
     companion object {

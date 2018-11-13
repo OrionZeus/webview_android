@@ -40,10 +40,10 @@ public class RecordVoice extends BaseJSModule {
             mediaRecorder.setOutputFile(audioFile.getAbsolutePath());//第4步：指定音频输出文件
             mediaRecorder.prepare();//第5步：调用prepare方法
             mediaRecorder.start();//第6步：调用start方法开始录音
-            JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+            JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, "");
         } catch (Exception e) {
             Logger.error(TAG, e.getMessage());
-            JSCallback.callJS(callbackId, JSCallback.FAIL, e.getMessage());
+            JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, e.getMessage());
         }
 
     }
@@ -55,16 +55,16 @@ public class RecordVoice extends BaseJSModule {
         if (!recording) return;
         setRecording(false);
         if (null == audioFile) {
-            JSCallback.callJS(callbackId, JSCallback.FAIL, "呵呵，录制音频失败了！");
+            JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "呵呵，录制音频失败了！");
         } else {
             mediaRecorder.stop();
             mediaRecorder.release();
             Logger.debug(TAG, audioFile.getAbsolutePath());
             String str = FileUtil.fileToBase64(audioFile);
             if (TextUtils.isEmpty(str)) {
-                JSCallback.callJS(callbackId, JSCallback.FAIL, "呵呵，录制音频失败了！");
+                JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "呵呵，录制音频失败了！");
             } else {
-                JSCallback.callJS(callbackId, JSCallback.SUCCESS, str);
+                JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, str);
             }
         }
     }

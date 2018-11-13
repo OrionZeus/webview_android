@@ -26,18 +26,18 @@ public class AccelerometerProvider extends BaseJSModule {
         if (mSensorManager != null) {
             Sensor defaultSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             mSensorManager.registerListener(mSensorListener, defaultSensor, SensorManager.SENSOR_DELAY_UI);
-            JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+            JSCallback.callJS(getActivity(),callbackId, JSCallback.SUCCESS, "");
         } else {
-            JSCallback.callJS(callbackId, JSCallback.FAIL, "");
+            JSCallback.callJS(getActivity(),callbackId, JSCallback.FAIL, "");
         }
     }
 
     public void stopAccelerometer(int callbackId) {
         if (null != mSensorManager) {
             mSensorManager.unregisterListener(mSensorListener);
-            JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+            JSCallback.callJS(getActivity(),callbackId, JSCallback.SUCCESS, "");
         } else {
-            JSCallback.callJS(callbackId, JSCallback.FAIL, "停止失败");
+            JSCallback.callJS(getActivity(),callbackId, JSCallback.FAIL, "停止失败");
         }
     }
 

@@ -22,10 +22,10 @@ public class NetworkChecker extends BaseJSModule {
             case InternetUtil.NETWORK_3G:
             case InternetUtil.NETWORK_4G:
             case InternetUtil.NETWORK_MOBILE:
-                JSCallback.callJS(callbackId, JSCallback.SUCCESS, "网络类型:" + networkState);
+                JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, "网络类型:" + networkState);
                 break;
             default:
-                JSCallback.callJS(callbackId, JSCallback.FAIL, "获取网络状态失败");
+                JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "获取网络状态失败");
                 break;
         }
     }

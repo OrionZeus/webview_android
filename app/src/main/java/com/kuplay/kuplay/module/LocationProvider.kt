@@ -35,7 +35,7 @@ class LocationProvider : BaseJSModule() {
             }
 
             override fun permissionDenied(permission: Array<String>) {
-                JSCallback.callJS(callbackId, JSCallback.FAIL, "用户拒绝了定位权限")
+                JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "用户拒绝了定位权限")
             }
         }, Manifest.permission.ACCESS_COARSE_LOCATION)
 
@@ -47,7 +47,7 @@ class LocationProvider : BaseJSModule() {
          * @param failReason 定位失败的原因
          */
         override fun locationFailed(failReason: String) {
-            JSCallback.callJS(callbackId, JSCallback.FAIL, failReason)
+            JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, failReason)
         }
 
         /**
@@ -58,7 +58,7 @@ class LocationProvider : BaseJSModule() {
             val longitude = location.longitude//经度
             Logger.error(TAG, "getCurrentLocation:纬度 $latitude")
             Logger.error(TAG, "getCurrentLocation:经度 $longitude")
-            JSCallback.callJS(callbackId, JSCallback.SUCCESS, String.format("(%s,%s)", latitude, longitude))
+            JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, String.format("(%s,%s)", latitude, longitude))
             mListener = null
         }
     }

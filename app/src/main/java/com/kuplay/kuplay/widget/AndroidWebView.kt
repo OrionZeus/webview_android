@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Message
 import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
+import android.util.Log
 import android.webkit.*
 import android.widget.EditText
 import android.widget.RelativeLayout
@@ -24,6 +25,7 @@ import java.util.*
  */
 class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? = null) : WebView(ctx, attr) {
     private val connectTimeOut = ctx.resources.getString(R.string.connect_url_time_out_value)
+    private var onlyInterceptWeb3: Boolean = false
     private var loadCallback: WebViewLoadProgressCallback? = null
     private val mTimerOutHandler = TimerOutHandler(this)
     private var mTimer: Timer? = null
@@ -161,6 +163,7 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
             val interceptor = Interceptor(ctx)
             val uri = request.url
             interceptor.setWebView(view)
+            interceptor.setOnlyInterceptWeb3((view as AndroidWebView).onlyInterceptWeb3)
             val handler = interceptor.GetInterceptHandle(uri)
                     ?: return super.shouldInterceptRequest(view, request)
             var response = handler.handle(interceptor)
@@ -176,6 +179,7 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
     }
 
     private inner class MyWebChromeClient : WebChromeClient() {
+
         override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
             AlertDialog.Builder(ctx)
                     .setTitle(R.string.dialog_title_prompt)
@@ -254,6 +258,10 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
      */
     fun setLoadCallback(loadCallback: WebViewLoadProgressCallback) {
         this.loadCallback = loadCallback
+    }
+
+    fun setOnlyInterceptWeb3(only: Boolean) {
+        this.onlyInterceptWeb3 = only
     }
 
     companion object {

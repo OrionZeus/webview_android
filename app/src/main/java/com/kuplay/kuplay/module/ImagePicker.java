@@ -54,7 +54,7 @@ public class ImagePicker extends BaseJSModule {
 
             @Override
             public void permissionDenied(@NonNull String[] permission) {
-                JSCallback.callJS(callbackId, JSCallback.FAIL, "用户拒绝了权限!");
+                JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "用户拒绝了权限!");
             }
         }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE
                 , Manifest.permission.CAMERA}, true, mTipInfo);
@@ -105,9 +105,9 @@ public class ImagePicker extends BaseJSModule {
         protected void onPostExecute(String base64) {
             ImagePicker picker = weak.get();
             if (TextUtils.isEmpty(base64)) {
-                JSCallback.callJS(picker.callbackId, JSCallback.FAIL, "选择图片失败");
+                JSCallback.callJS(null, picker.callbackId, JSCallback.FAIL, "选择图片失败");
             } else {
-                JSCallback.callJS(picker.callbackId, JSCallback.SUCCESS, String.valueOf(picker.width), String.valueOf(picker.height), base64);
+                JSCallback.callJS(null, picker.callbackId, JSCallback.SUCCESS, String.valueOf(picker.width), String.valueOf(picker.height), base64);
             }
         }
     }
@@ -147,7 +147,7 @@ public class ImagePicker extends BaseJSModule {
             if (null == imagePicker) return null;
             String path = strings[0];
             if (TextUtils.isEmpty(path)) {
-                JSCallback.callJS(imagePicker.callbackId, JSCallback.FAIL, "The path can not be null.");
+                JSCallback.callJS(null, imagePicker.callbackId, JSCallback.FAIL, "The path can not be null.");
                 return null;
             }
             try {
@@ -166,10 +166,10 @@ public class ImagePicker extends BaseJSModule {
             ImagePicker imagePicker = weak.get();
             if (null == imagePicker) return;
             if (TextUtils.isEmpty(s)) {
-                JSCallback.callJS(imagePicker.callbackId, JSCallback.FAIL, "");
+                JSCallback.callJS(null, imagePicker.callbackId, JSCallback.FAIL, "");
             } else {
                 Logger.error("TAG", "计算结果\t" + s);
-                JSCallback.callJS(imagePicker.callbackId, JSCallback.SUCCESS, s);
+                JSCallback.callJS(null, imagePicker.callbackId, JSCallback.SUCCESS, s);
             }
         }
     }
@@ -197,7 +197,7 @@ public class ImagePicker extends BaseJSModule {
         switch (requestCode) {
             case MainActivity.APP_RESULT_CODE:
                 if (null == data) {
-                    JSCallback.callJS(callbackId, JSCallback.FAIL, "未选择图片");
+                    JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "未选择图片");
                     break;
                 }
                 //获取选择器返回的数据
@@ -211,7 +211,7 @@ public class ImagePicker extends BaseJSModule {
 //                        this.copyFileToDataDir(path);
                         new DecodeImageTask(this).execute(path);
                     } else {
-                        JSCallback.callJS(callbackId, JSCallback.FAIL, "The path is null.");
+                        JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "The path is null.");
                     }
                 }
                 break;
@@ -232,9 +232,9 @@ public class ImagePicker extends BaseJSModule {
                 boolean success = FileUtil.copyFile(path, copy);
                 if (success) {
                     Logger.error("拷贝过后的新文件路径：", copy);
-                    JSCallback.callJS(callbackId, JSCallback.SUCCESS, copy);
+                    JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, copy);
                 } else {
-                    JSCallback.callJS(callbackId, JSCallback.FAIL, "Copy file failed.");
+                    JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "Copy file failed.");
                 }
             }
         });

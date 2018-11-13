@@ -14,8 +14,8 @@ class HttpHelper : BaseJSModule() {
     fun openGetConnection(callbackId: Int, url: String) {
         OkHttpHelper().getRequest(ctx,
                 url,
-                successCallback = { result -> JSCallback.callJS(callbackId, JSCallback.SUCCESS, result) },
-                failedCallback = { msg -> JSCallback.callJS(callbackId, JSCallback.FAIL, msg) })
+                successCallback = { result -> JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, result) },
+                failedCallback = { msg -> JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, msg) })
     }
 
     /**
@@ -25,7 +25,7 @@ class HttpHelper : BaseJSModule() {
         OkHttpHelper().postRequest(ctx,
                 url,
                 json,
-                successCallback = { result -> JSCallback.callJS(callbackId, JSCallback.SUCCESS, result) },
-                failedCallback = { msg -> JSCallback.callJS(callbackId, JSCallback.FAIL, msg) })
+                successCallback = { result -> JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, result) },
+                failedCallback = { msg -> JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, msg) })
     }
 }

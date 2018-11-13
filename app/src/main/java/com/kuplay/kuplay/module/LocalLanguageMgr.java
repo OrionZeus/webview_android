@@ -51,7 +51,7 @@ public class LocalLanguageMgr extends BaseJSModule {
                 result = LocalLanguageMgr.LANGUAGE_CHINESE_SIMPLIFY;
                 break;
         }
-        JSCallback.callJS(callbackId, JSCallback.SUCCESS, String.valueOf(result));
+        JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, String.valueOf(result));
     }
 
     /**
@@ -68,7 +68,7 @@ public class LocalLanguageMgr extends BaseJSModule {
      */
     public void getAppLanguage(int callbackId) {
         int result = PrefMgr.getInstance(ctx).getAppLan();
-        JSCallback.callJS(callbackId, JSCallback.SUCCESS, String.valueOf(result));
+        JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, String.valueOf(result));
     }
 
     /**
@@ -112,7 +112,7 @@ public class LocalLanguageMgr extends BaseJSModule {
                 break;
         }
         resources.updateConfiguration(config, dm);
-        JSCallback.callJS(callbackId, JSCallback.SUCCESS, "");
+        JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, "");
         PrefMgr.getInstance(ctx).saveAppLan(language);
     }
 

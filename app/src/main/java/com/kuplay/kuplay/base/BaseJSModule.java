@@ -47,13 +47,21 @@ public abstract class BaseJSModule implements JSExecutable, JSInterface {
     }
 
     private Object mWebView;
+    private Activity mActivity;
 
     protected Object getWebView() {
         return mWebView;
     }
 
+    protected Activity getActivity() {
+        return mActivity;
+    }
+
     public void setWebView(Object webView) {
         mWebView = webView;
+    }
+    public void setActivity(Activity activity) {
+        mActivity = activity;
     }
 
     /**

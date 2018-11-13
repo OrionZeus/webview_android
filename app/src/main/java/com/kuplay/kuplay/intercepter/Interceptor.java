@@ -18,6 +18,7 @@ import java.io.InputStream;
 public class Interceptor {
 
     private Uri uri;
+    private Boolean onlyInterceptWeb3 = false;
     private static String[] domains = null;
     private static boolean fetchFromMobile = true;
     private Object mWebView;
@@ -28,6 +29,9 @@ public class Interceptor {
         uri = null;
     }
 
+    public void setOnlyInterceptWeb3(Boolean only) {
+        this.onlyInterceptWeb3 = only;
+    }
 
     public void setWebView(Object webView) {
         this.mWebView = webView;
@@ -36,13 +40,26 @@ public class Interceptor {
 
     public InterceptorHandler GetInterceptHandle(Uri uri) {
         String isIntercept = ctx.getResources().getString(R.string.web_view_intercept);
-        if (!"1".equals(isIntercept)) return null;
         if (null == uri) return null;
         if (uri.toString().startsWith("blob:")) return null;
         this.uri = uri;
         String path = uri.getPath();
         InterceptorHandler handler = null;
         if (null == path) return null;
+
+        if (this.onlyInterceptWeb3) {
+            String patterns[] = {"web3.js", "web3.min.js"};
+            for (int i = 0; i < patterns.length; ++i) {
+                if (path.contains(patterns[i])) {
+                    return new Web3Handler();
+                }
+            }
+            return null;
+         } else if (!"1".equals(isIntercept)) {
+            return null;
+        }
+
+
         if (path.startsWith("/$intercept")) {
             handler = new SetInterceptHandler();
         } else if (path.startsWith("/$resinfo")) {
@@ -175,6 +192,30 @@ public class Interceptor {
 
             } catch (Exception e) {
                 Log.d("Intercept", "FetchFromLocalHandler--assets--catch: " + path);
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    public class Web3Handler implements InterceptorHandler {
+
+        public Object handle(Interceptor interceptor) {
+            try {
+                InputStream stream = ctx.getAssets().open("web3.js");
+                String mimeType = "application/javascript";
+
+                Log.d("Intercept", "Web3Handler Begin");
+
+                Object response = null;
+                if (interceptor.mWebView instanceof android.webkit.WebView) {
+                    response = new android.webkit.WebResourceResponse(mimeType, "UTF-8", stream);
+                } else if (interceptor.mWebView instanceof com.tencent.smtt.sdk.WebView) {
+                    response = new com.tencent.smtt.export.external.interfaces.WebResourceResponse(mimeType, "UTF-8", stream);
+                }
+                return response;
+            } catch (Exception e) {
+                Log.d("Intercept", "Web3Handler");
                 e.printStackTrace();
             }
             return null;

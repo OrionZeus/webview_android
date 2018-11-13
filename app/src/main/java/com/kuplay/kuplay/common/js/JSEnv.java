@@ -1,5 +1,7 @@
 package com.kuplay.kuplay.common.js;
 
+import android.app.Activity;
+
 import com.kuplay.kuplay.base.BaseJSModule;
 
 import java.lang.reflect.Constructor;
@@ -98,7 +100,7 @@ public final class JSEnv {
     /**
      * 生成对象的实例，返回id
      */
-    public static int newInstance(String className, Object webView) throws Exception {
+    public static int newInstance(String className, Object webView, Activity activity) throws Exception {
         ClassInfo info = clsMap.get(className);
         if (info == null) {
             throw new Exception("JSEnv.call class " + className + " don't find");
@@ -110,6 +112,7 @@ public final class JSEnv {
             Object o = c.newInstance();
             if (o instanceof BaseJSModule) {
                 ((BaseJSModule) o).setWebView(webView);
+                ((BaseJSModule) o).setActivity(activity);
             }
             id = addObject(o);
         } catch (Exception e) {
