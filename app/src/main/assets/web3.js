@@ -4500,11 +4500,15 @@ require = (function () {
             HttpProvider.prototype.sendAsync = function (payload, callback) {
 
                 // PI_BEGIN
-                if (payload.method === "eth_sendTransaction") {
-                    pi_RPC_Method("examples/native/webview/demo", "web3HttpProviderSendAsync", payload, function (error, result) {
-                        callback(error, result);
-                    });
-                    return;
+                var rpcs = ["eth_sendTransaction", "eth_accounts"];
+                for (var i = 0; i < rpcs.length; ++i) {
+                    if (payload.method === rpcs[i]) {
+                        console.log("web3.js intercept and rpc, method = " + payload.methodName);
+                        pi_RPC_Method("app/core/eth/wallet", "rpcProviderSendAsync", payload, function (error, result) {
+                            callback(error, result);
+                        });
+                        return;
+                    }
                 }
                 // PI_END
 
@@ -26182,10 +26186,11 @@ window.pi_RPC_Method = (function () {
         webViewManager = id;
 
         for (var i = 0; i < webViewManagerCallWaits.length; ++i) {
-            var w = webViewManagerCallWaits[i];
-            setTimeout(() => {
-                nativeCall(w[0], w[1], w[2], w[3]);
-            }, 0);
+            (function (w) {
+                setTimeout(() => {
+                    nativeCall(w[0], w[1], w[2], w[3]);
+                }, 0);
+            })(webViewManagerCallWaits[i]);
         }
 
         webViewManagerCallWaits.length = 0;
