@@ -119,20 +119,20 @@ public class ShareToPlatforms extends BaseJSModule {
                             public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
                                 Logger.error(TAG, "分享完成");
                                 FileUtil.removeFile(getAppIconFile());
-                                JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, "");
+                                JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, "");
                             }
 
                             @Override
                             public void onError(Platform platform, int i, Throwable throwable) {
                                 Logger.error(TAG, "分享出错");
                                 FileUtil.removeFile(getAppIconFile());
-                                JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "");
+                                JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "");
                             }
 
                             @Override
                             public void onCancel(Platform platform, int i) {
                                 Logger.error(TAG, "分享取消");
-                                JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "");
+                                JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "");
                                 FileUtil.removeFile(getAppIconFile());
                             }
                         });
@@ -251,19 +251,19 @@ public class ShareToPlatforms extends BaseJSModule {
             @Override
             public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
                 Logger.error(TAG, "分享完成");
-                JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, "");
+                JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, "");
             }
 
             @Override
             public void onError(Platform platform, int i, Throwable throwable) {
                 Logger.error(TAG, "分享出错");
-                JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "");
+                JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "");
             }
 
             @Override
             public void onCancel(Platform platform, int i) {
                 Logger.error(TAG, "分享取消");
-                JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "");
+                JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "");
             }
         });
         oks.show(ctx);
@@ -287,7 +287,7 @@ public class ShareToPlatforms extends BaseJSModule {
                                 FileUtil.saveBitmapFile(bmp, getFileDirPath(), new FileUtil.FileCallback() {
                                     @Override
                                     public void onCreateFileSuccess(File file) {
-                                        JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, "");
+                                        JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, "");
                                     }
                                 });
                             }
@@ -305,7 +305,7 @@ public class ShareToPlatforms extends BaseJSModule {
                                 FileUtil.saveBitmapFile(bitmap, getFileDirPath(), new FileUtil.FileCallback() {
                                     @Override
                                     public void onCreateFileSuccess(File file) {
-                                        JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, "");
+                                        JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, "");
                                     }
                                 });
                             }
@@ -313,7 +313,7 @@ public class ShareToPlatforms extends BaseJSModule {
                     }
                 } catch (Exception e) {
                     Logger.error("创建文件失败", e.getMessage());
-                    JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "");
+                    JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "");
                 }
             }
 
@@ -368,21 +368,21 @@ public class ShareToPlatforms extends BaseJSModule {
             public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
                 Logger.error(TAG, "分享完成");
                 FileUtil.removeFile(getFileDirPath());
-                JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, "");
+                JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, "");
             }
 
             @Override
             public void onError(Platform platform, int i, Throwable throwable) {
                 Logger.error(TAG, "分享出错");
                 FileUtil.removeFile(getFileDirPath());
-                JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "");
+                JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "");
             }
 
             @Override
             public void onCancel(Platform platform, int i) {
                 Logger.error(TAG, "分享取消");
                 FileUtil.removeFile(getFileDirPath());
-                JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "");
+                JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "");
             }
         });
         oks.show(ctx);

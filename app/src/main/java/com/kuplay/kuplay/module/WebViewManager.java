@@ -7,6 +7,10 @@ import com.kuplay.kuplay.app.NewWebViewActivity;
 import com.kuplay.kuplay.base.BaseJSModule;
 import com.kuplay.kuplay.common.js.JSCallback;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -30,24 +34,36 @@ public class WebViewManager extends BaseJSModule {
      * @param url         The web page's url.
      * @param title       The title what would you like to show in the new View.
      */
-    public void openWebView(int callbackId, String webViewName, String url, String title) {
+    public void openWebView(int callbackId, String webViewName, String url, String title, String injectContent) {
         if (TextUtils.isEmpty(webViewName)) {
-            JSCallback.throwJS(getActivity(),
+            JSCallback.throwJS(getActivity(), getWebView(),
                     WebViewManager.class.getSimpleName(), "openWebView", "The WebView's name can't be null.");
             return;
         }
         if (TextUtils.isEmpty(url)) {
-            JSCallback.throwJS(getActivity(),
+            JSCallback.throwJS(getActivity(), getWebView(),
                     WebViewManager.class.getSimpleName(), "openWebView", "The url can't be null.");
             return;
         }
         if (isWebViewNameExists(webViewName)) {
-            JSCallback.throwJS(getActivity(), WebViewManager.class.getSimpleName(), "openWebView", "WebView name is exist.");
+            JSCallback.throwJS(getActivity(), getWebView(),
+                    WebViewManager.class.getSimpleName(), "openWebView", "WebView name is exist.");
         } else {
+            File file = new File(ctx.getCacheDir(), "new_webview_inject");
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+                bw.write(String.valueOf(injectContent));
+                bw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             Intent intent = new Intent(ctx, NewWebViewActivity.class);
+            intent.putExtra("inject", file.getAbsolutePath());
             intent.putExtra("title", title);
             intent.putExtra("load_url", url);
             intent.putExtra("tag", webViewName);
+
             ctx.startActivity(intent);
         }
     }
@@ -60,11 +76,11 @@ public class WebViewManager extends BaseJSModule {
      */
     public void closeWebView(int callbackId, String webViewName) {
         if ("default".equals(webViewName)) {
-            JSCallback.throwJS(getActivity(),
+            JSCallback.throwJS(getActivity(), getWebView(),
                     WebViewManager.class.getSimpleName(), "closeWebView", "The default WebView couldn't remove,please select a new one.");
         } else {
             if (!isWebViewNameExists(webViewName)) {
-                JSCallback.throwJS(getActivity(),
+                JSCallback.throwJS(getActivity(), getWebView(),
                         WebViewManager.class.getSimpleName(), "closeWebView", "The WebView's name is not exists.");
             } else {
                 sendCloseWebViewMessage(webViewName);
@@ -99,7 +115,7 @@ public class WebViewManager extends BaseJSModule {
      */
     public void postWebViewMessage(int callbackId, String webViewName, String message) {
         if (!isWebViewNameExists(webViewName)) {
-            JSCallback.throwJS(getActivity(),
+            JSCallback.throwJS(getActivity(), getWebView(),
                     WebViewManager.class.getSimpleName(), "postWebViewMessage", "The WebView's name is not exists.");
             return;
         }

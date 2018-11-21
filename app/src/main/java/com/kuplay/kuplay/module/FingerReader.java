@@ -39,13 +39,13 @@ public class FingerReader extends BaseJSModule {
         @Override
         public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
             super.onAuthenticationSucceeded(result);
-            JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, "");
+            JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, "");
         }
 
         @Override
         public void onAuthenticationFailed() {
             super.onAuthenticationFailed();
-            JSCallback.callJS(getActivity(), callbackId, JSCallback.FAIL, "");
+            JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "");
     }
     };
 }

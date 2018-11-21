@@ -2,9 +2,11 @@ package com.kuplay.kuplay.module;
 
 import android.os.AsyncTask;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.kuplay.kuplay.base.BaseJSModule;
 import com.kuplay.kuplay.common.js.JSCallback;
+import com.kuplay.kuplay.common.js.JSEnv;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
@@ -98,10 +100,11 @@ public class ArgonHash extends BaseJSModule {
             /*if (hash.dialog.isShowing()) {
                 hash.dialog.dismiss();
             }*/
-            if (TextUtils.isEmpty(s))
-                JSCallback.callJS(null,hash.callbackId, JSCallback.FAIL, "");
-            else
-                JSCallback.callJS(null,hash.callbackId, JSCallback.SUCCESS, s);
+            if (TextUtils.isEmpty(s)) {
+                JSCallback.callJS(null, null, hash.callbackId, JSCallback.FAIL, "");
+            } else {
+                JSCallback.callJS(null, null, hash.callbackId, JSCallback.SUCCESS, s);
+            }
         }
     }
 

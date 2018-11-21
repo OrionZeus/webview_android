@@ -19,9 +19,12 @@ public class JSCallback {
     /**
      * params只接受整数，浮点数，字符串
      */
-    public static void callJS(Activity activity, int listenerId, @StatusCode int statusCode, Object... params) {
+    public static void callJS(Activity activity, Object webview, int listenerId, @StatusCode int statusCode, Object... params) {
         if (activity == null) {
             activity = (Activity)JSEnv.getEnv(JSEnv.ACTIVITY);
+        }
+        if (webview == null) {
+            webview = JSEnv.getEnv(JSEnv.WEBVIEW);
         }
 
         StringBuilder func = new StringBuilder("window['handle_Native_Message'](" + listenerId + ", " + statusCode);
@@ -49,20 +52,20 @@ public class JSCallback {
                     String s = (String) o;
                     func.append(String.format(", '%s'", s));
                 } else {
-                    throwJS(activity,"Android", "CallJS", "Internal Error, CallJS params error!");
+                    throwJS(activity, webview, "Android", "CallJS", "Internal Error, CallJS params error!");
                     return;
                 }
             }
         func.append(")");
 
         Log.d("JSBridge", "callJS: " + func.toString());
-        activity.runOnUiThread(new CallJSRunnable(func.toString()));
+        activity.runOnUiThread(new CallJSRunnable(webview, func.toString()));
     }
 
-    public static void throwJS(Activity activity, String className, String methodName, String message) {
+    public static void throwJS(Activity activity, Object webview, String className, String methodName, String message) {
         String func = String.format("handle_Native_ThrowError('%s', '%s', '%s'", className, methodName, message);
         Log.d("JSBridge", "throwJS: " + func);
-        activity.runOnUiThread(new CallJSRunnable(func));
+        activity.runOnUiThread(new CallJSRunnable(webview, func));
     }
 
     /**

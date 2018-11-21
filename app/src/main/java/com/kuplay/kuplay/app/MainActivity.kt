@@ -102,6 +102,11 @@ class MainActivity : BaseWebView() {
         super.onDestroy()
     }
 
+    override fun onResume() {
+        addJEV()
+        super.onResume()
+    }
+
     companion object {
         const val APP_RESULT_CODE = 912
         //        const val URL = "http://47.75.254.166:8080/wallet/app/boot/index.html"

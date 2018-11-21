@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Bitmap
+import android.util.Log
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -16,8 +16,8 @@ import com.kuplay.kuplay.module.WebViewManager
 import com.kuplay.kuplay.util.ViewUtil
 import com.kuplay.kuplay.widget.AndroidWebView
 import com.kuplay.kuplay.widget.X5Chrome
-import com.tencent.smtt.sdk.WebView
 import kotlinx.android.synthetic.main.layout_fake_status_bar_view.*
+import java.io.File
 
 class NewWebViewActivity : BaseWebView() {
     private lateinit var mRlRootView: RelativeLayout
@@ -47,24 +47,34 @@ class NewWebViewActivity : BaseWebView() {
      * Initialize basic data.
      */
     override fun initData() {
+
+        setIntercept(false);
+        Log.d("WebView", "new WebView: " + intent?.getStringExtra("tag"))
+
         mTvTitle.text = intent?.getStringExtra("title")
         tag = intent?.getStringExtra("tag")
         if (null == tag) throw Exception("The tag can't be null!")
         mIvBack.setOnClickListener { onBackPressed() }
+
+        var path = intent?.getStringExtra("inject")
+        var file = File(path)
+        val content = file.readText()
+        file.delete()
+
         if (isX5) {
             mX5?.addJavascriptInterface(JSBridge(mX5, this), JSBridge::class.java.simpleName)
             mX5?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
             X5Chrome.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView(tag, mX5)
-            mX5?.setOnlyInterceptWeb3(true)
+            mX5?.setInjectContent(content)
         } else {
             mAndroidWebView?.addJavascriptInterface(JSBridge(mAndroidWebView, this), JSBridge::class.java.simpleName)
             mAndroidWebView?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
             AndroidWebView.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView(tag, mAndroidWebView)
-            mAndroidWebView?.setOnlyInterceptWeb3(true)
+            mAndroidWebView?.setInjectContent(content)
         }
-        super.addJEV()
+
         super.loadUrl(intent?.getStringExtra("load_url") ?: "https://cn.bing.com")
         registerCloseReceiver()
     }

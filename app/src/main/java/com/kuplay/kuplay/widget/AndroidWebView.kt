@@ -25,13 +25,15 @@ import java.util.*
  */
 class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? = null) : WebView(ctx, attr) {
     private val connectTimeOut = ctx.resources.getString(R.string.connect_url_time_out_value)
-    private var onlyInterceptWeb3: Boolean = false
+    private var isIntercept = false
+    private var injectContent: String = ""
     private var loadCallback: WebViewLoadProgressCallback? = null
     private val mTimerOutHandler = TimerOutHandler(this)
     private var mTimer: Timer? = null
     private var isShowTimeOut = false
 
     init {
+        isIntercept = "1" == ctx.resources.getString(R.string.web_view_intercept);
         initClient(this@AndroidWebView)
         initSettings(this@AndroidWebView)
     }
@@ -163,7 +165,8 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
             val interceptor = Interceptor(ctx)
             val uri = request.url
             interceptor.setWebView(view)
-            interceptor.setOnlyInterceptWeb3((view as AndroidWebView).onlyInterceptWeb3)
+            interceptor.setIntercept((view as AndroidWebView).isIntercept)
+            interceptor.setInjectContent((view as AndroidWebView).injectContent);
             val handler = interceptor.GetInterceptHandle(uri)
                     ?: return super.shouldInterceptRequest(view, request)
             var response = handler.handle(interceptor)
@@ -260,8 +263,12 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
         this.loadCallback = loadCallback
     }
 
-    fun setOnlyInterceptWeb3(only: Boolean) {
-        this.onlyInterceptWeb3 = only
+    fun setInjectContent(content: String) {
+        this.injectContent = content;
+    }
+
+    fun setIntercept(isIntercept: Boolean) {
+        this.isIntercept = isIntercept
     }
 
     companion object {

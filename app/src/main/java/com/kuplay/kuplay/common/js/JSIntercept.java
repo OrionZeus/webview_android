@@ -39,7 +39,7 @@ public class JSIntercept {
 
             String func = String.format("window.handle_update_save(%d)", saveID);
             Activity activity = (Activity) JSEnv.getEnv(JSEnv.ACTIVITY);
-            activity.runOnUiThread(new CallJSRunnable(func.toString()));
+            activity.runOnUiThread(new CallJSRunnable(JSEnv.getEnv(JSEnv.WEBVIEW), func.toString()));
 
         } catch (Exception e) {
             e.printStackTrace();

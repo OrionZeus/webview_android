@@ -1,6 +1,7 @@
 package com.kuplay.kuplay.base
 
 import android.os.Bundle
+import android.util.Log
 import com.kuplay.kuplay.common.js.JSEnv
 import com.kuplay.kuplay.widget.AndroidWebView
 import com.kuplay.kuplay.widget.X5Chrome
@@ -25,19 +26,19 @@ abstract class BaseWebView : BaseActivity() {
         super.onDestroy()
     }
 
+    protected fun setIntercept(isIntercept: Boolean) {
+        if (isX5) mX5?.setIntercept(isIntercept)
+        else mAndroidWebView?.setIntercept(isIntercept)
+    }
+
     protected fun addJEV() {
         JSEnv.setEnv(JSEnv.CONTEXT, this)
         JSEnv.setEnv(JSEnv.ACTIVITY, this)
-        if (isX5) {
-            if (null != mX5) JSEnv.setEnv(JSEnv.WEBVIEW, mX5)
+        if (mX5 != null) {
+            JSEnv.setEnv(JSEnv.WEBVIEW, mX5)
         } else {
-            if (null != mAndroidWebView) JSEnv.setEnv(JSEnv.WEBVIEW, mAndroidWebView)
+            JSEnv.setEnv(JSEnv.WEBVIEW, mAndroidWebView)
         }
-    }
-
-    override fun onResume() {
-        addJEV()
-        super.onResume()
     }
 
     protected fun loadUrl(url: String) {

@@ -36,7 +36,8 @@ import java.util.*
  */
 class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet: AttributeSet? = null) : WebView(ctx, attributeSet) {
     private var connectTimeOut: Int = 0
-    private var onlyInterceptWeb3: Boolean = false
+    private var isIntercept = false
+    private var injectContent: String = ""
     private var loadCallback: WebViewLoadProgressCallback? = null
     private val mTimerOutHandler = TimerOutHandler(this)
     private var mTimer: Timer? = null
@@ -44,6 +45,7 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
     private var downloading: Boolean = false
 
     init {
+        isIntercept = "1" == ctx.resources.getString(R.string.web_view_intercept);
         connectTimeOut = Integer.parseInt(resources.getString(R.string.connect_url_time_out_value))
         connectTimeOut = if (connectTimeOut >= MIN_TIME_OUT) connectTimeOut else MIN_TIME_OUT
         this.init()
@@ -191,7 +193,8 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
             val interceptor = Interceptor(ctx)
             val uri = request.url
             interceptor.setWebView(view)
-            interceptor.setOnlyInterceptWeb3((view as X5Chrome).onlyInterceptWeb3)
+            interceptor.setIntercept((view as X5Chrome).isIntercept)
+            interceptor.setInjectContent((view as X5Chrome).injectContent);
             val handler = interceptor.GetInterceptHandle(uri)
                     ?: return super.shouldInterceptRequest(view, request)
 
@@ -282,8 +285,12 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
         this.loadCallback = loadCallback
     }
 
-    fun setOnlyInterceptWeb3(only: Boolean) {
-        this.onlyInterceptWeb3 = only
+    fun setIntercept(isIntercept: Boolean) {
+        this.isIntercept = isIntercept
+    }
+
+    fun setInjectContent(content: String) {
+        this.injectContent = content;
     }
 
     companion object {

@@ -7,15 +7,13 @@ import com.kuplay.kuplay.widget.X5Chrome
 /**
  * Created by "iqos_jay@outlook.com" on 2018/6/27.
  */
-class CallJSRunnable(private val func: String) : Runnable {
-
+class CallJSRunnable(var webView: Object, private val func: String) : Runnable {
     override fun run() {
+        if (webView == null) webView = JSEnv.getEnv(JSEnv.WEBVIEW) as Object
         if (BaseWebView.isX5) {
-            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as X5Chrome
-            webView.evaluateJavascript(func, null)
+            (webView as X5Chrome).evaluateJavascript(func, null)
         } else {
-            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as AndroidWebView
-            webView.evaluateJavascript(func, null)
+            (webView as AndroidWebView).evaluateJavascript(func, null)
         }
     }
 }

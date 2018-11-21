@@ -57,22 +57,21 @@ public class JSBridge {
             for (int i = 0; i < js.length(); i++) {
                 params[i + 1] = js.get(i);
             }
-            Log.d("JSBridge", "postMessage (" + className + ", " + methodName + ", " + nativeID + ", " + listenerID + ", " + jsonArray + ")");
             switch (methodName) {
                 case METHOD_INIT:
                     int id = JSEnv.newInstance(className, mWebView, mActivity);
-                    JSCallback.callJS(mActivity, listenerID, JSCallback.SUCCESS, id);
+                    JSCallback.callJS(mActivity, mWebView, listenerID, JSCallback.SUCCESS, id);
                     break;
                 case METHOD_CLOSE:
                     JSEnv.removeObject(nativeID);
-                    JSCallback.callJS(mActivity, listenerID, JSCallback.SUCCESS);
+                    JSCallback.callJS(mActivity, mWebView, listenerID, JSCallback.SUCCESS);
                     break;
                 default:
                     JSEnv.call(className, methodName, nativeID, params);
                     break;
             }
         } catch (Exception e) {
-            JSCallback.throwJS(mActivity, className, methodName, e.getMessage());
+            JSCallback.throwJS(mActivity, mWebView, className, methodName, e.getMessage());
         }
     }
 }

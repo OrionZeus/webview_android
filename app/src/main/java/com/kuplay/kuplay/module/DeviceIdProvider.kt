@@ -9,6 +9,6 @@ import com.kuplay.kuplay.util.GetDeviceId
  */
 class DeviceIdProvider : BaseJSModule() {
     fun getUUId(callbackId: Int) {
-        JSCallback.callJS(getActivity(), callbackId, JSCallback.SUCCESS, GetDeviceId.getDeviceId(ctx))
+        JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, GetDeviceId.getDeviceId(ctx))
     }
 }
