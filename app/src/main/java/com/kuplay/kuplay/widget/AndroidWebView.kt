@@ -26,6 +26,7 @@ import java.util.*
 class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? = null) : WebView(ctx, attr) {
     private val connectTimeOut = ctx.resources.getString(R.string.connect_url_time_out_value)
     private var isIntercept = false
+    private var rootUrl = ""
     private var injectContent: String = ""
     private var loadCallback: WebViewLoadProgressCallback? = null
     private val mTimerOutHandler = TimerOutHandler(this)
@@ -166,7 +167,9 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
             val uri = request.url
             interceptor.setWebView(view)
             interceptor.setIntercept((view as AndroidWebView).isIntercept)
-            interceptor.setInjectContent((view as AndroidWebView).injectContent);
+            if (view.injectContent != "" && uri.toString() == view.rootUrl) {
+                interceptor.setInjectContent(view.injectContent)
+            }
             val handler = interceptor.GetInterceptHandle(uri)
                     ?: return super.shouldInterceptRequest(view, request)
             var response = handler.handle(interceptor)
@@ -263,7 +266,8 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
         this.loadCallback = loadCallback
     }
 
-    fun setInjectContent(content: String) {
+    fun setInjectContent(rootUrl: String, content: String) {
+        this.rootUrl = rootUrl;
         this.injectContent = content;
     }
 

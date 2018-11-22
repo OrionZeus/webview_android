@@ -12,8 +12,13 @@ import org.json.JSONArray;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 public class Interceptor {
 
@@ -51,17 +56,11 @@ public class Interceptor {
         InterceptorHandler handler = null;
         if (null == path) return null;
 
-        if (!"".equals(injectContent)) {
-            String patterns[] = {"web3.js", "web3.min.js"};
-            for (int i = 0; i < patterns.length; ++i) {
-                if (path.contains(patterns[i])) {
-                    return new Web3Handler();
-                }
-            }
+        if (injectContent != null && !"".equals(injectContent)) {
+            return new InjectHandler();
+        } else if (!isIntercept) {
             return null;
-         } else if (!isIntercept) {
-            return null;
-        }
+         }
 
         if (path.startsWith("/$intercept")) {
             handler = new SetInterceptHandler();
@@ -201,15 +200,25 @@ public class Interceptor {
         }
     }
 
-    public class Web3Handler implements InterceptorHandler {
+    public class InjectHandler implements InterceptorHandler {
 
         public Object handle(Interceptor interceptor) {
             try {
-                byte[] content = interceptor.injectContent.getBytes(StandardCharsets.UTF_8);
-                InputStream stream = new ByteArrayInputStream(content);
-                String mimeType = "application/javascript";
+                Log.d("Intercept", "InjectHandler Begin");
+                String mimeType = "text/html";
 
-                Log.d("Intercept", "Web3Handler Begin");
+                InputStream stream = null;
+
+                OkHttpClient client = new OkHttpClient();
+                Request  request = new Request.Builder().url(interceptor.uri.toString()).build();
+                Call call = client.newCall(request);
+                try {
+                    String context = call.execute().body().string();
+                    context = "<script>" + interceptor.injectContent + "</script>" + context;
+                    stream = new ByteArrayInputStream(context.getBytes(StandardCharsets.UTF_8));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 Object response = null;
                 if (interceptor.mWebView instanceof android.webkit.WebView) {
@@ -219,7 +228,7 @@ public class Interceptor {
                 }
                 return response;
             } catch (Exception e) {
-                Log.d("Intercept", "Web3Handler");
+                Log.d("Intercept", "InjectHandler");
                 e.printStackTrace();
             }
             return null;

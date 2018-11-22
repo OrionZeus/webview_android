@@ -61,21 +61,23 @@ class NewWebViewActivity : BaseWebView() {
         val content = file.readText()
         file.delete()
 
+        val url = intent?.getStringExtra("load_url") ?: "https://cn.bing.com"
+
         if (isX5) {
             mX5?.addJavascriptInterface(JSBridge(mX5, this), JSBridge::class.java.simpleName)
             mX5?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
             X5Chrome.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView(tag, mX5)
-            mX5?.setInjectContent(content)
+            mX5?.setInjectContent(url, content)
         } else {
             mAndroidWebView?.addJavascriptInterface(JSBridge(mAndroidWebView, this), JSBridge::class.java.simpleName)
             mAndroidWebView?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
             AndroidWebView.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView(tag, mAndroidWebView)
-            mAndroidWebView?.setInjectContent(content)
+            mAndroidWebView?.setInjectContent(url, content)
         }
 
-        super.loadUrl(intent?.getStringExtra("load_url") ?: "https://cn.bing.com")
+        super.loadUrl(url)
         registerCloseReceiver()
     }
 

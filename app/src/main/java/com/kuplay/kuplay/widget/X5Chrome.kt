@@ -37,6 +37,7 @@ import java.util.*
 class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet: AttributeSet? = null) : WebView(ctx, attributeSet) {
     private var connectTimeOut: Int = 0
     private var isIntercept = false
+    private var rootUrl: String = ""
     private var injectContent: String = ""
     private var loadCallback: WebViewLoadProgressCallback? = null
     private val mTimerOutHandler = TimerOutHandler(this)
@@ -194,7 +195,9 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
             val uri = request.url
             interceptor.setWebView(view)
             interceptor.setIntercept((view as X5Chrome).isIntercept)
-            interceptor.setInjectContent((view as X5Chrome).injectContent);
+            if (view.injectContent != "" && uri.toString() == view.rootUrl) {
+                interceptor.setInjectContent(view.injectContent)
+            }
             val handler = interceptor.GetInterceptHandle(uri)
                     ?: return super.shouldInterceptRequest(view, request)
 
@@ -289,7 +292,8 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
         this.isIntercept = isIntercept
     }
 
-    fun setInjectContent(content: String) {
+    fun setInjectContent(rootUrl: String, content: String) {
+        this.rootUrl = rootUrl;
         this.injectContent = content;
     }
 
