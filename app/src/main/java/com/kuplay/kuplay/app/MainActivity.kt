@@ -48,12 +48,12 @@ class MainActivity : BaseWebView() {
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)// 适配底部导航栏
         if (isX5) {
             mX5?.addJavascriptInterface(JSBridge(mX5, this), JSBridge::class.java.simpleName)
-            mX5?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
+            mX5?.addJavascriptInterface(JSIntercept(this, mX5), JSIntercept::class.java.simpleName)
             X5Chrome.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView("default", mX5)
         } else {
             mAndroidWebView?.addJavascriptInterface(JSBridge(mAndroidWebView, this), JSBridge::class.java.simpleName)
-            mAndroidWebView?.addJavascriptInterface(JSIntercept(), JSIntercept::class.java.simpleName)
+            mAndroidWebView?.addJavascriptInterface(JSIntercept(this, mAndroidWebView), JSIntercept::class.java.simpleName)
             AndroidWebView.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView("default", mAndroidWebView)
         }

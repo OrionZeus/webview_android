@@ -36,7 +36,7 @@ public class Interceptor {
     }
 
     public void setIntercept(Boolean isIntercept) {
-        this.isIntercept = isIntercept;
+        // this.isIntercept = isIntercept;
     }
 
     public void setInjectContent(String content) {
@@ -60,26 +60,26 @@ public class Interceptor {
             return new InjectHandler();
         } else if (!isIntercept) {
             return null;
-         }
-
-        if (path.startsWith("/$intercept")) {
-            handler = new SetInterceptHandler();
-        } else if (path.startsWith("/$resinfo")) {
-            handler = new ResInfoHandler();
-        } else if (fetchFromMobile) {
-            if (uri.toString().contains("$forceServer=1")) {
-                handler = null;
-            } else if (domains == null) {
-                handler = new FetchFromLocalHandler();
-            } else {
-                String url = uri.toString();
-                for (String domain : domains) {
-                    if (url.startsWith(domain)) {
-                        handler = new FetchFromLocalHandler();
-                    }
-                }
-            }
         }
+
+//        if (path.startsWith("/$intercept")) {
+//            handler = new SetInterceptHandler();
+//        } else if (path.startsWith("/$resinfo")) {
+//            handler = new ResInfoHandler();
+//        } else if (fetchFromMobile) {
+//            if (uri.toString().contains("$forceServer=1")) {
+//                handler = null;
+//            } else if (domains == null) {
+//                handler = new FetchFromLocalHandler();
+//            } else {
+//                String url = uri.toString();
+//                for (String domain : domains) {
+//                    if (url.startsWith(domain)) {
+//                        handler = new FetchFromLocalHandler();
+//                    }
+//                }
+//            }
+//        }
         return handler;
     }
 
