@@ -1,4 +1,4 @@
-package com.kuplay.kuplay.module.update
+package com.kuplay.kuplay.module
 
 import android.Manifest
 import android.content.ComponentName
@@ -14,10 +14,12 @@ import com.github.dfqin.grantor.PermissionListener
 import com.github.dfqin.grantor.PermissionsUtil
 import com.kuplay.kuplay.R
 import com.kuplay.kuplay.base.BaseJSModule
+import com.kuplay.kuplay.common.js.JSCallback
 import com.kuplay.kuplay.service.UpdateAppService
 import com.kuplay.kuplay.util.Logger
 import com.kuplay.kuplay.util.ToastManager
 import java.io.File
+import java.lang.Exception
 
 class AppUpdater : BaseJSModule() {
     private var mUpdateService: UpdateAppService? = null
@@ -32,6 +34,18 @@ class AppUpdater : BaseJSModule() {
             mUpdateService?.addDownloadProgressListener { total, progress -> updateDownloadProgress(total, progress) }
             mUpdateService?.addDownloadFinishListener { filePath -> prepareInstall(filePath) }
         }
+    }
+
+    fun getVersion(callbackId: Int) {
+        var name = ""
+        try {
+            var pm = ctx.packageManager
+            val info = pm.getPackageInfo(ctx.packageName, 0)
+            name = info.versionName
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, name)
     }
 
     fun updateApp(callbackId: Int, url: String) {

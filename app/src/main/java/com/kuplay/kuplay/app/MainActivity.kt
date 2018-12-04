@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.util.Log
 import android.view.WindowManager
 import android.widget.RelativeLayout
 import com.kuplay.kuplay.R
@@ -14,14 +15,18 @@ import com.kuplay.kuplay.common.js.JSEnv
 import com.kuplay.kuplay.common.js.JSIntercept
 import com.kuplay.kuplay.module.LocalLanguageMgr
 import com.kuplay.kuplay.module.WebViewManager
+import com.kuplay.kuplay.util.FileUtil
 import com.kuplay.kuplay.util.PrefMgr
 import com.kuplay.kuplay.util.ViewUtil
 import com.kuplay.kuplay.widget.AndroidWebView
 import com.kuplay.kuplay.widget.X5Chrome
 import kotlinx.android.synthetic.main.layout_fake_status_bar_view.*
+import java.io.File
 
 class MainActivity : BaseWebView() {
+    private lateinit var mJsIntercept: JSIntercept
     private lateinit var mRlRootView: RelativeLayout
+
     /**
      * Get the layout resource from XML.
      *
@@ -47,19 +52,36 @@ class MainActivity : BaseWebView() {
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)// 在setContentView之后，适配顶部状态栏
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)// 适配底部导航栏
         if (isX5) {
+            mJsIntercept = JSIntercept(this, mX5)
             mX5?.addJavascriptInterface(JSBridge(mX5, this), JSBridge::class.java.simpleName)
-            mX5?.addJavascriptInterface(JSIntercept(this, mX5), JSIntercept::class.java.simpleName)
+            mX5?.addJavascriptInterface(mJsIntercept, JSIntercept::class.java.simpleName)
             X5Chrome.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView("default", mX5)
         } else {
+            mJsIntercept = JSIntercept(this, mAndroidWebView)
             mAndroidWebView?.addJavascriptInterface(JSBridge(mAndroidWebView, this), JSBridge::class.java.simpleName)
-            mAndroidWebView?.addJavascriptInterface(JSIntercept(this, mAndroidWebView), JSIntercept::class.java.simpleName)
+            mAndroidWebView?.addJavascriptInterface(mJsIntercept, JSIntercept::class.java.simpleName)
             AndroidWebView.sViewRoot.add(mRlRootView)
             WebViewManager.addWebView("default", mAndroidWebView)
         }
         super.addJEV()
         LocalLanguageMgr().setAppLanguage(0, PrefMgr.getInstance(this).appLan)
-        super.loadUrl(resources.getString(URL_RES_ID))//必须放在addJavascriptInterface()下面
+
+        var url = resources.getString(URL_RES_ID)
+        if (url.startsWith("/")) {
+            var content = FileUtil.readFile(mJsIntercept.getBootPath() + url)
+            if (content == "") {
+                val stream = this.getAssets().open(url.substring(1))
+                content = FileUtil.readFile(stream)
+            }
+            if (content != "") {
+                super.loadDataWithBaseUrl("file:///android_asset" + url, content);
+            } else {
+                Log.d("JSIntercept", "loadUrl Error!!!");
+            }
+        } else {
+            super.loadUrl(url)
+        }
         registerBc()
     }
 

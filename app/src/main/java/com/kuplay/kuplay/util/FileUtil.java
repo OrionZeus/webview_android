@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+import kotlin.text.Charsets;
+
 /**
  * Created by "iqos_jay@outlook.com" on 2018/6/22.
  * File Tools
@@ -29,6 +31,61 @@ public class FileUtil {
     private static final Handler HANDLER = new Handler(Looper.getMainLooper());
     private static final String TAG = "FileUtil";
 
+    public static String readFile(InputStream stream) {
+        String content = "";
+        try {
+            byte[] bs = new byte[stream.available()];
+            stream.read(bs);
+            content = new String(bs, Charsets.UTF_8);
+        } catch (Exception e) {
+
+        }
+        return content;
+    }
+
+    public static String readFile(String path) {
+        String content = "";
+        File file = new File(path);
+        try {
+            FileInputStream stream = new FileInputStream(file);
+            byte[] bs = new byte[stream.available()];
+            stream.read(bs);
+            content = new String(bs, Charsets.UTF_8);
+            stream.close();
+        } catch (Exception e) {
+
+        }
+        return content;
+    }
+
+    public static byte[] readFileToData(String path) {
+        byte[] bs = null;
+        File file = new File(path);
+        try {
+            FileInputStream stream = new FileInputStream(file);
+            bs = new byte[stream.available()];
+            stream.read(bs);
+            stream.close();
+        } catch (Exception e) {
+
+        }
+        return bs;
+    }
+
+    public static void writeFile(String path, byte[] content) {
+        File f = new File(path);
+        try {
+            if (!f.exists()) {
+                new File(path.substring(0, path.lastIndexOf('/'))).mkdirs();
+                f.createNewFile();
+            }
+            FileOutputStream stream = new FileOutputStream(f);
+            stream.write(content);
+            stream.close();
+        } catch (Exception e) {
+
+        }
+    }
     /**
      * 文件转base64字符串
      *

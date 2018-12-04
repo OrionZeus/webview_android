@@ -112,6 +112,11 @@
             android:name=".service.UpdateAppService"
             android:enabled="true"
             android:exported="true" />
+        <service
+            android:name=".service.RestartService"
+            android:enabled="true"
+            android:exported="true" />
+
     </application>
 
 </manifest>

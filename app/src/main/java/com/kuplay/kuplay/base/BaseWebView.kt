@@ -48,6 +48,11 @@ abstract class BaseWebView : BaseActivity() {
         else mAndroidWebView?.loadUrl(url, extraHeaders)
     }
 
+    protected fun loadDataWithBaseUrl(url: String, content: String) {
+        if (isX5) mX5?.loadDataWithBaseURL(url, content, "text/html", "utf8", url);
+        else mAndroidWebView?.loadDataWithBaseURL(url, content, "text/html", "utf8", url);
+    }
+
     companion object {
         var isX5 = false
     }
