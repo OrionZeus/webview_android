@@ -54,6 +54,7 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
         settings.allowFileAccess = true//设置可以访问文件
         settings.allowFileAccessFromFileURLs = true
         settings.allowUniversalAccessFromFileURLs = true
+        settings.mediaPlaybackRequiresUserGesture = true
         settings.loadsImagesAutomatically = true//支持自动加载图片
         settings.defaultTextEncodingName = "utf-8"//设置编码格式
         settings.cacheMode = WebSettings.LOAD_DEFAULT//默认 根据cache-control决定是否从网络上取数据。

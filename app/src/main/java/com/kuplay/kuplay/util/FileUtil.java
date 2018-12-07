@@ -99,8 +99,7 @@ public class FileUtil {
             in = new FileInputStream(file);
             byte[] bytes = new byte[in.available()];
             int length = in.read(bytes);
-            base64 = Base64.encodeToString(bytes, 0, length, Base64.NO_WRAP);
-//            base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+            base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
         } catch (IOException e) {
             Logger.error(TAG, e.getMessage());
         } finally {

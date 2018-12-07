@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.Base64;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import com.kuplay.kuplay.app.App;
+import com.kuplay.kuplay.module.AppUpdater;
 import com.kuplay.kuplay.service.RestartService;
 import com.kuplay.kuplay.util.FileUtil;
 
@@ -59,19 +62,30 @@ public class JSIntercept {
 
     @JavascriptInterface
     public void restartApp() {
-//        /** 开启一个新的服务，用来重启本APP */
-//        Intent intent = new Intent(mActivity.getApplicationContext(), RestartService.class);
-//        intent.putExtra("PackageName", mActivity.getApplicationContext().getPackageName());
-//        intent.putExtra("Delayed",  5);
-//        mActivity.getApplicationContext().startService(intent);
-//
-//        /* 杀死整个进程 */
-//        android.os.Process.killProcess(android.os.Process.myPid());
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
 
-        final Intent intent = mActivity.getApplication().getPackageManager()
-                .getLaunchIntentForPackage(mActivity.getApplication().getPackageName());
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        mActivity.getApplication().startActivity(intent);
+    @JavascriptInterface
+    public void getAppVersion(int listenerID) {
+        String name = "";
+        try {
+            PackageManager pm = mActivity.getApplicationContext().getPackageManager();
+            PackageInfo info = pm.getPackageInfo(mActivity.getApplicationContext().getPackageName(), 0);
+            name = info.versionName;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String func = String.format("window.handle_jsintercept_callback(%d, true, '%s')", listenerID, name);
+        mActivity.runOnUiThread(new CallJSRunnable(mWebView, func));
+    }
+
+    @JavascriptInterface
+    public void updateApp(String url, int listenerID) {
+        AppUpdater updater = new AppUpdater();
+        updater.setActivity(mActivity);
+        updater.setWebView(mWebView);
+        updater.updateApp(listenerID, url);
     }
 
     @JavascriptInterface
@@ -101,13 +115,12 @@ public class JSIntercept {
                 path = path.replace(".depend", "depend");
             }
 
-            Context context = mActivity.getApplicationContext();
             String fullPath = mBootPath + "/" + path;
             byte[] content = Base64.decode(base64Str, Base64.NO_WRAP);
             FileUtil.writeFile(fullPath, content);
 
-            String fileName = path.substring(path.lastIndexOf("/") + 1);
-            mBootFilePaths.put(fileName, fullPath);
+            path = path.substring(path.lastIndexOf("/") + 1);
+            mBootFilePaths.put(path, fullPath);
             FileUtil.writeFile(mConfigPath, mBootFilePaths.toString().getBytes(Charsets.UTF_8));
 
             Log.d("Intercept", "JSIntercept.saveFile: " + fullPath);
