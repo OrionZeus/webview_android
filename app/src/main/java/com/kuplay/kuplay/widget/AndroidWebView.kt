@@ -143,11 +143,15 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
             mTimer?.purge()
         }
 
-        override fun shouldOverrideUrlLoading(view: WebView, url: String?): Boolean {
+        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean {
+            val url = request?.url.toString();
             if (null == url) return false
-            if (url.startsWith("http") || url.startsWith("file")) {
+            if (url.startsWith("file://")) return false;
+
+            if (url.startsWith("http")) {
                 val extraHeaders = HashMap<String, String>()
-                extraHeaders["Referer"] = view.url // 需要加上referer，否则有些服务器会拒绝加载页面
+                // 需要加上referer，否则有些服务器会拒绝加载页面
+                extraHeaders["Referer"] = resources.getString(R.string.referer_url) ?: "";
                 view.loadUrl(url, extraHeaders)
                 return true
             }
@@ -159,8 +163,29 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
                 // 防止没有安装的情况
                 e.printStackTrace()
             }
-
             return true
+        }
+
+        override fun shouldOverrideUrlLoading(view: WebView, url: String?): Boolean {
+            if (null == url) return false
+            if (url.startsWith("file://")) return false;
+
+            if (url.startsWith("http")) {
+                val extraHeaders = HashMap<String, String>()
+                // 需要加上referer，否则有些服务器会拒绝加载页面
+                extraHeaders["Referer"] = resources.getString(R.string.referer_url) ?: "";
+                view.loadUrl(url, extraHeaders)
+                return true
+            }
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                view.context.startActivity(intent)
+            } catch (e: Exception) {
+                // 防止没有安装的情况
+                e.printStackTrace()
+            }
+            return true;
         }
 
         override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {

@@ -171,9 +171,12 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
 
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
             if (null == url) return false
-            if (url.startsWith("http") || url.startsWith("file")) {
+            if (url.startsWith("file://")) return false;
+
+            if (url.startsWith("http")) {
                 val extraHeaders = HashMap<String, String>()
-                extraHeaders["Referer"] = view?.url ?: "" // 需要加上referer，否则有些服务器会拒绝加载页面
+                // 需要加上referer，否则有些服务器会拒绝加载页面
+                extraHeaders["Referer"] = resources.getString(R.string.referer_url) ?: "";
                 view?.loadUrl(url, extraHeaders)
                 return true
             }
