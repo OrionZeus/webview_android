@@ -221,7 +221,15 @@ public class ImagePicker extends BaseJSModule {
                         this.path = "file://" + path;
                         int width = FileUtil.getImageWidth(path);
                         int height = FileUtil.getImageHeight(path);
-                        JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, width, height, this.path);
+                        // TODO: remove it
+                        String base64 = "";
+                        try {
+                            base64 = FileUtil.fileToBase64(new File(path));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, width, height, base64);
                     } else {
                         JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "The path is null.");
                     }
