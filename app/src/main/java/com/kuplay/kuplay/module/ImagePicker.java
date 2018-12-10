@@ -11,6 +11,7 @@ import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
 import com.iqos.imageselector.utils.ImageSelector;
 import com.iqos.imageselector.utils.ImageSelectorUtils;
+import com.iqos.imageselector.utils.ImageUtil;
 import com.kuplay.kuplay.R;
 import com.kuplay.kuplay.app.MainActivity;
 import com.kuplay.kuplay.base.BaseJSModule;
@@ -28,10 +29,8 @@ import java.util.ArrayList;
  */
 public class ImagePicker extends BaseJSModule {
     private static final String TAG = "ImagePicker";
-    private static final String BASE64_IMAGE_HEADER = "data:image/png;base64,";
     private boolean useCamera;
-    private int width, height;
-
+    private String path = "";   // 最近选择的图片路径
 
     /**
      * .
@@ -77,24 +76,25 @@ public class ImagePicker extends BaseJSModule {
      * Change the image to te byte arrays might take much time,
      * in order not to cause ANR, use thread asynchronous.
      */
-    private static class DecodeImageTask extends AsyncTask<String, Void, String> {
-        private WeakReference<ImagePicker> weak;
+    private static class GetImageContenTask extends AsyncTask<String, Void, String> {
 
-        private DecodeImageTask(ImagePicker picker) {
-            this.weak = new WeakReference<>(picker);
+        private int callbackID;
+
+        private GetImageContenTask(int callbackID) {
+            this.callbackID = callbackID;
         }
 
         @Override
         protected String doInBackground(String... strings) {
-            ImagePicker imagePicker = weak.get();
-            if (null == imagePicker) return null;
+
             String path = strings[0];
-            if (TextUtils.isEmpty(path)) return null;
+            if (TextUtils.isEmpty(path)) {
+                return null;
+            }
+
             try {
-                imagePicker.width = FileUtil.getImageWidth(path);
-                imagePicker.height = FileUtil.getImageHeight(path);
                 String base64 = FileUtil.fileToBase64(new File(path));
-                return BASE64_IMAGE_HEADER + base64;
+                return base64;
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
@@ -103,77 +103,90 @@ public class ImagePicker extends BaseJSModule {
 
         @Override
         protected void onPostExecute(String base64) {
-            ImagePicker picker = weak.get();
-            if (TextUtils.isEmpty(base64)) {
-                JSCallback.callJS(null, null, picker.callbackId, JSCallback.FAIL, "选择图片失败");
+             if (TextUtils.isEmpty(base64)) {
+                JSCallback.callJS(null, null, this.callbackID, JSCallback.FAIL, "GetImageContenTask Failed");
             } else {
-                JSCallback.callJS(null, null, picker.callbackId, JSCallback.SUCCESS, String.valueOf(picker.width), String.valueOf(picker.height), base64);
+                JSCallback.callJS(null, null, this.callbackID, JSCallback.SUCCESS, base64);
             }
         }
     }
+	
+	   private static class GetAHashTask extends AsyncTask<String, Void, String> {
+           private int callbackID;
 
+           private GetAHashTask(int callbackID) {
+               this.callbackID = callbackID;
+           }
+
+           @Override
+           protected String doInBackground(String... strings) {
+               String path = strings[0];
+               if (TextUtils.isEmpty(path)) {
+                   return null;
+               }
+
+               try {
+                   int[] bitmapARGB = FileUtil.getBitmapPixelColors(path);
+                   int imageWidth = FileUtil.getImageWidth(path);
+                   int imageHeight = FileUtil.getImageHeight(path);
+                   return AHash.ahash(bitmapARGB, imageWidth, imageHeight, 4);
+               } catch (Exception e) {
+                   e.printStackTrace();
+                   return null;
+               }
+           }
+
+           @Override
+           protected void onPostExecute(String hash) {
+               if (TextUtils.isEmpty(hash)) {
+                   JSCallback.callJS(null, null, this.callbackID, JSCallback.FAIL, "GetAHashTask Failed");
+               } else {
+                   JSCallback.callJS(null, null, this.callbackID, JSCallback.SUCCESS, hash);
+               }
+           }
+       }
+		
     /**
      * 计算AHash
      * This method will be called by js.
      *
-     * @param path 文件的路径
      */
-    public void calcAHash(int callbackId, String path) {
-        this.callbackId = callbackId;
-        new CalcAHashTask(this).execute(path);
+    public void getAHash(int callbackId) {
+        if (!this.path.startsWith("file://")) {
+            JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "path is invalid");
+            return;
+        }
+
+        String path = this.path.substring("file://".length());
+
+        try {
+            new GetAHashTask(callbackId).execute(path);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "getAHash Failed!");
+        }
     }
 
     /**
-     * 计算Base64
+     * 得到图片内容
      * This method will be called by js.
      *
-     * @param path 文件路径
      */
-    public void calcBase64(int callbackId, String path) {
-        this.callbackId = callbackId;
-        new DecodeImageTask(this).execute(path);
-    }
-
-    private static class CalcAHashTask extends AsyncTask<String, Void, String> {
-        private WeakReference<ImagePicker> weak;
-
-        private CalcAHashTask(ImagePicker picker) {
-            this.weak = new WeakReference<>(picker);
+    public void getContent(int callbackId) {
+        if (!this.path.startsWith("file://")) {
+            JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "取不到图片内容 1");
+            return;
         }
 
-        @Override
-        protected String doInBackground(String... strings) {
-            ImagePicker imagePicker = weak.get();
-            if (null == imagePicker) return null;
-            String path = strings[0];
-            if (TextUtils.isEmpty(path)) {
-                JSCallback.callJS(null, null, imagePicker.callbackId, JSCallback.FAIL, "The path can not be null.");
-                return null;
-            }
-            try {
-                int[] bitmapARGB = FileUtil.getBitmapPixelColors(path);
-                int imageWidth = FileUtil.getImageWidth(path);
-                int imageHeight = FileUtil.getImageHeight(path);
-                return AHash.ahash(bitmapARGB, imageWidth, imageHeight, 4);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
+        String path = this.path.substring("file://".length());
 
-        @Override
-        protected void onPostExecute(String s) {
-            ImagePicker imagePicker = weak.get();
-            if (null == imagePicker) return;
-            if (TextUtils.isEmpty(s)) {
-                JSCallback.callJS(null, null, imagePicker.callbackId, JSCallback.FAIL, "");
-            } else {
-                Logger.error("TAG", "计算结果\t" + s);
-                JSCallback.callJS(null, null, imagePicker.callbackId, JSCallback.SUCCESS, s);
-            }
+        try {
+            new GetImageContenTask(callbackId).execute(path);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "ImagePicker getContent Failed!");
         }
     }
-
 
     /**
      * What would you like to prompt user "You Missed Permission".
@@ -204,15 +217,16 @@ public class ImagePicker extends BaseJSModule {
                 ArrayList<String> images = data.getStringArrayListExtra(ImageSelectorUtils.SELECT_RESULT);
                 if (null != images && 0 != images.size()) {
                     String path = images.get(0);
-                    if (1 == images.size()) {
-                        Logger.error("TAG", "图片宽度\t" + FileUtil.getImageWidth(path));
-                        Logger.error("TAG", "图片高度\t" + FileUtil.getImageHeight(path));
-//                        new CalcAHashTask(this).execute(path);
-//                        this.copyFileToDataDir(path);
-                        new DecodeImageTask(this).execute(path);
+                    if (1 == images.size() && path != null) {
+                        this.path = "file://" + path;
+                        int width = FileUtil.getImageWidth(path);
+                        int height = FileUtil.getImageHeight(path);
+                        JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, width, height, this.path);
                     } else {
                         JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "The path is null.");
                     }
+                } else  {
+                    JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "The path is null.");
                 }
                 break;
         }
