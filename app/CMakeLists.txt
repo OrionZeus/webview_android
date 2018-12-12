@@ -10,9 +10,12 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
-aux_source_directory(src/main/cpp DIR_LIB_SRCS)
+include_directories(src/main/cpp/lamemp3)
 
-add_library(native-lib SHARED ${DIR_LIB_SRCS})
+aux_source_directory(src/main/cpp DIR_LIB_SRCS)
+aux_source_directory(src/main/cpp/lamemp3 LAME_SRCS)
+
+add_library(native-lib SHARED ${DIR_LIB_SRCS} ${LAME_SRCS})
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

@@ -46,7 +46,7 @@ public abstract class BaseJSModule implements JSExecutable, JSInterface {
         JSEnv.setJsImpl(this);
     }
 
-    private Object mWebView;
+    protected Object mWebView;
     protected Activity mActivity;
 
     protected Object getWebView() {

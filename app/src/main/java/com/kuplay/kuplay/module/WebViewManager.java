@@ -1,19 +1,77 @@
 package com.kuplay.kuplay.module;
 
+import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.webkit.WebView;
 
+import com.kuplay.kuplay.R;
+import com.kuplay.kuplay.app.MainActivity;
 import com.kuplay.kuplay.app.NewWebViewActivity;
 import com.kuplay.kuplay.base.BaseJSModule;
 import com.kuplay.kuplay.common.js.JSCallback;
+import com.kuplay.kuplay.widget.AndroidWebView;
+import com.kuplay.kuplay.widget.X5Chrome;
+
+import org.json.JSONObject;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+class FreeWebView implements Runnable {
+
+    private Object view;
+    private boolean isX5;
+
+    FreeWebView(Object view, boolean isX5) {
+        this.view = view;
+        this.isX5 = isX5;
+    }
+
+    @Override
+    public void run() {
+        if (isX5) {
+            ((X5Chrome)view).destroy();
+        } else {
+            ((AndroidWebView)view).destroy();
+        }
+    }
+}
+
+class NewWebView implements Runnable {
+    private boolean isX5;
+    private String url;
+    private String webViewName;
+    private Map headers;
+    private Context context;
+
+    NewWebView(Context context, boolean isX5, String webViewName, String url, Map headers) {
+        this.url = url;
+        this.isX5 = isX5;
+        this.context = context;
+        this.webViewName = webViewName;
+        this.headers = headers;
+    }
+
+    @Override
+    public void run() {
+        if (isX5) {
+            X5Chrome view = new X5Chrome(this.context, null);
+            WebViewManager.addWebView(this.webViewName, view);
+            view.loadUrl(this.url, this.headers);
+        } else {
+            AndroidWebView view = new AndroidWebView(this.context, null);
+            WebViewManager.addWebView(this.webViewName, view);
+            view.loadUrl(this.url, this.headers);
+        }
+    }
+}
 
 /**
  * Created by iqosjay@gmail.com on 2018/11/7
@@ -23,6 +81,71 @@ public class WebViewManager extends BaseJSModule {
      * All WebViews that have been opened.
      */
     private static final HashMap<String, Object> WEB_VIEW_FORM = new HashMap<>();
+
+    /**
+     * 新开webview，但不显示出来
+     * @param callbackId
+     * @param webViewName
+     * @param url
+     * @param headers，以 key1:value1 key2:value2 方式传递
+     */
+    public void newView(int callbackId, String webViewName, String url, String headers) {
+
+        if (TextUtils.isEmpty(webViewName)) {
+            JSCallback.throwJS(getActivity(), getWebView(),
+                    WebViewManager.class.getSimpleName(), "newView", "The WebView's name can't be null.");
+            return;
+        }
+
+        if (TextUtils.isEmpty(url)) {
+            JSCallback.throwJS(getActivity(), getWebView(),
+                    WebViewManager.class.getSimpleName(), "newView", "The url can't be null.");
+            return;
+        }
+
+        if (isWebViewNameExists(webViewName)) {
+            JSCallback.throwJS(getActivity(), getWebView(),
+                    WebViewManager.class.getSimpleName(), "newView", "WebView name is exist.");
+            return;
+        }
+
+        Map extraHeaders = new HashMap();
+        try {
+            JSONObject obj = new JSONObject(headers);
+            Iterator<String> keysItr = obj.keys();
+            while(keysItr.hasNext()) {
+                String key = keysItr.next();
+                extraHeaders.put(key, obj.getString(key));
+            }
+        } catch (Exception e) {
+
+        }
+
+        boolean isX5 = mWebView instanceof X5Chrome;
+        mActivity.runOnUiThread(new NewWebView(mActivity.getApplicationContext(), isX5, webViewName, url, extraHeaders));
+        JSCallback.callJS(getActivity(), getWebView(), callbackId, JSCallback.SUCCESS);
+    }
+
+    public void freeView(int callbackId, String webViewName) {
+        try {
+            if ("default".equals(webViewName)) {
+                JSCallback.throwJS(getActivity(), getWebView(),
+                        WebViewManager.class.getSimpleName(), "freeView", "The default WebView couldn't remove,please select a new one.");
+                return;
+            }
+
+            if (!isWebViewNameExists(webViewName)) {
+                return;
+            }
+
+            Object view = WebViewManager.getWebView(webViewName);
+            mActivity.runOnUiThread(new FreeWebView(view, view instanceof X5Chrome));
+            WebViewManager.removeWebView(webViewName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        JSCallback.callJS(getActivity(), getWebView(), callbackId, JSCallback.SUCCESS);
+    }
 
     /**
      * Open a new WebView to display a web page.
@@ -35,6 +158,7 @@ public class WebViewManager extends BaseJSModule {
      * @param title       The title what would you like to show in the new View.
      */
     public void openWebView(int callbackId, String webViewName, String url, String title, String injectContent) {
+
         if (TextUtils.isEmpty(webViewName)) {
             JSCallback.throwJS(getActivity(), getWebView(),
                     WebViewManager.class.getSimpleName(), "openWebView", "The WebView's name can't be null.");
@@ -78,14 +202,12 @@ public class WebViewManager extends BaseJSModule {
         if ("default".equals(webViewName)) {
             JSCallback.throwJS(getActivity(), getWebView(),
                     WebViewManager.class.getSimpleName(), "closeWebView", "The default WebView couldn't remove,please select a new one.");
-        } else {
-            if (!isWebViewNameExists(webViewName)) {
-                JSCallback.throwJS(getActivity(), getWebView(),
-                        WebViewManager.class.getSimpleName(), "closeWebView", "The WebView's name is not exists.");
-            } else {
-                sendCloseWebViewMessage(webViewName);
-            }
+            return;
         }
+        if (!isWebViewNameExists(webViewName)) {
+            return;
+        }
+        sendCloseWebViewMessage(webViewName);
     }
 
     /**
@@ -105,6 +227,10 @@ public class WebViewManager extends BaseJSModule {
      */
     public static void removeWebView(String key) {
         WEB_VIEW_FORM.remove(key);
+    }
+
+    public static Object getWebView(String key) {
+        return WEB_VIEW_FORM.get(key);
     }
 
     /**
