@@ -67,6 +67,7 @@ public class ImagePicker extends BaseJSModule {
         ImageSelector.builder()
                 .useCamera(useCamera)//设置是否使用拍照
                 .setSingle(single)//设置是否单选
+                // .setCrop(true)    // 裁剪功能
                 .showGif(false)//是否要显示GIF图片(默认是要显示的)
                 .setMaxSelectCount(max)//图片的最大选择数量，小于等于0时，不限数量。
                 .start(ctx, MainActivity.APP_RESULT_CODE);//打开相册
@@ -221,15 +222,7 @@ public class ImagePicker extends BaseJSModule {
                         this.path = "file://" + path;
                         int width = FileUtil.getImageWidth(path);
                         int height = FileUtil.getImageHeight(path);
-                        // TODO: remove it
-                        String base64 = "";
-                        try {
-                            base64 = FileUtil.fileToBase64(new File(path));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, width, height, base64);
+                        JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, width, height, this.path);
                     } else {
                         JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "The path is null.");
                     }
