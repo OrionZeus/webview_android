@@ -9,15 +9,15 @@ import android.os.Handler
 import android.os.Message
 import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
-import android.util.Log
 import android.webkit.*
 import android.widget.EditText
 import android.widget.RelativeLayout
 import com.kuplay.kuplay.R
 import com.kuplay.kuplay.callback.WebViewLoadProgressCallback
-import com.kuplay.kuplay.intercepter.Interceptor
 import com.kuplay.kuplay.module.ImagePicker
+import java.io.ByteArrayInputStream
 import java.lang.ref.WeakReference
+import java.net.URL
 import java.util.*
 
 /**
@@ -25,8 +25,7 @@ import java.util.*
  */
 class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? = null) : WebView(ctx, attr) {
     private val connectTimeOut = ctx.resources.getString(R.string.connect_url_time_out_value)
-    private var isIntercept = false
-    private var rootUrl = ""
+    private var injectUrl = ""
     private var injectContent: String = ""
     private var loadCallback: WebViewLoadProgressCallback? = null
     private val mTimerOutHandler = TimerOutHandler(this)
@@ -34,7 +33,6 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
     private var isShowTimeOut = false
 
     init {
-        isIntercept = "1" == ctx.resources.getString(R.string.web_view_intercept);
         initClient(this@AndroidWebView)
         initSettings(this@AndroidWebView)
     }
@@ -61,13 +59,14 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
         settings.domStorageEnabled = true//开启 DOM storage API 功能
         settings.databaseEnabled = true//开启 database storage API 功能
         settings.setAppCacheEnabled(true)//开启 Application Caches 功能
+
         val cacheDirPath = ctx.filesDir.absolutePath + ctx.resources.getString(R.string.app_name)
         settings.setAppCachePath(cacheDirPath) //设置  Application Caches 缓存目录
         // 缩放操作
         settings.setSupportZoom(true)//支持缩放，默认为true。是下面那个的前提。
         settings.builtInZoomControls = true//设置内置的缩放控件。若为false，则该WebView不可缩放
         settings.displayZoomControls = false//隐藏原生的缩放控件
-        settings.setSupportMultipleWindows(true)
+
         settings.javaScriptCanOpenWindowsAutomatically = true
         settings.setSupportMultipleWindows(true)// 设置允许开启多窗口
         if (initLp) {
@@ -124,6 +123,7 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
     private inner class MyWebViewClient : WebViewClient() {
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
+
             isShowTimeOut = false
             mTimer?.cancel()
             mTimer?.purge()
@@ -143,70 +143,33 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
             mTimer?.purge()
         }
 
-        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean {
-            val url = request?.url.toString();
-            if (null == url) return false
-            if (url.startsWith("file://")) return false;
-
-            if (url.startsWith("http")) {
-                val extraHeaders = HashMap<String, String>()
-                // 需要加上referer，否则有些服务器会拒绝加载页面
-                extraHeaders["Referer"] = resources.getString(R.string.referer_url) ?: "";
-                view.loadUrl(url, extraHeaders)
-                return true
-            }
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                view.context.startActivity(intent)
-            } catch (e: Exception) {
-                // 防止没有安装的情况
-                e.printStackTrace()
-            }
-            return true
-        }
-
-        override fun shouldOverrideUrlLoading(view: WebView, url: String?): Boolean {
-            if (null == url) return false
-            if (url.startsWith("file://")) return false;
-
-            if (url.startsWith("http")) {
-                val extraHeaders = HashMap<String, String>()
-                // 需要加上referer，否则有些服务器会拒绝加载页面
-                extraHeaders["Referer"] = resources.getString(R.string.referer_url) ?: "";
-                view.loadUrl(url, extraHeaders)
-                return true
-            }
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                view.context.startActivity(intent)
-            } catch (e: Exception) {
-                // 防止没有安装的情况
-                e.printStackTrace()
-            }
-            return true;
-        }
-
         override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
-            val interceptor = Interceptor(ctx)
-            val uri = request.url
-            interceptor.setWebView(view)
-            interceptor.setIntercept((view as AndroidWebView).isIntercept)
-            if (view.injectContent != "" && uri.toString() == view.rootUrl) {
-                interceptor.setInjectContent(view.injectContent)
+            val uri = request?.url
+            if (uri == null) {
+                return super.shouldInterceptRequest(view, request)
             }
-            val handler = interceptor.GetInterceptHandle(uri)
-                    ?: return super.shouldInterceptRequest(view, request)
-            var response = handler.handle(interceptor)
-                    ?: return super.shouldInterceptRequest(view, request)
-            response = response as WebResourceResponse
-            val extraHeaders = HashMap<String, String>()
-            extraHeaders["Referer"] = uri.toString()
-            // 设置一个本地加载标签
-            extraHeaders["X-From-Mobile"] = "1"
-            response.responseHeaders = extraHeaders
-            return response
+
+            var response: WebResourceResponse? = null
+
+            try {
+                val url = uri.toString();
+
+                if (!url.startsWith("file") && !url.startsWith("http")) {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    (view as AndroidWebView).context.startActivity(intent)
+                    val stream = ByteArrayInputStream("跳转到别的应用处理".toByteArray())
+                    response = WebResourceResponse("application/json", "UTF-8", stream)
+                } else {
+                    val content = (view as AndroidWebView).injectContent
+                    if (content != "" && url == view.injectUrl) {
+                        response = Interceptor.injectHtml(view, url, content) as WebResourceResponse
+                    }
+                }
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+            }
+            return response ?: super.shouldInterceptRequest(view, request)
         }
     }
 
@@ -293,12 +256,8 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
     }
 
     fun setInjectContent(rootUrl: String, content: String) {
-        this.rootUrl = rootUrl;
-        this.injectContent = content;
-    }
-
-    fun setIntercept(isIntercept: Boolean) {
-        this.isIntercept = isIntercept
+        this.injectUrl = Uri.parse(rootUrl).toString()
+        this.injectContent = content
     }
 
     companion object {
@@ -311,4 +270,5 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
         val sViewRoot = mutableListOf<RelativeLayout>()
     }
 }
+
 

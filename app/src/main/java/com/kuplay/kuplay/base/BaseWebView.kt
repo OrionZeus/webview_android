@@ -26,11 +26,6 @@ abstract class BaseWebView : BaseActivity() {
         super.onDestroy()
     }
 
-    protected fun setIntercept(isIntercept: Boolean) {
-        if (isX5) mX5?.setIntercept(isIntercept)
-        else mAndroidWebView?.setIntercept(isIntercept)
-    }
-
     protected fun addJEV() {
         JSEnv.setEnv(JSEnv.CONTEXT, this)
         JSEnv.setEnv(JSEnv.ACTIVITY, this)

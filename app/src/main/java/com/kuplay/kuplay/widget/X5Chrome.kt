@@ -11,13 +11,11 @@ import android.os.Build
 import android.os.Handler
 import android.os.Message
 import android.util.AttributeSet
-import android.util.Log
 import android.widget.EditText
 import android.widget.RelativeLayout
 import com.kuplay.kuplay.R
 import com.kuplay.kuplay.callback.WebViewLoadProgressCallback
 import com.kuplay.kuplay.common.js.JSEnv
-import com.kuplay.kuplay.intercepter.Interceptor
 import com.kuplay.kuplay.util.Logger
 import com.tencent.smtt.export.external.interfaces.JsPromptResult
 import com.tencent.smtt.export.external.interfaces.JsResult
@@ -27,6 +25,7 @@ import com.tencent.smtt.sdk.WebChromeClient
 import com.tencent.smtt.sdk.WebSettings
 import com.tencent.smtt.sdk.WebView
 import com.tencent.smtt.sdk.WebViewClient
+import java.io.ByteArrayInputStream
 import java.lang.ref.WeakReference
 import java.util.*
 
@@ -37,7 +36,7 @@ import java.util.*
 class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet: AttributeSet? = null) : WebView(ctx, attributeSet) {
     private var connectTimeOut: Int = 0
     private var isIntercept = false
-    private var rootUrl: String = ""
+    private var injectUrl: String = ""
     private var injectContent: String = ""
     private var loadCallback: WebViewLoadProgressCallback? = null
     private val mTimerOutHandler = TimerOutHandler(this)
@@ -169,50 +168,32 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
             mTimer?.purge()
         }
 
-        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-            if (null == url) return false
-            if (url.startsWith("file://")) return false;
-
-            if (url.startsWith("http")) {
-                val extraHeaders = HashMap<String, String>()
-                // 需要加上referer，否则有些服务器会拒绝加载页面
-                extraHeaders["Referer"] = resources.getString(R.string.referer_url) ?: "";
-                view?.loadUrl(url, extraHeaders)
-                return true
-            }
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                view?.context?.startActivity(intent)
-            } catch (e: Exception) {
-                // 防止没有安装的情况
-                e.printStackTrace()
-            }
-
-            return true
-        }
-
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
-            val interceptor = Interceptor(ctx)
             val uri = request.url
-            interceptor.setWebView(view)
-            interceptor.setIntercept((view as X5Chrome).isIntercept)
-            if (view.injectContent != "" && uri.toString() == view.rootUrl) {
-                interceptor.setInjectContent(view.injectContent)
+            if (uri == null) {
+                return super.shouldInterceptRequest(view, request)
             }
-            val handler = interceptor.GetInterceptHandle(uri)
-                    ?: return super.shouldInterceptRequest(view, request)
 
-            var response = handler.handle(interceptor)
-                    ?: return super.shouldInterceptRequest(view, request)
-            response = response as WebResourceResponse
-            val extraHeaders = HashMap<String, String>()
-            extraHeaders["Referer"] = uri.toString()
-            // 设置一个本地加载标签
-            extraHeaders["X-From-Mobile"] = "1"
-            response.responseHeaders = extraHeaders
-            return response
+            var response: WebResourceResponse? = null
+
+            try {
+                if (!url.startsWith("file") && !url.startsWith("http")) {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    (view as AndroidWebView).context.startActivity(intent)
+                    val stream = ByteArrayInputStream("跳转到别的应用处理".toByteArray())
+                    response = WebResourceResponse("application/json", "UTF-8", stream)
+                } else {
+                    val content = (view as X5Chrome).injectContent
+                    if (uri.toString() === view.injectUrl && content != "") {
+                        response = Interceptor.injectHtml(view, view.injectUrl, content) as WebResourceResponse
+                    }
+                }
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+            }
+            return response ?: super.shouldInterceptRequest(view, request)
         }
     }
 
@@ -291,12 +272,8 @@ class X5Chrome @JvmOverloads constructor(private val ctx: Context, attributeSet:
         this.loadCallback = loadCallback
     }
 
-    fun setIntercept(isIntercept: Boolean) {
-        this.isIntercept = isIntercept
-    }
-
     fun setInjectContent(rootUrl: String, content: String) {
-        this.rootUrl = rootUrl;
+        this.injectUrl = rootUrl;
         this.injectContent = content;
     }
 

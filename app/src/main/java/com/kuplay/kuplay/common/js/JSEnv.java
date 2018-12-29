@@ -149,7 +149,7 @@ public final class JSEnv {
     }
 
     /**
-     * setter
+     * setterE
      *
      * @param jsImpl JSInterface的当前实现类
      */

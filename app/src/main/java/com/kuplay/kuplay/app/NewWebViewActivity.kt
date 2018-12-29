@@ -48,7 +48,6 @@ class NewWebViewActivity : BaseWebView() {
      */
     override fun initData() {
 
-        setIntercept(false);
         Log.d("WebView", "new WebView: " + intent?.getStringExtra("tag"))
 
         mTvTitle.text = intent?.getStringExtra("title")
