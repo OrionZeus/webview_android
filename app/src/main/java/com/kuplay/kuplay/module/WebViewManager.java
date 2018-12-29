@@ -10,6 +10,7 @@ import com.kuplay.kuplay.app.MainActivity;
 import com.kuplay.kuplay.app.NewWebViewActivity;
 import com.kuplay.kuplay.base.BaseJSModule;
 import com.kuplay.kuplay.common.js.JSCallback;
+import com.kuplay.kuplay.util.ViewUtil;
 import com.kuplay.kuplay.widget.AndroidWebView;
 import com.kuplay.kuplay.widget.X5Chrome;
 
@@ -250,6 +251,13 @@ public class WebViewManager extends BaseJSModule {
         intent.putExtra("message", message);
         intent.putExtra("from_web_view", fromWebView);
         ctx.sendBroadcast(intent);
+    }
+
+    public void getScreenModify(int callbackId) {
+        //ViewUtil.getNavigationBarHeight(getActivity())
+        //DisplayCutout displayCutout = decorView.getRootWindowInsets().getDisplayCutout();
+        float high = ViewUtil.getStatusBarHeight(getActivity());
+        JSCallback.callJS(getActivity(), getWebView(), callbackId, JSCallback.SUCCESS, high, 0);
     }
 
     /**
