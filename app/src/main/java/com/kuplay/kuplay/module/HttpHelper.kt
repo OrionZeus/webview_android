@@ -11,21 +11,21 @@ class HttpHelper : BaseJSModule() {
     /**
      * HTTP 请求 -> GET
      */
-    fun openGetConnection(callbackId: Int, url: String) {
-        OkHttpHelper().getRequest(ctx,
+    fun openGetConnection(url: String,callBack:(callType: Int, prames: Array<Any>)->Unit) {
+        OkHttpHelper().getRequest(ctx!!,
                 url,
-                successCallback = { result -> JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, result) },
-                failedCallback = { msg -> JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, msg) })
+                successCallback = { result -> callBack(JSCallback.SUCCESS, arrayOf(result)) },
+                failedCallback = { msg -> callBack(JSCallback.FAIL, arrayOf(msg)) })
     }
 
     /**
      * HTTP 请求 -> POST
      */
-    fun openPostConnection(callbackId: Int, url: String, json: String) {
-        OkHttpHelper().postRequest(ctx,
+    fun openPostConnection(url: String, json: String, callBack:(callType: Int, prames: Array<Any>)->Unit) {
+        OkHttpHelper().postRequest(ctx!!,
                 url,
                 json,
-                successCallback = { result -> JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, result) },
-                failedCallback = { msg -> JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, msg) })
+                successCallback = { result -> callBack(JSCallback.SUCCESS, arrayOf(result)) },
+                failedCallback = { msg -> callBack(JSCallback.FAIL, arrayOf(msg)) })
     }
 }

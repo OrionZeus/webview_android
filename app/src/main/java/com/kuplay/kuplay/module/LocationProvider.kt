@@ -22,8 +22,8 @@ class LocationProvider : BaseJSModule() {
      *
      * @param callbackId This callbackId will be used to callback TS code.
      */
-    fun getCurrentLocation(callbackId: Int) {
-        super.callbackId = callbackId
+    fun getCurrentLocation(callBack:(callType: Int, prames: Array<Any>)->Unit) {
+        super.callBack = callBack
         PermissionsUtil.requestPermission(ctx, object : PermissionListener {
             override fun permissionGranted(permission: Array<String>) {
                 val c = Criteria()//Criteria类是设置定位的标准信息（系统会根据你的要求，匹配最适合你的定位供应商），一个定位的辅助信息的类
@@ -31,11 +31,12 @@ class LocationProvider : BaseJSModule() {
                 c.bearingAccuracy = Criteria.ACCURACY_COARSE//设置COARSE精度标准
                 c.accuracy = Criteria.ACCURACY_LOW//设置低精度
                 mListener = LocationChangeListener()
-                LocationUtils.getLocation(ctx, mListener)
+                LocationUtils.getLocation(ctx!!, mListener)
             }
 
             override fun permissionDenied(permission: Array<String>) {
-                JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "用户拒绝了定位权限")
+                callBack(JSCallback.FAIL, arrayOf("用户拒绝了定位权限"))
+                //JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, "用户拒绝了定位权限")
             }
         }, Manifest.permission.ACCESS_COARSE_LOCATION)
 
@@ -47,7 +48,8 @@ class LocationProvider : BaseJSModule() {
          * @param failReason 定位失败的原因
          */
         override fun locationFailed(failReason: String) {
-            JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, failReason)
+            callBack(JSCallback.FAIL, arrayOf(failReason))
+            //JSCallback.callJS(null, null, callbackId, JSCallback.FAIL, failReason)
         }
 
         /**
@@ -58,7 +60,8 @@ class LocationProvider : BaseJSModule() {
             val longitude = location.longitude//经度
             Logger.error(TAG, "getCurrentLocation:纬度 $latitude")
             Logger.error(TAG, "getCurrentLocation:经度 $longitude")
-            JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, String.format("(%s,%s)", latitude, longitude))
+            callBack(JSCallback.SUCCESS, arrayOf(String.format("(%s,%s)", latitude, longitude)))
+            //JSCallback.callJS(null, null, callbackId, JSCallback.SUCCESS, String.format("(%s,%s)", latitude, longitude))
             mListener = null
         }
     }

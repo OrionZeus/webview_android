@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.RelativeLayout
 import com.kuplay.kuplay.R
 import com.kuplay.kuplay.callback.WebViewLoadProgressCallback
+import com.kuplay.kuplay.common.js.JSCallback
 import com.kuplay.kuplay.module.ImagePicker
 import java.io.ByteArrayInputStream
 import java.lang.ref.WeakReference
@@ -239,7 +240,7 @@ class AndroidWebView constructor(private val ctx: Context, attr: AttributeSet? =
 
 
         override fun onShowFileChooser(webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?): Boolean {
-            ImagePicker().chooseImage(0, 1, 1, 1)
+            ImagePicker().chooseImage(0, 1, 1, callBack = { callType, prames -> JSCallback.callJS(null,null, 1, callType, prames)})
 
             return true
         }

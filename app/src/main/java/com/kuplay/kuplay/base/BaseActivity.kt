@@ -156,13 +156,7 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
      */
     private fun gotoBackground() {
         Logger.error("BaseActivity", "App进入后台")
-        if (BaseWebView.isX5) {
-            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as X5Chrome
-            webView.evaluateJavascript(String.format(JS_CALLBACK, ON_APP_PAUSED), null)
-        } else {
-            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as AndroidWebView
-            webView.evaluateJavascript(String.format(JS_CALLBACK, ON_APP_PAUSED), null)
-        }
+        YNWebView.backFrontgrandEvn(String.format(JS_CALLBACK, ON_APP_PAUSED))
     }
 
     /**
@@ -170,13 +164,7 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
      */
     private fun gotoForeground() {
         Logger.error("BaseActivity", "App进入前台")
-        if (BaseWebView.isX5) {
-            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as X5Chrome
-            webView.evaluateJavascript(String.format(JS_CALLBACK, ON_APP_RESUMED), null)
-        } else {
-            val webView = JSEnv.getEnv(JSEnv.WEBVIEW) as AndroidWebView
-            webView.evaluateJavascript(String.format(JS_CALLBACK, ON_APP_RESUMED), null)
-        }
+        YNWebView.backFrontgrandEvn(String.format(JS_CALLBACK, ON_APP_RESUMED))
     }
 
     override fun onDestroy() {

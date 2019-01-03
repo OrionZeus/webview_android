@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
 import android.widget.RelativeLayout
@@ -11,6 +12,7 @@ import com.kuplay.kuplay.R
 import com.kuplay.kuplay.base.BaseActivity
 import com.kuplay.kuplay.base.BaseWebView
 import com.kuplay.kuplay.common.js.JSBridge
+import com.kuplay.kuplay.common.js.JSCallback
 import com.kuplay.kuplay.common.js.JSEnv
 import com.kuplay.kuplay.common.js.JSIntercept
 import com.kuplay.kuplay.module.LocalLanguageMgr
@@ -34,13 +36,22 @@ class MainActivity : BaseWebView() {
      */
     override val layoutResources: Int get() = R.layout.activity_main
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        ynWebView.createYnWebView(this)
+        super.onCreate(savedInstanceState)
+
+
+    }
+
+
     /**
      * As the method name said,this method is used to initialize views on this activity.
      */
     override fun initViews() {
+
         mRlRootView = findViewById(R.id.app_main_rl_root_view)
         mRlRootView.removeAllViews()
-        mRlRootView.addView(if (isX5) mX5 else mAndroidWebView)
+        ynWebView.addYnWebView(mRlRootView)
         status_bar.layoutParams.height = ViewUtil.getStatusBarHeight(this).toInt()
 //        AndroidBug5497Workaround.assistActivity(this)
     }
@@ -51,25 +62,13 @@ class MainActivity : BaseWebView() {
     override fun initData() {
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)// 在setContentView之后，适配顶部状态栏
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)// 适配底部导航栏
-        if (isX5) {
-            mJsIntercept = JSIntercept(this, mX5)
-            mX5?.addJavascriptInterface(JSBridge(mX5, this), JSBridge::class.java.simpleName)
-            mX5?.addJavascriptInterface(mJsIntercept, JSIntercept::class.java.simpleName)
-            X5Chrome.sViewRoot.add(mRlRootView)
-            WebViewManager.addWebView("default", mX5)
-        } else {
-            mJsIntercept = JSIntercept(this, mAndroidWebView)
-            mAndroidWebView?.addJavascriptInterface(JSBridge(mAndroidWebView, this), JSBridge::class.java.simpleName)
-            mAndroidWebView?.addJavascriptInterface(mJsIntercept, JSIntercept::class.java.simpleName)
-            AndroidWebView.sViewRoot.add(mRlRootView)
-            WebViewManager.addWebView("default", mAndroidWebView)
-        }
+        mJsIntercept = ynWebView.addJavaScriptInterface(this,mRlRootView)
         super.addJEV()
-        LocalLanguageMgr().setAppLanguage(0, PrefMgr.getInstance(this).appLan)
+        LocalLanguageMgr().setAppLanguage(PrefMgr.getInstance(this).appLan,callBack = {callType, prames -> JSCallback.callJS(null, null, 0, callType, prames) })
 
         var url = resources.getString(URL_RES_ID)
         if (url.startsWith("/")) {
-            var content = FileUtil.readFile(mJsIntercept.getBootPath() + url)
+            var content = FileUtil.readFile(mJsIntercept.bootPath + url)
             if (content == "") {
                 val stream = this.getAssets().open(url.substring(1))
                 content = FileUtil.readFile(stream)
@@ -86,12 +85,11 @@ class MainActivity : BaseWebView() {
     }
 
     override fun onBackPressed() {
-        if (isX5) mX5?.evaluateJavascript(String.format(BaseActivity.JS_CALLBACK, BaseActivity.ON_BACK_PRESSED), null)
-        else mAndroidWebView?.evaluateJavascript(String.format(BaseActivity.JS_CALLBACK, BaseActivity.ON_BACK_PRESSED), null)
+        ynWebView.evaluateJavascript(String.format(BaseActivity.JS_CALLBACK, BaseActivity.ON_BACK_PRESSED))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        JSEnv.getJsImpl()?.onActivityResult(requestCode, resultCode, data)
+        JSEnv.jsImpl?.onActivityResult(requestCode, resultCode, data!!)
         super.onActivityResult(requestCode, resultCode, data)
     }
 
@@ -109,11 +107,7 @@ class MainActivity : BaseWebView() {
                     val message = intent.getStringExtra("message")
                     val sender = intent.getStringExtra("from_web_view")
                     val callFun = String.format("javascript:window.onWebViewPostMessage('%s','%s')", sender, message)
-                    if (isX5) {
-                        mX5?.evaluateJavascript(callFun, null)
-                    } else {
-                        mAndroidWebView?.evaluateJavascript(callFun, null)
-                    }
+                    ynWebView.evaluateJavascript(callFun)
                 }
             }
         }

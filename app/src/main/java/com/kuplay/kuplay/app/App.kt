@@ -3,6 +3,7 @@ package com.kuplay.kuplay.app
 import android.app.Application
 import android.webkit.WebView
 import com.kuplay.kuplay.base.BaseWebView
+import com.kuplay.kuplay.base.YNWebView
 import com.kuplay.kuplay.util.WebViewUtil
 import com.tencent.smtt.sdk.QbSdk
 
@@ -14,13 +15,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         sAppCtx = this
-        BaseWebView.isX5 = !WebViewUtil.shouldUseAndroidWebView(WebView(sAppCtx), sAppCtx)
-        if (BaseWebView.isX5) {
-            QbSdk.initX5Environment(sAppCtx, object : QbSdk.PreInitCallback {
-                override fun onViewInitFinished(isX5Core: Boolean) {}
-                override fun onCoreInitFinished() {}
-            })
-        }
+        YNWebView.getX5Open(this)
     }
 
     companion object {

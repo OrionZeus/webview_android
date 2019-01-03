@@ -36,13 +36,13 @@ class AppUpdater : BaseJSModule() {
         }
     }
 
-    fun updateApp(callbackId: Int, url: String) {
+    fun updateApp(url: String) {
         PermissionsUtil.requestPermission(ctx, object : PermissionListener {
             override fun permissionDenied(permission: Array<out String>) {}
             override fun permissionGranted(permission: Array<out String>) {
                 this@AppUpdater.downloadUrl = url
                 val updateIntent = Intent(ctx, UpdateAppService::class.java)
-                ctx.bindService(updateIntent, conn, Context.BIND_AUTO_CREATE)
+                ctx!!.bindService(updateIntent, conn, Context.BIND_AUTO_CREATE)
             }
         }, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
     }
@@ -60,26 +60,26 @@ class AppUpdater : BaseJSModule() {
         apkURL = filePath
         Logger.error("TAG", "下载成功\t文件路径为：$filePath")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (ctx.packageManager.canRequestPackageInstalls()) {
+            if (ctx!!.packageManager.canRequestPackageInstalls()) {
                 this.installApk(filePath)
             } else {
-                val packageURI = Uri.parse("package:" + ctx.packageName)
+                val packageURI = Uri.parse("package:" + ctx!!.packageName)
                 val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI)
-                mActivity.startActivityForResult(intent, 10088)
+                activity.startActivityForResult(intent, 10088)
             }
         } else {
             this.installApk(filePath)
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         if (requestCode == 10088) {
             if (resultCode == RESULT_OK) {
                 // 再次执行安装流程，包含权限判等
                 this.prepareInstall(apkURL)
             } else {
                 // 弹框，退出
-                AlertDialog.Builder(ctx)
+                AlertDialog.Builder(ctx!!)
                         .setTitle(R.string.dialog_title_prompt)
                         .setMessage(R.string.tip_please_allow_app_install_unknown_res_apk)
                         .setPositiveButton(R.string.dialog_title_ok) { _, _ -> 0 }
@@ -92,6 +92,7 @@ class AppUpdater : BaseJSModule() {
         }
     }
 
+
     /**
      * 安装Apk
      */
@@ -101,12 +102,12 @@ class AppUpdater : BaseJSModule() {
         val apkFile = File(filePath)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             install.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            val contentUri = FileProvider.getUriForFile(ctx, ctx.packageName + ".fileprovider", apkFile)
+            val contentUri = FileProvider.getUriForFile(ctx!!, ctx!!.packageName + ".fileprovider", apkFile)
             install.setDataAndType(contentUri, "application/vnd.android.package-archive")
         } else {
             install.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive")
         }
-        ctx.startActivity(install)
+        ctx!!.startActivity(install)
     }
 
 

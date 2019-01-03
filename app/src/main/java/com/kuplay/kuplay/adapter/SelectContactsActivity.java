@@ -1,4 +1,4 @@
-package com.kuplay.kuplay.app;
+package com.kuplay.kuplay.adapter;
 
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;

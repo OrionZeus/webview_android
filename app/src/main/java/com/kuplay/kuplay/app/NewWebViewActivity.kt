@@ -39,7 +39,7 @@ class NewWebViewActivity : BaseWebView() {
         mIvBack = findViewById(R.id.app_new_web_view_activity_iv_back)
         mTvTitle = findViewById(R.id.app_new_web_view_activity_tv_title)
         mRlRootView.removeAllViews()
-        mRlRootView.addView(if (isX5) mX5 else mAndroidWebView)
+        ynWebView.addYnWebView(mRlRootView)
         status_bar.layoutParams.height = ViewUtil.getStatusBarHeight(this).toInt()
     }
 
@@ -61,20 +61,8 @@ class NewWebViewActivity : BaseWebView() {
         file.delete()
 
         val url = intent?.getStringExtra("load_url") ?: "https://cn.bing.com"
-
-        if (isX5) {
-            mX5?.addJavascriptInterface(JSBridge(mX5, this), JSBridge::class.java.simpleName)
-            mX5?.addJavascriptInterface(JSIntercept(this, mX5), JSIntercept::class.java.simpleName)
-            X5Chrome.sViewRoot.add(mRlRootView)
-            WebViewManager.addWebView(tag, mX5)
-            mX5?.setInjectContent(url, content)
-        } else {
-            mAndroidWebView?.addJavascriptInterface(JSBridge(mAndroidWebView, this), JSBridge::class.java.simpleName)
-            mAndroidWebView?.addJavascriptInterface(JSIntercept(this, mAndroidWebView), JSIntercept::class.java.simpleName)
-            AndroidWebView.sViewRoot.add(mRlRootView)
-            WebViewManager.addWebView(tag, mAndroidWebView)
-            mAndroidWebView?.setInjectContent(url, content)
-        }
+        val tagStr = tag as String
+        ynWebView.addNewJavaScript(this, mRlRootView, tagStr, url, content)
 
         super.loadUrl(url)
         registerCloseReceiver()
@@ -100,18 +88,14 @@ class NewWebViewActivity : BaseWebView() {
                     val message = intent.getStringExtra("message")
                     val sender = intent.getStringExtra("from_web_view")
                     val callFun = String.format("javascript:window.onWebViewPostMessage('%s','%s')", sender, message)
-                    if (isX5) {
-                        mX5?.evaluateJavascript(callFun, null)
-                    } else {
-                        mAndroidWebView?.evaluateJavascript(callFun, null)
-                    }
+                    ynWebView.evaluateJavascript(callFun)
                 }
             }
         }
     }
 
     override fun onDestroy() {
-        WebViewManager.removeWebView(tag)
+        WebViewManager.removeWebView(this!!.tag!!)
         unregisterReceiver(mCloseReceiver)
         super.onDestroy()
     }

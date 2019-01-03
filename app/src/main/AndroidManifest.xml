@@ -99,7 +99,7 @@
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <!-- 选择联系人 -->
         <activity
-            android:name=".app.SelectContactsActivity"
+            android:name=".adapter.SelectContactsActivity"
             android:label="@string/app_select_contacts_label"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"/>
