@@ -6,11 +6,16 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 
 import com.kuplay.kuplay.base.BaseJSModule;
 import com.kuplay.kuplay.common.js.JSCallback;
+import com.kuplay.kuplay.util.FileUtil;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class CameraPicker extends BaseJSModule {
@@ -27,56 +32,42 @@ public class CameraPicker extends BaseJSModule {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Bitmap bitmap = null;
-        if (resultCode == TAKE_PHOTO){
+        File outputImage=new File(ctx.getExternalCacheDir(),"outputImage.jpg");
+        Log.d("z1u24", String.valueOf(resultCode));
+        Log.d("z1u24", String.valueOf(data));
+        if (requestCode == TAKE_PHOTO){
             if (null != data) {
-                Uri uri =data.getData();
-                if (uri != null) {
-                    bitmap = BitmapFactory.decodeFile(uri.getPath());
-                    if (bitmap == null) {
-                        Bundle bundle = data.getExtras();
-                        if (bundle != null) {
-                            bitmap = (Bitmap) bundle.get("data");
-                        }
-                    }
-                }
+                 Bundle bundle = data.getExtras();
+                 if (bundle != null) {
+                     bitmap = (Bitmap) bundle.get("data");
+                     if(bitmap != null){
+                         saveBitmapASPng(bitmap,outputImage);
+                     }
+                 }
             }
             if (bitmap == null){
                 JSCallback.callJS(getActivity(), getWebView(), this.callbackId, JSCallback.FAIL, "未选择图片");
                 return;
             }
-            String base64 = bitmapToBase64(bitmap);
+            String base64 = FileUtil.fileToBase64(outputImage);
+            JSCallback.callJS(getActivity(),getWebView(),this.callbackId,JSCallback.SUCCESS,base64);
         }
     }
 
-
-    public static String bitmapToBase64(Bitmap bitmap) {
-
-        String result = null;
-        ByteArrayOutputStream baos = null;
-        try {
-            if (bitmap != null) {
-                baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-
-                baos.flush();
-                baos.close();
-
-                byte[] bitmapBytes = baos.toByteArray();
-                result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT);
-            }
+    //bitmap转png
+    private void saveBitmapASPng(Bitmap bitmap, File outputImage){
+        try{
+            FileOutputStream out = new FileOutputStream(outputImage);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (baos != null) {
-                    baos.flush();
-                    baos.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
-        return result;
     }
+
+
 
 }
