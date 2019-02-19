@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".app.App"
-    android:background="@drawable/splash">
-    <!--内容-->
+    tools:context=".app.MainActivity">
+
     <RelativeLayout
-        android:id="@+id/app_main_rl_content"
+        android:id="@+id/app_main_rl_root_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-    <!--动画父布局-->
-    <LinearLayout
-        android:id="@+id/app_main_ll_anim_parent"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/animation_background"
-        android:visibility="gone">
-        <!--动画-->
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/app_main_anim_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
-</FrameLayout>
+
+    <include layout="@layout/layout_fake_status_bar_view" />
+
+</RelativeLayout>
