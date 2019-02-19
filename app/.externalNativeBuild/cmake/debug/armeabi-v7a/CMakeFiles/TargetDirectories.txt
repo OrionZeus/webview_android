@@ -1,3 +1,0 @@
-B:/AndroidWorkSpace/CompanyProject/webview_android/app/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeFiles/native-lib.dir
-B:/AndroidWorkSpace/CompanyProject/webview_android/app/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeFiles/edit_cache.dir
-B:/AndroidWorkSpace/CompanyProject/webview_android/app/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeFiles/rebuild_cache.dir

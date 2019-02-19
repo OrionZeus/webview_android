@@ -1,3 +1,0 @@
-B:/AndroidWorkSpace/CompanyProject/webview_android/app/.externalNativeBuild/cmake/release/arm64-v8a/CMakeFiles/native-lib.dir
-B:/AndroidWorkSpace/CompanyProject/webview_android/app/.externalNativeBuild/cmake/release/arm64-v8a/CMakeFiles/edit_cache.dir
-B:/AndroidWorkSpace/CompanyProject/webview_android/app/.externalNativeBuild/cmake/release/arm64-v8a/CMakeFiles/rebuild_cache.dir
