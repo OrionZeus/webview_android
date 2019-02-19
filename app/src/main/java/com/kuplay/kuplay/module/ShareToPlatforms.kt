@@ -6,24 +6,8 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.graphics.Picture
 import android.os.Environment
-
-import com.github.dfqin.grantor.PermissionListener
-import com.github.dfqin.grantor.PermissionsUtil
-import com.iqos.qrscanner.utils.QRCodeUtils
-import com.kuplay.kuplay.R
-import com.kuplay.kuplay.base.BaseJSModule
-import com.kuplay.kuplay.common.js.JSCallback
-import com.kuplay.kuplay.common.js.JSEnv
-import com.kuplay.kuplay.util.FileUtil
-import com.kuplay.kuplay.util.Logger
-import com.kuplay.kuplay.widget.AndroidWebView
-import com.kuplay.kuplay.widget.X5Chrome
-
-import java.io.File
-import java.util.HashMap
-
+import android.util.Log
 import cn.sharesdk.framework.Platform
 import cn.sharesdk.framework.PlatformActionListener
 import cn.sharesdk.line.Line
@@ -32,13 +16,17 @@ import cn.sharesdk.tencent.qq.QQ
 import cn.sharesdk.tencent.qzone.QZone
 import cn.sharesdk.wechat.friends.Wechat
 import cn.sharesdk.wechat.moments.WechatMoments
-import com.kuplay.kuplay.base.YNWebView
+import com.github.dfqin.grantor.PermissionListener
+import com.github.dfqin.grantor.PermissionsUtil
+import com.iqos.qrscanner.utils.QRCodeUtils
+import com.kuplay.kuplay.R
+import com.kuplay.pi_framework.Util.FileUtil
+import com.kuplay.pi_framework.base.BaseJSModule
+import com.kuplay.pi_framework.webview.YNWebView
+import java.io.File
+import java.util.HashMap
 
-/**
- * Created by "iqos_jay@outlook.com" on 2018/7/16.
- * ShareToPlatforms is a bridge,it will be called by js.
- */
-class ShareToPlatforms : BaseJSModule() {
+class ShareToPlatforms(ynWebView: YNWebView) : BaseJSModule(ynWebView) {
     private var platform: Int = 0
 
     /**
@@ -113,20 +101,20 @@ class ShareToPlatforms : BaseJSModule() {
                         oks.setPlatform(getPlatformName(platform))
                     oks.callback = object : PlatformActionListener {
                         override fun onComplete(platform: Platform, i: Int, hashMap: HashMap<String, Any>) {
-                            Logger.error(TAG, "分享完成")
+                            Log.d(TAG, "分享完成")
                             FileUtil.removeFile(appIconFile)
-                            callBack(JSCallback.SUCCESS, arrayOf(""))
+                            callBack(BaseJSModule.SUCCESS, arrayOf(""))
                         }
 
                         override fun onError(platform: Platform, i: Int, throwable: Throwable) {
-                            Logger.error(TAG, "分享出错")
+                            Log.d(TAG, "分享出错")
                             FileUtil.removeFile(appIconFile)
-                            callBack(JSCallback.FAIL, arrayOf(""))
+                            callBack(BaseJSModule.FAIL, arrayOf(""))
                         }
 
                         override fun onCancel(platform: Platform, i: Int) {
-                            Logger.error(TAG, "分享取消")
-                            callBack(JSCallback.FAIL, arrayOf(""))
+                            Log.d(TAG, "分享取消")
+                            callBack(BaseJSModule.FAIL, arrayOf(""))
                             FileUtil.removeFile(appIconFile)
                         }
                     }
@@ -200,7 +188,6 @@ class ShareToPlatforms : BaseJSModule() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     /**
@@ -217,20 +204,20 @@ class ShareToPlatforms : BaseJSModule() {
             oks.setPlatform(platform)
         oks.callback = object : PlatformActionListener {
             override fun onComplete(platform: Platform, i: Int, hashMap: HashMap<String, Any>) {
-                Logger.error(TAG, "分享完成")
-                callBack(JSCallback.SUCCESS, arrayOf(""))
+                Log.d(TAG, "分享完成")
+                callBack(BaseJSModule.SUCCESS, arrayOf(""))
                 //JSCallback.callJS(null, null, getCallbackId(), JSCallback.getSUCCESS(), "")
             }
 
             override fun onError(platform: Platform, i: Int, throwable: Throwable) {
-                Logger.error(TAG, "分享出错")
-                callBack(JSCallback.FAIL, arrayOf(""))
+                Log.d(TAG, "分享出错")
+                callBack(BaseJSModule.FAIL, arrayOf(""))
                 //JSCallback.callJS(null, null, getCallbackId(), JSCallback.getFAIL(), "")
             }
 
             override fun onCancel(platform: Platform, i: Int) {
-                Logger.error(TAG, "分享取消")
-                callBack(JSCallback.FAIL, arrayOf(""))
+                Log.d(TAG, "分享取消")
+                callBack(BaseJSModule.FAIL, arrayOf(""))
                 //JSCallback.callJS(null, null, getCallbackId(), JSCallback.getFAIL(), "")
             }
         }
@@ -241,34 +228,15 @@ class ShareToPlatforms : BaseJSModule() {
         PermissionsUtil.requestPermission(ctx, object : PermissionListener {
             override fun permissionGranted(permission: Array<String>) {
                 try {
-                    val mWebView = JSEnv.getEnv(JSEnv.WEBVIEW)
-                    if (mWebView is AndroidWebView) {
-                        val androidWebView = mWebView as AndroidWebView?
-                        androidWebView!!.post {
-                            val snapShot = androidWebView.capturePicture()
-                            val bmp = Bitmap.createBitmap(snapShot.width, snapShot.height, Bitmap.Config.ARGB_8888)
-                            val canvas = Canvas(bmp)
-                            snapShot.draw(canvas)
-                            FileUtil.saveBitmapFile(bmp, fileDirPath) { callBack(JSCallback.SUCCESS, arrayOf("")) }
-                        }
-                    } else {
-                        val x5Chrome = mWebView as X5Chrome?
-                        x5Chrome!!.post {
-                            val contentWidth = x5Chrome.getContentWidth()
-                            val contentHeight = x5Chrome.getContentHeight()
-                            val bitmap = Bitmap.createBitmap(contentWidth, contentHeight, Bitmap.Config.RGB_565)
-                            val canvas = Canvas(bitmap)
-                            x5Chrome.getX5WebViewExtension().snapshotWholePage(canvas, false, false)
-                            FileUtil.saveBitmapFile(bitmap, fileDirPath) { callBack(JSCallback.SUCCESS, arrayOf("")) }
-                        }
+                    yn.snapShotInWebView {
+                        FileUtil.saveBitmapFile(it, fileDirPath) { callBack(BaseJSModule.SUCCESS, arrayOf("")) }
                     }
                 } catch (e: Exception) {
-                    Logger.error("创建文件失败", e.message)
-                    callBack(JSCallback.FAIL, arrayOf(""))
+                    Log.d("创建文件失败", e.message)
+                    callBack(BaseJSModule.FAIL, arrayOf(""))
                 }
 
             }
-
             override fun permissionDenied(permission: Array<String>) {
 
             }
@@ -308,23 +276,23 @@ class ShareToPlatforms : BaseJSModule() {
             oks.setPlatform(platform)
         oks.callback = object : PlatformActionListener {
             override fun onComplete(platform: Platform, i: Int, hashMap: HashMap<String, Any>) {
-                Logger.error(TAG, "分享完成")
+                Log.d(TAG, "分享完成")
                 FileUtil.removeFile(fileDirPath)
-                callBack(JSCallback.SUCCESS, arrayOf(""))
+                callBack(BaseJSModule.SUCCESS, arrayOf(""))
                 //JSCallback.callJS(null, null, getCallbackId(), JSCallback.getSUCCESS(), "")
             }
 
             override fun onError(platform: Platform, i: Int, throwable: Throwable) {
-                Logger.error(TAG, "分享出错")
+                Log.d(TAG, "分享出错")
                 FileUtil.removeFile(fileDirPath)
-                callBack(JSCallback.FAIL, arrayOf(""))
+                callBack(BaseJSModule.FAIL, arrayOf(""))
                 //JSCallback.callJS(null, null, getCallbackId(), JSCallback.getFAIL(), "")
             }
 
             override fun onCancel(platform: Platform, i: Int) {
-                Logger.error(TAG, "分享取消")
+                Log.d(TAG, "分享取消")
                 FileUtil.removeFile(fileDirPath)
-                callBack(JSCallback.FAIL, arrayOf(""))
+                callBack(BaseJSModule.FAIL, arrayOf(""))
                 //JSCallback.callJS(null, null, getCallbackId(), JSCallback.getFAIL(), "")
             }
         }
