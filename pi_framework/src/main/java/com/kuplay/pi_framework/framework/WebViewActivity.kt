@@ -41,7 +41,6 @@ class WebViewActivity : BaseWebView() {
         addJEV(this)
         super.onCreate(savedInstanceState)
 
-
     }
 
 

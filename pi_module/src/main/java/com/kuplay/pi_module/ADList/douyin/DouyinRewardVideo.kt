@@ -1,9 +1,6 @@
 package com.kuplay.pi_module.ADList.douyin
 
-import android.annotation.SuppressLint
-import android.os.Handler
-import android.os.Message
-import android.widget.Toast
+
 import com.bytedance.sdk.openadsdk.*
 import com.kuplay.pi_framework.base.BaseJSModule
 import com.kuplay.pi_framework.framework.CallJSRunnable

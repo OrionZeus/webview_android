@@ -6,6 +6,13 @@ import dalvik.system.DexFile
 import java.lang.reflect.Array
 import java.lang.reflect.Field
 import java.util.ArrayList
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.util.Log
+import dalvik.system.PathClassLoader
+import dalvik.system.DexClassLoader
+import java.io.File
+
 
 object CodeUtil {
     /**
@@ -79,11 +86,19 @@ object CodeUtil {
                     val s1 = entries.nextElement()
                     if (s1.contains(appName) || s1.contains(pf) || s1.contains(pm)) {
                         if (clazz.isAssignableFrom(Class.forName(s1))) {
-                            classes.add(Class.forName(s1));
+                            classes.add(Class.forName(s1))
                         }
                     }
                 }
             }
+
+//            val apkPath = "/android_asset/demo.jar"
+//            val file = File(apkPath)
+//            val pathClassLoader = YNWebView.sAppCtx.classLoader as PathClassLoader
+//            val dexClassLoader = DexClassLoader(apkPath, file.getParent() + "/optimizedDirectory/", "", pathClassLoader)
+
+
+
         } catch (e: NoSuchFieldException) {
             e.printStackTrace()
         } catch (e: IllegalAccessException) {
@@ -92,5 +107,6 @@ object CodeUtil {
 
         return classes
     }
+
 
 }
