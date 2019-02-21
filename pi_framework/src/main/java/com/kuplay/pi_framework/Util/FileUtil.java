@@ -137,6 +137,36 @@ public class FileUtil {
         return BitmapFactory.decodeFile(path);
     }
 
+    public static String bitmapToBase64(Bitmap bitmap,Integer quality) {
+
+        String result = null;
+        ByteArrayOutputStream baos = null;
+        try {
+            if (bitmap != null) {
+                baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, quality, baos);
+
+                baos.flush();
+                baos.close();
+
+                byte[] bitmapBytes = baos.toByteArray();
+                result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (baos != null) {
+                    baos.flush();
+                    baos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
     /**
      * base64字符串转文件
      *
@@ -377,6 +407,9 @@ public class FileUtil {
             file.delete();
         }
     }
+
+
+
 
 
     public interface FileCallback {

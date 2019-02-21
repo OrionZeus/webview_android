@@ -82,7 +82,7 @@ class ImagePicker(ynWebView: YNWebView) : BaseJSModule(ynWebView) {
      * Change the image to te byte arrays might take much time,
      * in order not to cause ANR, use thread asynchronous.
      */
-    private class GetImageContenTask (private  val callBack:(callType: Int, prames: Array<Any>)->Unit) : AsyncTask<String, Void, String>() {
+    private class GetImageContenTask (private val quality:Int,private  val callBack:(callType: Int, prames: Array<Any>)->Unit) : AsyncTask<String, Void, String>() {
 
         override fun doInBackground(vararg strings: String): String? {
 
@@ -92,7 +92,8 @@ class ImagePicker(ynWebView: YNWebView) : BaseJSModule(ynWebView) {
             }
 
             try {
-                return FileUtil.fileToBase64(File(path))
+                val bmp = FileUtil.file2Bitmap(path)
+                return FileUtil.bitmapToBase64(bmp,quality)
             } catch (e: Exception) {
                 e.printStackTrace()
                 return null
@@ -170,7 +171,7 @@ class ImagePicker(ynWebView: YNWebView) : BaseJSModule(ynWebView) {
      * This method will be called by js.
      *
      */
-    fun getContent(callBack:(callType: Int, prames: Array<Any>)->Unit) {
+    fun getContent(quality:Int,callBack:(callType: Int, prames: Array<Any>)->Unit) {
         if (!this.path.startsWith("file://")) {
             callBack(BaseJSModule.FAIL, arrayOf("取不到图片内容 1"))
             return
@@ -179,7 +180,7 @@ class ImagePicker(ynWebView: YNWebView) : BaseJSModule(ynWebView) {
         val path = this.path.substring("file://".length)
 
         try {
-            GetImageContenTask(callBack).execute(path)
+            GetImageContenTask(quality,callBack).execute(path)
         } catch (e: Exception) {
             e.printStackTrace()
             callBack(BaseJSModule.FAIL, arrayOf("ImagePicker getContent Failed!"))

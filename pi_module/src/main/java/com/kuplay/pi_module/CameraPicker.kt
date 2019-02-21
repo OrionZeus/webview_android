@@ -67,15 +67,19 @@ class CameraPicker(ynWebView: YNWebView) : BaseJSModule(ynWebView) {
 
     }
 
+    fun getContent(quality:Int,callBack:(callType: Int, prames: Array<Any>)->Unit){
+        val bmp = FileUtil.file2Bitmap(mCurrentPhotoPath)
+        val base64 = FileUtil.bitmapToBase64(bmp,quality)
+        if (base64 != "") {
+            callBack(BaseJSModule.SUCCESS, arrayOf(base64))
+        }
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == TAKE_PHOTO) {
-            val base64 = FileUtil.fileToBase64(File(mCurrentPhotoPath))
-            if (base64 != "") {
-                callBack(BaseJSModule.SUCCESS, arrayOf(base64))
-
-            }
+            this.callBack(BaseJSModule.SUCCESS, arrayOf(mCurrentPhotoPath))
         }
     }
 

@@ -88,7 +88,6 @@ dependencies {
     implementation 'com.github.promeg:tinypinyin-lexicons-android-cncity:2.0.3'
     implementation 'com.github.dfqin:grantor:2.5'
     implementation 'com.github.z1u24:QRScanner:v3.0.0'
-    implementation(name: 'open_ad_sdk', ext: 'aar')
     implementation project(':pi_framework')
     implementation project(':pi_module')
 }

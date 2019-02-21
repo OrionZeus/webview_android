@@ -92,11 +92,6 @@ object CodeUtil {
                 }
             }
 
-//            val apkPath = "/android_asset/demo.jar"
-//            val file = File(apkPath)
-//            val pathClassLoader = YNWebView.sAppCtx.classLoader as PathClassLoader
-//            val dexClassLoader = DexClassLoader(apkPath, file.getParent() + "/optimizedDirectory/", "", pathClassLoader)
-
 
 
         } catch (e: NoSuchFieldException) {

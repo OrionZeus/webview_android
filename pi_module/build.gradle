@@ -63,6 +63,5 @@ dependencies {
     implementation 'com.github.GaiaWorld:Argon2Hash:v1.0'
     implementation project(':pi_framework')
     api(name: 'open_ad_sdk', ext: 'aar')
-    //implementation fileTree(dir: 'libs', include: ['*.aar'])
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.6'
 }
